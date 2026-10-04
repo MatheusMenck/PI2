@@ -1,8 +1,16 @@
 import './Login.css'
 
-function Login() {
+function Login({ onNavigate }) {
   function handleSubmit(event) {
     event.preventDefault()
+  }
+
+  function handleGoToCodeValidation() {
+    if (onNavigate) {
+      onNavigate('code-validation')
+    } else {
+      window.location.hash = 'code-validation'
+    }
   }
 
   return (
@@ -21,6 +29,13 @@ function Login() {
           <input id="password" name="password" type="password" autoComplete="current-password" />
           <button type="submit">Entrar</button>
         </form>
+        <button
+          type="button"
+          className="btn-code-validation"
+          onClick={handleGoToCodeValidation}
+        >
+          Primeiro acesso
+        </button>
       </section>
     </main>
   )
