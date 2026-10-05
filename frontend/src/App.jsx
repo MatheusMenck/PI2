@@ -1,35 +1,46 @@
 import { useState, useEffect } from 'react'
 import Login from './pages/Login'
-import CodeValidation from './pages/PrimeiroAcessoToken'
+import PrimeiroAcessoToken from './pages/PrimeiroAcessoToken'
+import Alunos from './pages/Alunos'
+
+const PAGINAS = {
+  login: Login,
+  primeiroacessotoken: PrimeiroAcessoToken,
+  alunos: Alunos,
+}
 
 function App() {
-  const [currentPage, setCurrentPage] = useState(() => {
-    return window.location.hash === '#code-validation' ? 'code-validation' : 'login'
+  const [paginaAtual, setPaginaAtual] = useState(() => {
+    const nomeNaUrl = window.location.pathname.replace('/', '').toLowerCase()
+    return nomeNaUrl || 'alunos' 
   })
 
   useEffect(() => {
-    function handleHashChange() {
-      if (window.location.hash === '#code-validation') {
-        setCurrentPage('code-validation')
-      } else {
-        setCurrentPage('login')
-      }
+    function atualizarPagina() {
+      const nomeNaUrl = window.location.pathname.replace('/', '').toLowerCase()
+      setPaginaAtual(nomeNaUrl || 'alunos')
     }
-
-    window.addEventListener('hashchange', handleHashChange)
-    return () => window.removeEventListener('hashchange', handleHashChange)
+ 
+    window.addEventListener('popstate', atualizarPagina)
+    return () => window.removeEventListener('popstate', atualizarPagina)
   }, [])
 
-  function navigateTo(page) {
-    window.location.hash = page === 'code-validation' ? 'code-validation' : ''
-    setCurrentPage(page)
+  function navegar(nomePagina) {
+    const rota = `/${nomePagina}`
+    window.history.pushState({}, '', rota)
+    setPaginaAtual(nomePagina.toLowerCase())
   }
 
-  if (currentPage === 'code-validation') {
-    return <CodeValidation onBack={() => navigateTo('login')} />
-  }
+  const ComponenteTela = PAGINAS[paginaAtual] || Alunos
 
-  return <Login onNavigate={navigateTo} />
+  return (
+    <ComponenteTela
+      rota={paginaAtual}
+      aoNavegar={navegar}
+      onNavigate={navegar}
+      onBack={() => navegar('Login')}
+    />
+  )
 }
 
 export default App

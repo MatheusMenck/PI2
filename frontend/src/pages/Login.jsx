@@ -29,10 +29,7 @@ function Login({ onNavigate }) {
           <input id="password" name="password" type="password" autoComplete="current-password" />
           <button type="submit">Entrar</button>
         </form>
-        <button
-          type="button"
-          className="btn-code-validation"
-          onClick={handleGoToCodeValidation}
+        <button type="button" className="btn-code-validation"onClick={handleGoToCodeValidation}
         >
           Primeiro acesso
         </button>
