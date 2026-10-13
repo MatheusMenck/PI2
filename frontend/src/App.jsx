@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import PrimeiroAcessoToken from './pages/PrimeiroAcessoToken'
 import Alunos from './pages/Alunos'
+import RecuperacaoSenha from './pages/RecuperacaoSenha'
 
 const PAGINAS = {
   login: Login,
   primeiroacessotoken: PrimeiroAcessoToken,
   alunos: Alunos,
+  recuperacaosenha: RecuperacaoSenha,
 }
 
 function App() {

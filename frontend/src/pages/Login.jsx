@@ -7,9 +7,15 @@ function Login({ onNavigate }) {
 
   function handleGoToCodeValidation() {
     if (onNavigate) {
-      onNavigate('code-validation')
+      onNavigate('primeiroacessotoken')
     } else {
-      window.location.hash = 'code-validation'
+      window.location.hash = 'primeiroacessotoken'
+    }
+  }
+
+  function handleGoToPasswordRecovery() {
+    if (onNavigate) {
+      onNavigate('recuperacaosenha')
     }
   }
 
@@ -29,6 +35,13 @@ function Login({ onNavigate }) {
           <input id="password" name="password" type="password" autoComplete="current-password" />
           <button type="submit">Entrar</button>
         </form>
+        <button
+          type="button"
+          className="btn-password-recovery"
+          onClick={handleGoToPasswordRecovery}
+        >
+          Esqueci minha senha
+        </button>
         <button type="button" className="btn-code-validation"onClick={handleGoToCodeValidation}
         >
           Primeiro acesso
