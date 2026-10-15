@@ -3,12 +3,14 @@ import Login from './pages/Login'
 import PrimeiroAcessoToken from './pages/PrimeiroAcessoToken'
 import Alunos from './pages/Alunos'
 import RecuperacaoSenha from './pages/RecuperacaoSenha'
+import PrimeiroAcesso from './pages/PrimeiroAcesso'
 
 const PAGINAS = {
   login: Login,
   primeiroacessotoken: PrimeiroAcessoToken,
   alunos: Alunos,
   recuperacaosenha: RecuperacaoSenha,
+  primeiroacesso: PrimeiroAcesso,
 }
 
 function App() {

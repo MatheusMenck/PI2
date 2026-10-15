@@ -3,7 +3,7 @@ import './PrimeiroAcessoToken.css'
 
 const CODE_LENGTH = 4
 
-function PrimeiroAcesso() {
+function PrimeiroAcesso({ onNavigate }) {
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(''))
   const inputsRef = useRef([])
 
@@ -73,6 +73,7 @@ function PrimeiroAcesso() {
 
   function handleSubmit(event) {
     event.preventDefault()
+    onNavigate('primeiroacesso')
   }
 
   return (
