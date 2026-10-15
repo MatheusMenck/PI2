@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: #1e293b;
+  background: radial-gradient(circle at center, #232d40 0%, #151b27 60%, #0d1017 100%);
 }
 
 .login-card {
@@ -148,4 +148,31 @@
   .login-card {
     padding: 20px 16px;
   }
+}
+
+/* Botão de primeiro acesso / navegação para CodeValidation */
+.btn-code-validation {
+  display: block;
+  width: fit-content;
+  margin: 14px auto 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #7198d5;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease;
+}
+
+.btn-code-validation:hover {
+  color: #bfdbfe;
+}
+
+.btn-code-validation:focus-visible {
+  outline: 2px solid #bfdbfe;
+  outline-offset: 3px;
+  border-radius: 2px;
 }
