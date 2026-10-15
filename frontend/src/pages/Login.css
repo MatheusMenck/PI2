@@ -167,6 +167,30 @@
   transition: color 150ms ease;
 }
 
+.btn-password-recovery {
+  display: block;
+  width: fit-content;
+  margin: 11px auto 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #7198d5;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 150ms ease;
+}
+
+.btn-password-recovery:hover { color: #bfdbfe; }
+
+.btn-password-recovery:focus-visible {
+  outline: 2px solid #bfdbfe;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 .btn-code-validation:hover {
   color: #bfdbfe;
 }
