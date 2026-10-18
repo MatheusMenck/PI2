@@ -318,9 +318,44 @@
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
 }
 
-.modal-perfil p {
+.modal-perfil .perfil-info {
+  margin-bottom: 20px;
+  padding-right: 20px;
+}
+
+.modal-perfil .perfil-info h3 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.modal-perfil .perfil-info p {
   margin: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
+  color: #64748b;
+  word-break: break-all;
+}
+
+.botao-logout {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.botao-logout:hover {
+  background-color: #dc2626;
+}
+
+.botao-logout:active {
+  transform: scale(0.98);
 }
 
 .fechar-modal {

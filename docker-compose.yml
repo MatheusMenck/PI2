@@ -6,6 +6,7 @@ services:
     container_name: laravel_api
     volumes:
       - ./backend:/var/www
+      - /var/www/vendor
     ports:
       - "8000:8000"
     networks:

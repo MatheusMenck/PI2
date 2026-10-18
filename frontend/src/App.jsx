@@ -13,14 +13,16 @@ const PAGINAS = {
 
 function App() {
   const [paginaAtual, setPaginaAtual] = useState(() => {
-    const nomeNaUrl = window.location.pathname.replace('/', '').toLowerCase()
-    return nomeNaUrl || 'alunos' 
+    const nomeNaUrl = window.location.pathname.replace(/^\/+/, '').toLowerCase()
+    if (nomeNaUrl) return nomeNaUrl
+    const token = localStorage.getItem('auth_token')
+    return token ? 'alunos' : 'login'
   })
 
   useEffect(() => {
     function atualizarPagina() {
-      const nomeNaUrl = window.location.pathname.replace('/', '').toLowerCase()
-      setPaginaAtual(nomeNaUrl || 'alunos')
+      const nomeNaUrl = window.location.pathname.replace(/^\/+/, '').toLowerCase()
+      setPaginaAtual(nomeNaUrl || (localStorage.getItem('auth_token') ? 'alunos' : 'login'))
     }
  
     window.addEventListener('popstate', atualizarPagina)
@@ -28,12 +30,13 @@ function App() {
   }, [])
 
   function navegar(nomePagina) {
-    const rota = `/${nomePagina}`
+    const limpo = (nomePagina || '').replace(/^\/+/, '').toLowerCase()
+    const rota = `/${limpo}`
     window.history.pushState({}, '', rota)
-    setPaginaAtual(nomePagina.toLowerCase())
+    setPaginaAtual(limpo)
   }
 
-  const ComponenteTela = PAGINAS[paginaAtual] || Alunos
+  const ComponenteTela = PAGINAS[paginaAtual] || (localStorage.getItem('auth_token') ? Alunos : Login)
 
   return (
     <ComponenteTela
