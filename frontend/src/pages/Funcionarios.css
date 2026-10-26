@@ -472,3 +472,169 @@
     width: 100%;
   }
 }
+
+.func-fundo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(7, 12, 21, 0.4);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.func-modal {
+  width: max(25vw, 360px);
+  max-width: 100%;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: func-modal-entrada 0.2s ease-out;
+}
+
+@keyframes func-modal-entrada {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+.func-modal-cabecalho {
+  flex: 0 0 70px;
+  padding: 0 13px;
+  background: var(--func-azul-bebe);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.func-modal-cabecalho h3 {
+  margin: 0;
+  flex: 1;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.func-modal-fechar {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: grid;
+  cursor: pointer;
+}
+
+.func-modal-corpo {
+  flex: 1;
+  padding: 12px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.func-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 15px;
+}
+
+.func-campo input,
+.func-campo select {
+  width: 100%;
+  height: 32px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 4px;
+  background: #f6f6f6;
+  color: #000;
+  font: inherit;
+  font-size: 15px;
+}
+
+.func-campo input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.func-campo-select {
+  position: relative;
+}
+
+.func-campo-select select {
+  appearance: none;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.func-campo-select svg {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.func-aviso {
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 4px;
+  background: rgba(96, 170, 255, 0.5);
+  color: #505050;
+  font-size: 15px;
+}
+
+.func-aviso-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #000;
+}
+
+.func-aviso-topo strong {
+  font-weight: 400;
+}
+
+.func-aviso p {
+  margin: 0;
+  text-align: justify;
+}
+
+.func-modal-rodape {
+  padding: 12px 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.func-btn {
+  min-width: 85px;
+  height: 26px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 5px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.func-btn:hover {
+  filter: brightness(0.95);
+}
+
+.func-btn--cancelar {
+  background: #fff;
+  color: #000;
+}
+
+.func-btn--adicionar {
+  background: #0369a1;
+  color: #fff;
+}
+
+.func-modal input:focus-visible,
+.func-modal select:focus-visible {
+  outline: 2px solid var(--func-azul-bebe);
+}
