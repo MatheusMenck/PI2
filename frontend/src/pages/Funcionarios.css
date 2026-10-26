@@ -1,0 +1,474 @@
+.func-pagina,
+.func-pagina * {
+  box-sizing: border-box;
+}
+
+.func-pagina {
+  --func-menu: #1e293b;
+  --func-fundo: rgba(233, 233, 233, 0.93);
+  --func-azul-bebe: #60aaff;
+  --func-verde: #059669;
+  --func-rosa: #f43f5e;
+  --func-sombra: 4px 4px 4px rgba(0, 0, 0, 0.25);
+
+  min-height: 100svh;
+  display: flex;
+  background: var(--func-fundo);
+  color: #000;
+  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+}
+
+.func-menu {
+  width: 92px;
+  flex: 0 0 92px;
+  min-height: 100svh;
+  background: var(--func-menu);
+  color: #fff;
+  box-shadow: 4px 0 4px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+}
+
+.func-logo {
+  height: 92px;
+  background: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.func-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.func-nav {
+  display: flex;
+  flex-direction: column;
+  padding-top: 14px;
+}
+
+.func-nav button,
+.func-admin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.func-nav button {
+  height: 69px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  justify-content: flex-start;
+  transition: color 0.15s ease;
+}
+
+.func-nav button:hover {
+  color: var(--func-azul-bebe);
+}
+
+.func-admin {
+  margin-top: auto;
+  padding: 0 4px 10px;
+  color: var(--func-azul-bebe);
+}
+
+.func-principal {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.func-cabecalho {
+  height: 92px;
+  padding: 0 12px 0 27px;
+  background: var(--func-menu);
+  color: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.func-cabecalho h1 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.func-perfil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.func-conteudo {
+  width: 100%;
+  max-width: 1156px;
+  padding: 22px 28px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.func-titulo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.func-titulo h2 {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.func-titulo p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.func-adicionar {
+  height: 52px;
+  margin-top: 14px;
+  padding: 14px 24px;
+  border: 0;
+  border-radius: 8px;
+  background: #0369a1;
+  color: #fff;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  transition: filter 0.15s ease;
+}
+
+.func-adicionar:hover {
+  filter: brightness(1.1);
+}
+
+.func-filtros {
+  margin-top: 36px;
+  padding: 12px;
+  border: 0.5px solid #000;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--func-sombra);
+  display: flex;
+  gap: 12px;
+}
+
+.func-busca {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 5px;
+  background: #f9f9f9;
+  box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.func-busca input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+}
+
+.func-select {
+  position: relative;
+  width: 169px;
+  flex-shrink: 0;
+  height: 34px;
+  border-radius: 5px;
+  background: #f9f9f9;
+  box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
+}
+
+.func-select select {
+  width: 100%;
+  height: 100%;
+  padding: 0 28px 0 4px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 16px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.func-select svg {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.func-contadores {
+  margin: 11px 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.func-contador {
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 5px;
+  background: #f9f9f9;
+  box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.func-contador i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--func-verde);
+}
+
+.func-contador--ativo {
+  background: rgba(5, 150, 105, 0.25);
+  color: var(--func-verde);
+}
+
+.func-contador--inativo {
+  background: rgba(244, 63, 94, 0.25);
+  color: var(--func-rosa);
+}
+
+.func-contador--inativo i {
+  background: var(--func-rosa);
+}
+
+.func-tabela {
+  flex: 1;
+  min-height: 300px;
+  padding: 21px 13px;
+  border: 0.5px solid #000;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: var(--func-sombra);
+  overflow-x: auto;
+}
+
+.func-linha {
+  min-width: 760px;
+  display: grid;
+  grid-template-columns: minmax(200px, 3fr) minmax(220px, 3fr) minmax(100px, 1.4fr) 130px 90px;
+  align-items: center;
+  column-gap: 12px;
+  padding: 0 7px;
+  font-size: 14px;
+}
+
+.func-linha:not(.func-linha--cabecalho) {
+  height: 64px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.func-linha--cabecalho {
+  height: 34px;
+  margin-bottom: 14px;
+  border-radius: 5px;
+  background: #f9f9f9;
+  box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
+  font-size: 16px;
+}
+
+.func-centro {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+.func-nome {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.func-nome div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.func-nome strong {
+  font-weight: 400;
+}
+
+.func-nome small {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+}
+
+.func-avatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border: 0.3px solid #000;
+  border-radius: 50%;
+  background: var(--func-azul-bebe);
+  color: #fff;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+}
+
+.func-email {
+  overflow-wrap: anywhere;
+}
+
+.func-tag {
+  min-width: 74px;
+  height: 17px;
+  border-radius: 15px;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+}
+
+.func-tag--ativo {
+  background: rgba(5, 150, 105, 0.25);
+  color: var(--func-verde);
+}
+
+.func-tag--inativo {
+  background: rgba(244, 63, 94, 0.25);
+  color: var(--func-rosa);
+}
+
+.func-acoes {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.func-acao {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #000;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.func-acao--bloquear {
+  color: var(--func-rosa);
+}
+
+.func-acao:hover {
+  opacity: 0.6;
+}
+
+.func-vazio {
+  min-width: 760px;
+  margin: 24px 0 0;
+  text-align: center;
+  color: #4b5563;
+}
+
+.func-pagina button:focus-visible,
+.func-pagina select:focus-visible,
+.func-busca:focus-within {
+  outline: 2px solid var(--func-azul-bebe);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .func-conteudo {
+    padding: 16px;
+  }
+
+  .func-titulo h2 {
+    font-size: 30px;
+  }
+
+  .func-adicionar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 580px) {
+  .func-menu {
+    width: 64px;
+    flex-basis: 64px;
+  }
+
+  .func-logo {
+    height: 64px;
+  }
+
+  .func-nav button,
+  .func-admin {
+    font-size: 9px;
+  }
+
+  .func-nav button {
+    height: 60px;
+  }
+
+  .func-cabecalho {
+    height: 64px;
+    padding-left: 14px;
+  }
+
+  .func-cabecalho h1 {
+    font-size: 22px;
+  }
+
+  .func-titulo h2 {
+    font-size: 24px;
+  }
+
+  .func-filtros {
+    flex-direction: column;
+  }
+
+  .func-select {
+    width: 100%;
+  }
+}
