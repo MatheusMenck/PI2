@@ -161,53 +161,32 @@
   }
 }
 
-/* Botão de primeiro acesso / navegação para CodeValidation */
-.btn-code-validation {
-  display: block;
-  width: fit-content;
-  margin: 14px auto 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: #7198d5;
-  font: inherit;
-  font-size: 11px;
+.login-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.login-shortcuts button {
+  min-height: 36px;
+  padding: 7px 8px;
+  border: 1px solid #4b5c76;
+  border-radius: 6px;
+  background: #29364a;
+  color: #d7e5fb;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 150ms ease;
-}
-
-.btn-password-recovery {
-  display: block;
-  width: fit-content;
-  margin: 11px auto 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #7198d5;
   font: inherit;
-  font-size: 11px;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  transition: color 150ms ease;
+  font-size: 0.75rem;
+  transition: background-color 150ms ease, border-color 150ms ease;
 }
 
-.btn-password-recovery:hover { color: #bfdbfe; }
+.login-shortcuts button:hover {
+  border-color: #7198d5;
+  background: #34445c;
+}
 
-.btn-password-recovery:focus-visible {
+.login-shortcuts button:focus-visible {
   outline: 2px solid #bfdbfe;
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-.btn-code-validation:hover {
-  color: #bfdbfe;
-}
-
-.btn-code-validation:focus-visible {
-  outline: 2px solid #bfdbfe;
-  outline-offset: 3px;
-  border-radius: 2px;
+  outline-offset: 2px;
 }
