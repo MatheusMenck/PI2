@@ -88,13 +88,13 @@ function Alunos({ rota, aoNavegar }) {
       <aside className="menu" aria-label="Navegação principal">
       <img className="logo" src={logo} alt="Logo Recanto Betel" />
         <nav>
-          <button className={`item-menu ${rota === '/inicio' ? 'selecionado' : ''}`} onClick={() => navegar('/inicio')}>
+          <button className={`item-menu ${rota === 'inicio' ? 'selecionado' : ''}`} onClick={() => navegar('/inicio')}>
             <Icone nome="inicio" /><span>Início</span>
           </button>
-          <button className={`item-menu ${rota.startsWith('/alunos') ? 'selecionado' : ''}`} onClick={() => navegar('/alunos')}>
+          <button className={`item-menu ${rota === 'alunos' || rota.startsWith('alunos/') ? 'selecionado' : ''}`} onClick={() => navegar('/alunos')}>
             <Icone nome="alunos" /><span>Alunos</span>
           </button>
-          <button className={`item-menu ${rota === '/responsaveis' ? 'selecionado' : ''}`} onClick={() => navegar('/responsaveis')}>
+          <button className={`item-menu ${rota === 'responsaveis' ? 'selecionado' : ''}`} onClick={() => navegar('/responsaveis')}>
             <Icone nome="responsaveis" /><span>Responsáveis</span>
           </button>
         </nav>

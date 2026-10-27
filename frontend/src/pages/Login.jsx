@@ -41,7 +41,7 @@ function Login({ onNavigate }) {
       }
 
       if (onNavigate) {
-        onNavigate('alunos')
+        onNavigate('inicio')
       } else {
         window.location.href = '/alunos'
       }
@@ -63,6 +63,22 @@ function Login({ onNavigate }) {
   function handleGoToPasswordRecovery() {
     if (onNavigate) {
       onNavigate('recuperacaosenha')
+    }
+  }
+
+  function handleGoToStudents() {
+    if (onNavigate) {
+      onNavigate('alunos')
+    } else {
+      window.location.href = '/alunos'
+    }
+  }
+
+  function handleGoToEmployees() {
+    if (onNavigate) {
+      onNavigate('funcionarios')
+    } else {
+      window.location.href = '/funcionarios'
     }
   }
 
@@ -107,20 +123,16 @@ function Login({ onNavigate }) {
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
-        <button
-          type="button"
-          className="btn-password-recovery"
-          onClick={handleGoToPasswordRecovery}
-        >
-          Esqueci minha senha
-        </button>
-        <button
-          type="button"
-          className="btn-code-validation"
-          onClick={handleGoToCodeValidation}
-        >
-          Primeiro acesso
-        </button>
+        <nav className="login-shortcuts" aria-label="Outras telas">
+          <button type="button" onClick={handleGoToStudents}>Alunos</button>
+          <button type="button" onClick={handleGoToEmployees}>Funcionários</button>
+          <button type="button" onClick={handleGoToPasswordRecovery}>
+            Esqueci minha senha
+          </button>
+          <button type="button" onClick={handleGoToCodeValidation}>
+            Primeiro acesso
+          </button>
+        </nav>
       </section>
     </main>
   )

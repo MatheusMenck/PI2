@@ -4,6 +4,7 @@ import PrimeiroAcessoToken from './pages/PrimeiroAcessoToken'
 import Alunos from './pages/Alunos'
 import RecuperacaoSenha from './pages/RecuperacaoSenha'
 import Funcionarios from './pages/Funcionarios'
+import Dashboard from './pages/Dashboard'
 
 const PAGINAS = {
   funcionarios: Funcionarios,
@@ -11,6 +12,7 @@ const PAGINAS = {
   primeiroacessotoken: PrimeiroAcessoToken,
   alunos: Alunos,
   recuperacaosenha: RecuperacaoSenha,
+  inicio: Dashboard,
 }
 
 function App() {
@@ -18,13 +20,13 @@ function App() {
     const nomeNaUrl = window.location.pathname.replace(/^\/+/, '').toLowerCase()
     if (nomeNaUrl) return nomeNaUrl
     const token = localStorage.getItem('auth_token')
-    return token ? 'alunos' : 'login'
+    return token ? 'inicio' : 'login'
   })
 
   useEffect(() => {
     function atualizarPagina() {
       const nomeNaUrl = window.location.pathname.replace(/^\/+/, '').toLowerCase()
-      setPaginaAtual(nomeNaUrl || (localStorage.getItem('auth_token') ? 'alunos' : 'login'))
+      setPaginaAtual(nomeNaUrl || (localStorage.getItem('auth_token') ? 'inicio' : 'login'))
     }
  
     window.addEventListener('popstate', atualizarPagina)
@@ -38,7 +40,7 @@ function App() {
     setPaginaAtual(limpo)
   }
 
-  const ComponenteTela = PAGINAS[paginaAtual] || (localStorage.getItem('auth_token') ? Alunos : Login)
+  const ComponenteTela = PAGINAS[paginaAtual] || (localStorage.getItem('auth_token') ? Dashboard : Login)
 
   return (
     <ComponenteTela
