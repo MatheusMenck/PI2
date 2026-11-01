@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Funcionario extends Model
+{
+    protected $fillable = [
+        'nome',
+        'email',
+        'cargo',
+        'admissao',
+        'telefone',
+        'ativo',
+        'token_acesso',
+    ];
+
+    protected $casts = [
+        'ativo' => 'boolean',
+    ];
+}

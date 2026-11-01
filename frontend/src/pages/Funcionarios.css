@@ -624,6 +624,21 @@
   filter: brightness(0.95);
 }
 
+.func-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.func-erro {
+  padding: 8px 12px;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #f87171;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
 .func-btn--cancelar {
   background: #fff;
   color: #000;
