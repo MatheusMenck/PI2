@@ -11,6 +11,7 @@ Route::apiResource('funcionarios', FuncionarioController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/user/password', [AuthController::class, 'updatePassword']);
     Route::get('/user', function (\Illuminate\Http\Request $request) {
         return $request->user();
     });
