@@ -97,7 +97,6 @@ function Funcionarios({ aoNavegar }) {
           cargo: form.cargo || 'Funcionario',
           email: form.email.trim(),
           telefone: form.telefone?.trim() || null,
-          ativo: true,
         }),
       })
 

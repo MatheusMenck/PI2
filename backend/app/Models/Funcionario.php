@@ -19,4 +19,8 @@ class Funcionario extends Model
     protected $casts = [
         'ativo' => 'boolean',
     ];
+
+    protected $hidden = [
+        'token_acesso',
+    ];
 }

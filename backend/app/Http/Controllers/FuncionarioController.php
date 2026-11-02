@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AtivacaoFuncionarioMail;
 use App\Models\Funcionario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class FuncionarioController extends Controller
@@ -31,17 +33,26 @@ class FuncionarioController extends Controller
             'ativo' => 'nullable|boolean',
         ]);
 
+        $token = (string) random_int(1000, 9999);
+
         $funcionario = Funcionario::create([
             'nome' => $validated['nome'],
             'email' => $validated['email'],
             'cargo' => $validated['cargo'] ?? 'Funcionario',
             'admissao' => $validated['admissao'],
             'telefone' => $validated['telefone'] ?? null,
-            'ativo' => array_key_exists('ativo', $validated) ? (bool)$validated['ativo'] : true,
+            'ativo' => false,
+            'token_acesso' => $token,
         ]);
 
+        try {
+            Mail::to($funcionario->email)->send(new AtivacaoFuncionarioMail($funcionario, $token));
+        } catch (\Throwable $e) {
+            \Log::error('Erro ao enviar e-mail de ativação: ' . $e->getMessage());
+        }
+
         return response()->json([
-            'message' => 'Funcionário adicionado com sucesso',
+            'message' => 'Funcionário adicionado com sucesso. E-mail com token de ativação enviado!',
             'funcionario' => $funcionario,
         ], Response::HTTP_CREATED);
     }
