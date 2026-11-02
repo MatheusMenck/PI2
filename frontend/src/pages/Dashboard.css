@@ -9,8 +9,9 @@
 .dashboard-layout { min-width: 0; flex: 1; }
 .dashboard-header { height: 88px; padding: 0 24px; background: #223044; color: #f8fafc; box-shadow: 0 2px 5px rgba(0, 0, 0, .34); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .dashboard-header h1 { margin: 0; font-size: 32px; font-weight: 400; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dashboard-user { display: grid; justify-items: center; gap: 0; font-size: 12px; line-height: 1.1; white-space: nowrap; flex-shrink: 0; }
+.dashboard-user { display: grid; justify-items: center; gap: 0; padding: 0; border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; font-size: 12px; line-height: 1.1; white-space: nowrap; flex-shrink: 0; }
 .dashboard-user svg { color: #fff; }
+.dashboard-user:focus-visible { outline: 2px solid #60aaff; outline-offset: 4px; }
 .dashboard-content { max-width: 1020px; padding: 17px 23px 40px 33px; }
 .dashboard-welcome h2 { margin: 0; font-size: 28px; line-height: 1.15; font-weight: 400; letter-spacing: 0; }
 .dashboard-welcome p { margin: 1px 0 0; color: #090909; font-size: 19px; line-height: 1.2; }
