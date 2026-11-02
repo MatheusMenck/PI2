@@ -17,7 +17,7 @@ Projeto feito durante a matéria de Projeto Integrador 2
 | :--- | :--- | :--- |
 | `React` | "http://localhost:5173" | Frontend |
 | `Laravel` | "http://localhost:8000" | API Backend |
-| `pgAdmin 4` | "http://localhost:8080" | Login: `admin@admin.com` \| Senha: `admin` |
+| `pgAdmin 4` | "http://localhost:8081" | Login: `admin@admin.com` \| Senha: `admin` |
 | `PostgreSQL` | `localhost:5432` | DB: `PI2` \| User: `postgres` \| Senha: `PI_password` |
 
 ---

@@ -2,14 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import './Funcionarios.css'
 import logo from '../assets/logo.png'
 
-const FUNCIONARIOS = [
-  { id: 1, nome: 'Talda Fernanda', email: 'taldafernada2007@gmail.com', cargo: 'Funcionário', ativo: true, admissao: '15/04/2026' },
-  { id: 2, nome: 'Matheus Henrique Menck dos Reis', email: 'Matheusreidopvp2006@gmail.com', cargo: 'Funcionário', ativo: true, admissao: '15/04/2026' },
-  { id: 3, nome: 'Gabrielly Vieira dos Santos', email: 'Gabibigbs34@gmail.com', cargo: 'Funcionário', ativo: false, admissao: '15/04/2026' },
-]
-
 function iniciais(nome) {
-  const partes = nome.split(' ').filter(Boolean)
+  const partes = (nome || '').split(' ').filter(Boolean)
+  if (partes.length === 0) return '?'
   return (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : '')).toUpperCase()
 }
 
@@ -25,14 +20,49 @@ function IconeMenu({ nome }) {
 const FORM_VAZIO = { nome: '', admissao: '', cargo: 'Funcionario', email: '', telefone: '' }
 
 function Funcionarios({ aoNavegar }) {
+  const [funcionarios, setFuncionarios] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
   const [busca, setBusca] = useState('')
   const [status, setStatus] = useState('todos')
   const [modalAberto, setModalAberto] = useState(false)
   const [form, setForm] = useState(FORM_VAZIO)
+  const [salvando, setSalvando] = useState(false)
+  const [formErro, setFormErro] = useState('')
+
+  async function carregarFuncionarios() {
+    setCarregando(true)
+    setErro('')
+    try {
+      const token = localStorage.getItem('auth_token')
+      const resposta = await fetch('http://localhost:8000/api/funcionarios', {
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
+
+      if (!resposta.ok) {
+        throw new Error('Falha ao obter lista de funcionários do servidor.')
+      }
+
+      const dados = await resposta.json()
+      setFuncionarios(Array.isArray(dados) ? dados : dados.data || [])
+    } catch (err) {
+      console.error('Erro ao carregar funcionários:', err)
+      setErro(err.message || 'Erro ao carregar funcionários.')
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  useEffect(() => {
+    carregarFuncionarios()
+  }, [])
 
   useEffect(() => {
     if (!modalAberto) return undefined
-    const aoTeclar = (e) => e.key === 'Escape' && setModalAberto(false)
+    const aoTeclar = (e) => e.key === 'Escape' && fecharModal()
     window.addEventListener('keydown', aoTeclar)
     return () => window.removeEventListener('keydown', aoTeclar)
   }, [modalAberto])
@@ -44,11 +74,49 @@ function Funcionarios({ aoNavegar }) {
   function fecharModal() {
     setModalAberto(false)
     setForm(FORM_VAZIO)
+    setFormErro('')
   }
 
-  function enviarFormulario(e) {
+  async function enviarFormulario(e) {
     e.preventDefault()
-    fecharModal()
+    setSalvando(true)
+    setFormErro('')
+
+    try {
+      const token = localStorage.getItem('auth_token')
+      const resposta = await fetch('http://localhost:8000/api/funcionarios', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          nome: form.nome.trim(),
+          admissao: form.admissao.trim(),
+          cargo: form.cargo || 'Funcionario',
+          email: form.email.trim(),
+          telefone: form.telefone?.trim() || null,
+        }),
+      })
+
+      const data = await resposta.json()
+
+      if (!resposta.ok) {
+        const mensagem =
+          data.message ||
+          (data.errors && Object.values(data.errors)[0]?.[0]) ||
+          'Erro ao cadastrar funcionário.'
+        throw new Error(mensagem)
+      }
+
+      await carregarFuncionarios()
+      fecharModal()
+    } catch (err) {
+      setFormErro(err.message)
+    } finally {
+      setSalvando(false)
+    }
   }
 
   const usuario = (() => {
@@ -59,17 +127,19 @@ function Funcionarios({ aoNavegar }) {
     }
   })()
 
-  const total = FUNCIONARIOS.length
-  const ativos = FUNCIONARIOS.filter((f) => f.ativo).length
+  const total = funcionarios.length
+  const ativos = funcionarios.filter((f) => f.ativo).length
 
   const filtrados = useMemo(() => {
     const termo = busca.trim().toLowerCase()
-    return FUNCIONARIOS.filter((f) => {
+    return funcionarios.filter((f) => {
       if (status === 'ativo' && !f.ativo) return false
       if (status === 'inativo' && f.ativo) return false
-      return !termo || f.nome.toLowerCase().includes(termo) || f.email.toLowerCase().includes(termo)
+      const nome = (f.nome || '').toLowerCase()
+      const email = (f.email || '').toLowerCase()
+      return !termo || nome.includes(termo) || email.includes(termo)
     })
-  }, [busca, status])
+  }, [funcionarios, busca, status])
 
   return (
     <div className="func-pagina">
@@ -144,7 +214,24 @@ function Funcionarios({ aoNavegar }) {
               <span className="func-centro">Ações</span>
             </div>
 
-            {filtrados.map((f) => (
+            {carregando && (
+              <p className="func-vazio">Carregando funcionários...</p>
+            )}
+
+            {!carregando && erro && (
+              <div className="func-vazio" style={{ color: '#b91c1c' }}>
+                <p>{erro}</p>
+                <button
+                  type="button"
+                  onClick={carregarFuncionarios}
+                  style={{ marginTop: '8px', cursor: 'pointer', padding: '6px 14px', borderRadius: '4px', border: '1px solid #ccc', background: '#fff' }}
+                >
+                  Tentar novamente
+                </button>
+              </div>
+            )}
+
+            {!carregando && !erro && filtrados.map((f) => (
               <div className="func-linha" key={f.id}>
                 <div className="func-nome">
                   <span className="func-avatar">{iniciais(f.nome)}</span>
@@ -176,7 +263,9 @@ function Funcionarios({ aoNavegar }) {
               </div>
             ))}
 
-            {filtrados.length === 0 && <p className="func-vazio">Nenhum funcionário encontrado.</p>}
+            {!carregando && !erro && filtrados.length === 0 && (
+              <p className="func-vazio">Nenhum funcionário encontrado.</p>
+            )}
           </section>
         </main>
       </div>
@@ -204,6 +293,12 @@ function Funcionarios({ aoNavegar }) {
             </header>
 
             <div className="func-modal-corpo">
+              {formErro && (
+                <div className="func-erro" role="alert">
+                  {formErro}
+                </div>
+              )}
+
               <label className="func-campo">
                 <span>Nome Completo</span>
                 <input name="nome" value={form.nome} onChange={alterarCampo} placeholder="Ex: Thiago Veigh" required />
@@ -245,8 +340,10 @@ function Funcionarios({ aoNavegar }) {
             </div>
 
             <footer className="func-modal-rodape">
-              <button type="button" className="func-btn func-btn--cancelar" onClick={fecharModal}>Cancelar</button>
-              <button type="submit" className="func-btn func-btn--adicionar">Adicionar</button>
+              <button type="button" className="func-btn func-btn--cancelar" onClick={fecharModal} disabled={salvando}>Cancelar</button>
+              <button type="submit" className="func-btn func-btn--adicionar" disabled={salvando}>
+                {salvando ? 'Salvando...' : 'Adicionar'}
+              </button>
             </footer>
           </form>
         </div>
