@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\AtivacaoFuncionarioMail;
 use App\Models\Funcionario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -100,6 +101,54 @@ class FuncionarioController extends Controller
 
         return response()->json([
             'message' => 'Funcionário removido com sucesso',
+        ], Response::HTTP_OK);
+    }
+
+    public function ativar(Request $request)
+    {
+        $validated = $request->validate([
+            'token' => 'required|string',
+        ]);
+
+        $funcionario = Funcionario::where('token_acesso', $validated['token'])->first();
+
+        if (!$funcionario) {
+            return response()->json([
+                'message' => 'Token inválido ou expirado.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $funcionario->update([
+            'ativo' => true,
+            'token_acesso' => null,
+        ]);
+
+        return response()->json([
+            'message' => 'Conta ativada com sucesso!',
+            'funcionario' => $funcionario,
+        ], Response::HTTP_OK);
+    }
+
+    public function definirSenha(Request $request)
+    {
+        $validated = $request->validate([
+            'funcionario_id' => 'required|exists:funcionarios,id',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $funcionario = Funcionario::findOrFail($validated['funcionario_id']);
+
+        $funcionario->update([
+            'password' => Hash::make($validated['password']),
+            'ativo' => true,
+        ]);
+
+        $token = $funcionario->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Senha cadastrada com sucesso!',
+            'token' => $token,
+            'funcionario' => $funcionario,
         ], Response::HTTP_OK);
     }
 }

@@ -1,11 +1,26 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './PrimeiroAcessoToken.css'
 
 const CODE_LENGTH = 4
 
-function PrimeiroAcesso() {
+function PrimeiroAcesso({ onNavigate }) {
   const [code, setCode] = useState(Array(CODE_LENGTH).fill(''))
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const inputsRef = useRef([])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const isFromEmail = params.get('origem') === 'email'
+
+    if (!isFromEmail) {
+      if (onNavigate) {
+        onNavigate('login')
+      } else {
+        window.location.pathname = '/login'
+      }
+    }
+  }, [onNavigate])
 
   function updateCode(index, value) {
     setCode((currentCode) =>
@@ -71,8 +86,48 @@ function PrimeiroAcesso() {
     fillCode(event.clipboardData.getData('text'), index)
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
+    setError('')
+
+    const token = code.join('')
+    if (token.length < CODE_LENGTH) {
+      setError('Por favor, preencha todos os dígitos do código.')
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await fetch('http://localhost:8000/api/funcionarios/ativar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Código inválido ou expirado.')
+      }
+
+      if (data.funcionario?.id) {
+        sessionStorage.setItem('ativacao_funcionario_id', data.funcionario.id)
+      }
+
+      if (onNavigate) {
+        onNavigate('primeiroacesso')
+      } else {
+        window.location.pathname = '/primeiroacesso'
+      }
+    } catch (err) {
+      setError(err.message || 'Erro ao validar o código. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -106,7 +161,10 @@ function PrimeiroAcesso() {
               />
             ))}
           </div>
-          <button type="submit">Entrar</button>
+          {error && <p className="validation-error">{error}</p>}
+          <button type="submit" disabled={loading}>
+            {loading ? 'Validando...' : 'Entrar'}
+          </button>
         </form>
       </section>
     </main>
