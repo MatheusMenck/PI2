@@ -15,7 +15,7 @@
   width: 88px;
   flex: 0 0 88px;
   min-height: 100svh;
-  background: #223044;
+  background: var(--cor-fundo-escuro);
   color: #f8fafc;
   transition: width 0.2s ease, flex-basis 0.2s ease;
 }
@@ -48,7 +48,7 @@
 
 .item-menu:hover,
 .item-menu.selecionado {
-  color: #5ca3ff;
+  color: var(--cor-azul-claro);
 }
 
 
@@ -60,7 +60,7 @@
 .cabecalho {
   height: 88px;
   padding: 0 24px;
-  background: #223044;
+  background: var(--cor-fundo-escuro);
   color: #f8fafc;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.34);
   display: flex;
@@ -265,12 +265,12 @@
   top: 18px;
   right: 18px;
   width: 110px;
-  background: #bee1d7;
+  background: color-mix(in srgb, var(--cor-verde) 18%, white);
 }
 
 .status small,
 .status > span {
-  color: #00a876;
+  color: var(--cor-fundo-escuro);
 }
 
 .status small {
@@ -278,21 +278,21 @@
 }
 
 .status.pendente {
-  background: #fff0cf;
+  background: color-mix(in srgb, var(--cor-amarelo) 24%, white);
 }
 
 .status.pendente small,
 .status.pendente > span {
-  color: #ed9d00;
+  color: var(--cor-fundo-escuro);
 }
 
 .status.indeferida {
-  background: #f6c6cf;
+  background: color-mix(in srgb, var(--cor-rosa) 18%, white);
 }
 
 .status.indeferida small,
 .status.indeferida > span {
-  color: #ec244e;
+  color: var(--cor-fundo-escuro);
 }
 
 .fundo-modal {
@@ -305,8 +305,7 @@
   padding: 16px;
 }
 
-.modal-perfil,
-.modal-filtro {
+.modal-perfil {
   position: relative;
   width: 100%;
   max-width: 320px;
@@ -318,6 +317,213 @@
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
 }
 
+.fundo-modal--filtro {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.modal-filtro {
+  width: min(100%, 277px);
+  height: 100svh;
+  background: #fff;
+  color: #171717;
+  box-shadow: -3px 0 7px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.modal-filtro-cabecalho {
+  height: 58px;
+  flex: 0 0 58px;
+  padding: 0 12px 0 7px;
+  background: var(--cor-azul-claro);
+  color: var(--cor-fundo-escuro);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icone-filtro {
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  background: var(--cor-azul);
+  display: grid;
+  place-items: center;
+}
+
+.modal-filtro-cabecalho h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.modal-filtro-cabecalho button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--cor-fundo-escuro);
+  font-size: 32px;
+  font-weight: 200;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-filtro-corpo {
+  padding: 9px 8px;
+}
+
+.modal-filtro-corpo > label,
+.filtro-data label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.modal-filtro input {
+  width: 100%;
+  height: 19px;
+  padding: 1px 5px;
+  border: 0;
+  border-radius: 4px;
+  background: #eee;
+  color: #222;
+  font: inherit;
+  font-size: 11px;
+}
+
+.modal-filtro input::placeholder {
+  color: #888;
+}
+
+.filtro-data,
+.filtro-status {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.filtro-data legend,
+.filtro-status legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.filtro-data {
+  display: grid;
+  grid-template-columns: 1fr 14px 1fr;
+  align-items: end;
+  column-gap: 4px;
+}
+
+.filtro-data legend,
+.filtro-status legend {
+  grid-column: 1 / -1;
+}
+
+.filtro-data label {
+  margin: 0;
+  color: #777;
+}
+
+.filtro-data span {
+  padding-bottom: 2px;
+  color: #aaa;
+  text-align: center;
+}
+
+.filtro-data input {
+  color: #777;
+}
+
+.filtro-status {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.filtro-status button {
+  height: 23px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 4px;
+  background: #e5e5e5;
+  color: #222;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.filtro-status button:first-of-type {
+  grid-column: 1 / -1;
+}
+
+.filtro-status button.selecionado {
+  background: var(--cor-azul);
+  color: #fff;
+}
+
+.filtro-status i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 17px;
+  border-radius: 50%;
+  background: var(--cor-verde);
+  vertical-align: -1px;
+}
+
+.filtro-status .indeferidos i { background: var(--cor-rosa); }
+.filtro-status .pendentes i { background: var(--cor-amarelo); border: 1px solid var(--cor-fundo-escuro); }
+.filtro-status .concluidos i { background: var(--cor-azul-claro); }
+
+.modal-filtro-rodape {
+  margin-top: auto;
+  padding: 0 6px 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.limpar-filtros,
+.cancelar-filtro,
+.aplicar-filtro {
+  height: 22px;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.limpar-filtros {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #888;
+}
+
+.cancelar-filtro {
+  margin-right: 5px;
+  padding: 0 9px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.aplicar-filtro {
+  padding: 0 9px;
+  border: 0;
+  background: var(--cor-azul);
+  color: #fff;
+}
+
 .modal-perfil .perfil-info {
   margin-bottom: 20px;
   padding-right: 20px;
@@ -327,7 +533,7 @@
   margin: 0 0 4px;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--cor-fundo-escuro);
 }
 
 .modal-perfil .perfil-info p {
@@ -340,9 +546,9 @@
 .botao-logout {
   width: 100%;
   padding: 10px 16px;
-  background-color: #ef4444;
-  color: #ffffff;
-  border: none;
+  background-color: color-mix(in srgb, var(--cor-rosa) 80%, white);
+  color: var(--cor-fundo-escuro);
+  border: 1px solid var(--cor-rosa);
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -351,7 +557,7 @@
 }
 
 .botao-logout:hover {
-  background-color: #dc2626;
+  filter: brightness(0.9);
 }
 
 .botao-logout:active {
@@ -364,7 +570,7 @@
   right: 12px;
   border: 0;
   background: transparent;
-  color: #223044;
+  color: var(--cor-fundo-escuro);
   cursor: pointer;
   font-size: 24px;
   line-height: 1;
@@ -372,7 +578,7 @@
 
 button:focus-visible,
 input:focus-visible {
-  outline: 2px solid #5ca3ff;
+  outline: 2px solid var(--cor-azul-claro);
   outline-offset: 2px;
 }
 
