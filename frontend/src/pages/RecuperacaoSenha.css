@@ -1,7 +1,7 @@
 .recuperacao-pagina {
   min-height: 100svh;
   padding: 22px 0 0;
-  background: radial-gradient(circle at 29% 21%, #344968 0%, #222f43 43%, #111827 100%);
+  background: var(--cor-fundo-escuro);
   display: grid;
   place-items: center;
 }
@@ -34,7 +34,7 @@
   height: 423px;
   padding: 40px 37px;
   border-radius: 11px;
-  background: #223047;
+  background: var(--cor-fundo-escuro);
   box-shadow: 0 15px 28px rgba(0, 0, 0, .23);
   color: #f8fafc;
 }
@@ -70,18 +70,18 @@
   height: 35px;
   margin: 0 0 10px;
   padding: 7px 10px;
-  border: 1px solid #1a2639;
+  border: 1px solid var(--cor-fundo-escuro);
   border-radius: 4px;
   outline: none;
-  background: #344664;
+  background: var(--cor-fundo-escuro);
   box-shadow: 0 2px 3px rgba(0, 0, 0, .35);
   color: #f8fafc;
   font: inherit;
 }
 
 .recuperacao-card input:focus {
-  border-color: #7198d5;
-  box-shadow: 0 0 0 3px rgba(113, 152, 213, .22);
+  border-color: var(--cor-azul-claro);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor-azul-claro) 22%, transparent);
 }
 
 .recuperacao-card form button {
@@ -90,7 +90,7 @@
   margin-top: 43px;
   border: 0;
   border-radius: 10px;
-  background: linear-gradient(90deg, #5ea8ff, #0062bc);
+  background: var(--cor-azul);
   color: #fff;
   cursor: pointer;
   font: inherit;
@@ -100,8 +100,7 @@
 
 .recuperacao-card form button:hover { filter: brightness(1.06); }
 .recuperacao-card form button:active { transform: scale(.99); }
-.recuperacao-card form button:disabled { opacity: 0.6; cursor: not-allowed; }
-.voltar-login:focus-visible, .recuperacao-card button:focus-visible { outline: 2px solid #bfdbfe; outline-offset: 3px; }
+.voltar-login:focus-visible, .recuperacao-card button:focus-visible { outline: 2px solid var(--cor-azul-claro); outline-offset: 3px; }
 
 .recuperacao-error {
   color: #f87171;

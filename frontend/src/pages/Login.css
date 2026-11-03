@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: radial-gradient(circle at center, #232d40 0%, #151b27 60%, #0d1017 100%);
+  background: var(--cor-fundo-escuro);
 }
 
 .login-card {
@@ -18,7 +18,7 @@
   padding: 30px 24px;
   border: 1px solid rgba(148, 163, 184, 0.13);
   border-radius: 12px;
-  background: #1f2937;
+  background: var(--cor-fundo-escuro);
   box-shadow: 0 11px 22px rgba(0, 0, 0, 0.24);
   color: #f8fafc;
   text-align: center;
@@ -74,9 +74,9 @@
 }
 
 .login-error-message {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background: color-mix(in srgb, var(--cor-rosa) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cor-rosa) 40%, transparent);
+  color: #f8fafc;
   padding: 10px 14px;
   border-radius: 6px;
   font-size: 0.8125rem;
@@ -107,7 +107,7 @@
   border: 1px solid #4b5563;
   border-radius: 6px;
   outline: none;
-  background: #374151;
+  background: var(--cor-fundo-escuro);
   color: #f8fafc;
   font: inherit;
   font-size: 0.875rem;
@@ -115,8 +115,8 @@
 }
 
 .login-form input:focus {
-  border-color: #7198d5;
-  box-shadow: 0 0 0 3px rgba(113, 152, 213, 0.25);
+  border-color: var(--cor-azul-claro);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor-azul-claro) 25%, transparent);
 }
 
 .login-form button {
@@ -126,7 +126,7 @@
   padding: 0 16px;
   border: 0;
   border-radius: 6px;
-  background: linear-gradient(90deg, #4c78bd, #3b82c4);
+  background: var(--cor-azul);
   color: #fff;
   cursor: pointer;
   font: inherit;
@@ -147,7 +147,7 @@
 }
 
 .login-form button:focus-visible {
-  outline: 2px solid #bfdbfe;
+  outline: 2px solid var(--cor-azul-claro);
   outline-offset: 2px;
 }
 
@@ -171,10 +171,10 @@
 .login-shortcuts button {
   min-height: 36px;
   padding: 7px 8px;
-  border: 1px solid #4b5c76;
+  border: 1px solid var(--cor-fundo-escuro);
   border-radius: 6px;
-  background: #29364a;
-  color: #d7e5fb;
+  background: var(--cor-fundo-escuro);
+  color: var(--cor-azul-claro);
   cursor: pointer;
   font: inherit;
   font-size: 0.75rem;
@@ -182,11 +182,11 @@
 }
 
 .login-shortcuts button:hover {
-  border-color: #7198d5;
-  background: #34445c;
+  border-color: var(--cor-azul-claro);
+  background: var(--cor-fundo-escuro);
 }
 
 .login-shortcuts button:focus-visible {
-  outline: 2px solid #bfdbfe;
+  outline: 2px solid var(--cor-azul-claro);
   outline-offset: 2px;
 }

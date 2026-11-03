@@ -51,7 +51,9 @@ function Dashboard({ rota, aoNavegar }) {
       <div className="dashboard-layout">
         <header className="dashboard-header">
           <h1>Recanto Betel</h1>
-          <div className="dashboard-user"><Icon name="profile" size={34} /><span>{usuario?.name || 'Usuário'}</span></div>
+          <button type="button" className="dashboard-user" onClick={() => navegar('perfil')} aria-label="Abrir perfil">
+            <Icon name="profile" size={34} /><span>{usuario?.name || 'Usuário'}</span>
+          </button>
         </header>
 
         <main className="dashboard-content">
