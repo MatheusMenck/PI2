@@ -134,6 +134,18 @@
   filter: brightness(1.08);
 }
 
+.validation-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.validation-error {
+  color: #f87171;
+  font-size: 14px;
+  margin-top: 16px;
+  font-weight: 500;
+}
+
 .validation-form button:focus-visible {
   outline: 2px solid var(--cor-azul-claro);
   outline-offset: 3px;

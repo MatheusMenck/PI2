@@ -52,14 +52,6 @@ function Login({ onNavigate }) {
     }
   }
 
-  function handleGoToCodeValidation() {
-    if (onNavigate) {
-      onNavigate('primeiroacessotoken')
-    } else {
-      window.location.hash = 'primeiroacessotoken'
-    }
-  }
-
   function handleGoToPasswordRecovery() {
     if (onNavigate) {
       onNavigate('recuperacaosenha')
@@ -128,9 +120,6 @@ function Login({ onNavigate }) {
           <button type="button" onClick={handleGoToEmployees}>Funcionários</button>
           <button type="button" onClick={handleGoToPasswordRecovery}>
             Esqueci minha senha
-          </button>
-          <button type="button" onClick={handleGoToCodeValidation}>
-            Primeiro acesso
           </button>
         </nav>
       </section>

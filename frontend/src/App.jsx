@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import PrimeiroAcessoToken from './pages/PrimeiroAcessoToken'
+import PrimeiroAcesso from './pages/PrimeiroAcesso'
 import Alunos from './pages/Alunos'
 import RecuperacaoSenha from './pages/RecuperacaoSenha'
 import Funcionarios from './pages/Funcionarios'
@@ -11,6 +12,7 @@ const PAGINAS = {
   funcionarios: Funcionarios,
   login: Login,
   primeiroacessotoken: PrimeiroAcessoToken,
+  primeiroacesso: PrimeiroAcesso,
   alunos: Alunos,
   recuperacaosenha: RecuperacaoSenha,
   inicio: Dashboard,

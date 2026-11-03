@@ -7,6 +7,8 @@ use App\Http\Controllers\FuncionarioController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::post('/funcionarios/ativar', [FuncionarioController::class, 'ativar']);
+Route::post('/funcionarios/definir-senha', [FuncionarioController::class, 'definirSenha']);
 Route::apiResource('funcionarios', FuncionarioController::class);
 
 Route::middleware('auth:sanctum')->group(function () {

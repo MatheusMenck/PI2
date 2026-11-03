@@ -74,6 +74,21 @@
             font-size: 14px;
             color: #475569;
         }
+        .btn-ativar {
+            display: inline-block;
+            background-color: #2563eb;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 6px;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .btn-ativar:hover {
+            background-color: #1d4ed8;
+        }
         .footer {
             background-color: #f9fafb;
             padding: 20px 32px;
@@ -99,7 +114,18 @@
                 <div class="token-value">{{ $token }}</div>
             </div>
 
-            <p> Acesse essa URL para ativar a sua conta: http://localhost:5173/primeiroacessotoken 
+            <div style="text-align: center; margin: 24px 0;">
+                <a href="{{ env('FRONTEND_URL', 'http://localhost:5173') }}/primeiroacessotoken?origem=email" class="btn-ativar" target="_blank">
+                    Ativar Minha Conta
+                </a>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; text-align: center;">
+                Ou se preferir, acesse diretamente o link: <br>
+                <a href="{{ env('FRONTEND_URL', 'http://localhost:5173') }}/primeiroacessotoken?origem=email" style="color: #2563eb; word-break: break-all;">
+                    {{ env('FRONTEND_URL', 'http://localhost:5173') }}/primeiroacessotoken?origem=email
+                </a>
+            </p>
 
             <div class="info-card">
                 <strong>Importante:</strong> Sua conta permanecerá inativa até que você insira este código na tela de Primeiro Acesso.

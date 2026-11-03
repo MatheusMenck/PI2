@@ -102,6 +102,13 @@
 .recuperacao-card form button:active { transform: scale(.99); }
 .voltar-login:focus-visible, .recuperacao-card button:focus-visible { outline: 2px solid var(--cor-azul-claro); outline-offset: 3px; }
 
+.recuperacao-error {
+  color: #f87171;
+  font-size: 13px;
+  margin-top: 8px;
+  text-align: center;
+}
+
 @media (max-width: 460px) {
   .recuperacao-pagina { padding: 44px 16px 16px; }
   .recuperacao-card { width: 100%; max-width: 367px; height: auto; min-height: 423px; }
