@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: #1e293b;
+  background: var(--cor-fundo-escuro);
 }
 
 .validation-card {
@@ -17,7 +17,7 @@
   min-height: 572px;
   padding: 70px 18px 50px;
   border-radius: 14px;
-  background: linear-gradient(145deg, #29456e 0%, #1f2c3e 76%);
+  background: var(--cor-fundo-escuro);
   box-shadow: 0 18px 28px rgba(3, 8, 20, 0.34);
   color: #fff;
   text-align: center;
@@ -29,7 +29,7 @@
   position: relative;
   margin: 0 auto 18px;
   border-radius: 50%;
-  background: #344b70;
+  background: var(--cor-fundo-escuro);
   box-shadow: 0 5px 5px rgba(3, 8, 20, 0.3);
 }
 
@@ -75,7 +75,7 @@
 
 .validation-subtitle {
   margin: 2px 0 29px;
-  color: #f1f5f9;
+  color: #fff;
   font-size: 18px;
   line-height: 1.35;
 }
@@ -96,10 +96,10 @@
   width: 98px;
   height: 97px;
   padding: 0;
-  border: 1px solid #17263b;
+  border: 1px solid var(--cor-fundo-escuro);
   border-radius: 5px;
   outline: none;
-  background: #354a6c;
+  background: var(--cor-fundo-escuro);
   box-shadow: 0 3px 4px rgba(3, 8, 20, 0.28);
   color: #fff;
   font: inherit;
@@ -110,8 +110,8 @@
 }
 
 .code-fields input:focus {
-  border-color: #7db6ff;
-  box-shadow: 0 0 0 3px rgba(125, 182, 255, 0.24);
+  border-color: var(--cor-azul-claro);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor-azul-claro) 24%, transparent);
 }
 
 .validation-form button {
@@ -119,9 +119,9 @@
   height: 50px;
   margin-top: 78px;
   padding: 0;
-  border: 1px solid #1260ad;
+  border: 1px solid var(--cor-azul);
   border-radius: 14px;
-  background: linear-gradient(90deg, #5ba8fb 0%, #2878d0 52%, #0860b8 100%);
+  background: var(--cor-azul);
   color: #fff;
   cursor: pointer;
   font: inherit;
@@ -135,7 +135,7 @@
 }
 
 .validation-form button:focus-visible {
-  outline: 2px solid #dbeafe;
+  outline: 2px solid var(--cor-azul-claro);
   outline-offset: 3px;
 }
 

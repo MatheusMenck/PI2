@@ -1,7 +1,14 @@
 :root {
+  --cor-fundo-escuro: #1E293B;
+  --cor-azul: #0369A1;
+  --cor-amarelo: #FBBF24;
+  --cor-verde: #059669;
+  --cor-rosa: #F43F5E;
+  --cor-azul-claro: #60AAFF;
+
   font-family: Arial, Helvetica, sans-serif;
   color: #f8fafc;
-  background: #1e293b;
+  background: var(--cor-fundo-escuro);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;

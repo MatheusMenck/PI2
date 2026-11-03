@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './Alunos.css'
 import logo from '../assets/logo.png'
 const alunos = [
@@ -30,7 +30,10 @@ function Icone({ nome, tamanho = 26 }) {
 
 function Alunos({ rota, aoNavegar }) {
   const [perfil, setPerfil] = useState(false)
-  const [filtro, setFiltro] = useState(false)
+  const [modalAlunos, setModalAlunos] = useState(false)
+  const [filtroAlunos, setFiltroAlunos] = useState({
+    nome: '', cpf: '', telefone: '', dataInicio: '', dataFim: '', status: 'Todos',
+  })
   const [pesquisa, setPesquisa] = useState('')
 
   function navegar(caminho) {
@@ -51,9 +54,28 @@ function Alunos({ rota, aoNavegar }) {
 
   function fecharModal(evento) {
     if (evento.target === evento.currentTarget) {
-      setFiltro(false)
+      setModalAlunos(false)
     }
   }
+
+  function alterarFiltro(evento) {
+    setFiltroAlunos((atual) => ({ ...atual, [evento.target.name]: evento.target.value }))
+  }
+
+  function limparFiltros() {
+    setFiltroAlunos({ nome: '', cpf: '', telefone: '', dataInicio: '', dataFim: '', status: 'Todos' })
+  }
+
+  function aplicarFiltros() {
+    setModalAlunos(false)
+  }
+
+  useEffect(() => {
+    if (!modalAlunos) return undefined
+    const aoTeclar = (evento) => evento.key === 'Escape' && setModalAlunos(false)
+    window.addEventListener('keydown', aoTeclar)
+    return () => window.removeEventListener('keydown', aoTeclar)
+  }, [modalAlunos])
 
   const usuarioSalvo = (() => {
     try {
@@ -113,7 +135,7 @@ function Alunos({ rota, aoNavegar }) {
           <form className="barra-pesquisa" onSubmit={pesquisar}>
             <input value={pesquisa} onChange={(evento) => setPesquisa(evento.target.value)} placeholder="Pesquisar" aria-label="Pesquisar alunos" />
             <button type="submit" aria-label="Pesquisar"><Icone nome="busca" tamanho={31} /></button>
-            <button type="button" onClick={() => setFiltro(true)} aria-label="Abrir filtro"><Icone nome="filtro" tamanho={31} /></button>
+            <button type="button" onClick={() => setModalAlunos(true)} aria-label="Abrir filtro"><Icone nome="filtro" tamanho={31} /></button>
           </form>
 
           <button className="adicionar-aluno" onClick={adicionarAluno}>Adicionar Aluno <strong>+</strong></button>
@@ -156,10 +178,27 @@ function Alunos({ rota, aoNavegar }) {
         </div>
       )}
 
-      {filtro && (
-        <div className="fundo-modal" onClick={fecharModal}>
-          <section className="modal-filtro" role="dialog" aria-modal="true" aria-label="Filtro">
-            <button className="fechar-modal" onClick={() => setFiltro(false)} aria-label="Fechar">×</button>
+      {modalAlunos && (
+        <div className="fundo-modal fundo-modal--filtro" onClick={fecharModal}>
+          <section className="modal-filtro" role="dialog" aria-modal="true" aria-labelledby="titulo-filtro-alunos" onClick={(evento) => evento.stopPropagation()}>
+            <header className="modal-filtro-cabecalho">
+              <span className="icone-filtro"><Icone nome="filtro" tamanho={24} /></span>
+              <h2 id="titulo-filtro-alunos">Filtrar Aluno</h2>
+              <button type="button" onClick={() => setModalAlunos(false)} aria-label="Fechar">×</button>
+            </header>
+            <div className="modal-filtro-corpo">
+              <label>Nome do Aluno<input name="nome" value={filtroAlunos.nome} onChange={alterarFiltro} placeholder="Ex: Tiago Veigh" /></label>
+              <label>CPF<input name="cpf" value={filtroAlunos.cpf} onChange={alterarFiltro} placeholder="Ex: 157751452" /></label>
+              <label>Telefone<input name="telefone" value={filtroAlunos.telefone} onChange={alterarFiltro} placeholder="Ex: 15997854565" /></label>
+              <fieldset className="filtro-data"><legend>Data de Cadastro</legend><label>De<input type="date" name="dataInicio" value={filtroAlunos.dataInicio} onChange={alterarFiltro} /></label><span>—</span><label>Até<input type="date" name="dataFim" value={filtroAlunos.dataFim} onChange={alterarFiltro} /></label></fieldset>
+              <fieldset className="filtro-status"><legend>Status de Matrícula</legend>
+                {['Todos', 'Ativos', 'Indeferidos', 'Pendentes', 'Concluídos'].map((status) => <button type="button" key={status} className={`${filtroAlunos.status === status ? 'selecionado ' : ''}${status.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`} onClick={() => setFiltroAlunos((atual) => ({ ...atual, status }))}>{status !== 'Todos' && <i />} {status}</button>)}
+              </fieldset>
+            </div>
+            <footer className="modal-filtro-rodape">
+              <button type="button" className="limpar-filtros" onClick={limparFiltros}>↶ Limpar Filtros</button>
+              <div><button type="button" className="cancelar-filtro" onClick={() => setModalAlunos(false)}>Cancelar</button><button type="button" className="aplicar-filtro" onClick={aplicarFiltros}>Aplicar</button></div>
+            </footer>
           </section>
         </div>
       )}

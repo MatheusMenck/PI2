@@ -4,11 +4,7 @@
 }
 
 .func-pagina {
-  --func-menu: #1e293b;
   --func-fundo: rgba(233, 233, 233, 0.93);
-  --func-azul-bebe: #60aaff;
-  --func-verde: #059669;
-  --func-rosa: #f43f5e;
   --func-sombra: 4px 4px 4px rgba(0, 0, 0, 0.25);
 
   min-height: 100svh;
@@ -22,7 +18,7 @@
   width: 92px;
   flex: 0 0 92px;
   min-height: 100svh;
-  background: var(--func-menu);
+  background: var(--cor-fundo-escuro);
   color: #fff;
   box-shadow: 4px 0 4px rgba(0, 0, 0, 0.25);
   display: flex;
@@ -75,13 +71,13 @@
 }
 
 .func-nav button:hover {
-  color: var(--func-azul-bebe);
+  color: var(--cor-azul-claro);
 }
 
 .func-admin {
   margin-top: auto;
   padding: 0 4px 10px;
-  color: var(--func-azul-bebe);
+  color: var(--cor-azul-claro);
 }
 
 .func-principal {
@@ -94,7 +90,7 @@
 .func-cabecalho {
   height: 92px;
   padding: 0 12px 0 27px;
-  background: var(--func-menu);
+  background: var(--cor-fundo-escuro);
   color: #fff;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   display: flex;
@@ -157,7 +153,7 @@
   padding: 14px 24px;
   border: 0;
   border-radius: 8px;
-  background: #0369a1;
+  background: var(--cor-azul);
   color: #fff;
   font: inherit;
   font-size: 18px;
@@ -263,21 +259,21 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--func-verde);
+  background: var(--cor-verde);
 }
 
 .func-contador--ativo {
-  background: rgba(5, 150, 105, 0.25);
-  color: var(--func-verde);
+  background: color-mix(in srgb, var(--cor-verde) 18%, white);
+  color: #fff;
 }
 
 .func-contador--inativo {
-  background: rgba(244, 63, 94, 0.25);
-  color: var(--func-rosa);
+  background: color-mix(in srgb, var(--cor-rosa) 18%, white);
+  color: var(--cor-fundo-escuro);
 }
 
 .func-contador--inativo i {
-  background: var(--func-rosa);
+  background: var(--cor-rosa);
 }
 
 .func-tabela {
@@ -349,8 +345,8 @@
   flex: 0 0 40px;
   border: 0.3px solid #000;
   border-radius: 50%;
-  background: var(--func-azul-bebe);
-  color: #fff;
+  background: var(--cor-azul-claro);
+  color: var(--cor-fundo-escuro);
   font-size: 20px;
   display: grid;
   place-items: center;
@@ -370,13 +366,13 @@
 }
 
 .func-tag--ativo {
-  background: rgba(5, 150, 105, 0.25);
-  color: var(--func-verde);
+  background: color-mix(in srgb, var(--cor-verde) 18%, white);
+  color: var(--cor-fundo-escuro);
 }
 
 .func-tag--inativo {
-  background: rgba(244, 63, 94, 0.25);
-  color: var(--func-rosa);
+  background: color-mix(in srgb, var(--cor-rosa) 18%, white);
+  color: var(--cor-fundo-escuro);
 }
 
 .func-acoes {
@@ -397,7 +393,7 @@
 }
 
 .func-acao--bloquear {
-  color: var(--func-rosa);
+  color: var(--cor-rosa);
 }
 
 .func-acao:hover {
@@ -411,10 +407,16 @@
   color: #4b5563;
 }
 
+.func-vazio--erro {
+  border-left: 3px solid var(--cor-rosa);
+  background: color-mix(in srgb, var(--cor-rosa) 14%, white);
+  color: var(--cor-fundo-escuro);
+}
+
 .func-pagina button:focus-visible,
 .func-pagina select:focus-visible,
 .func-busca:focus-within {
-  outline: 2px solid var(--func-azul-bebe);
+  outline: 2px solid var(--cor-azul-claro);
   outline-offset: 2px;
 }
 
@@ -503,8 +505,8 @@
 .func-modal-cabecalho {
   flex: 0 0 70px;
   padding: 0 13px;
-  background: var(--func-azul-bebe);
-  color: #fff;
+  background: var(--cor-azul-claro);
+  color: var(--cor-fundo-escuro);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -575,11 +577,40 @@
   pointer-events: none;
 }
 
+.func-campo-editar {
+  position: relative;
+}
+
+.func-campo-editar input {
+  padding-right: 32px;
+}
+
+.func-campo-editar svg {
+  position: absolute;
+  top: 50%;
+  right: 11px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.func-enviar-senha {
+  width: 100%;
+  height: 28px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--cor-azul);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 .func-aviso {
   margin-top: 6px;
   padding: 8px;
   border-radius: 4px;
-  background: rgba(96, 170, 255, 0.5);
+  background: color-mix(in srgb, var(--cor-azul-claro) 50%, white);
   color: #505050;
   font-size: 15px;
 }
@@ -607,6 +638,10 @@
   gap: 9px;
 }
 
+.func-modal-rodape--editar > span {
+  flex: 1;
+}
+
 .func-btn {
   min-width: 85px;
   height: 26px;
@@ -631,9 +666,9 @@
 
 .func-erro {
   padding: 8px 12px;
-  background-color: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #f87171;
+  background-color: color-mix(in srgb, var(--cor-rosa) 14%, white);
+  color: var(--cor-fundo-escuro);
+  border: 1px solid var(--cor-rosa);
   border-radius: 4px;
   font-size: 13px;
   margin-bottom: 8px;
@@ -645,11 +680,35 @@
 }
 
 .func-btn--adicionar {
-  background: #0369a1;
+  background: var(--cor-azul);
   color: #fff;
+}
+
+.func-btn--excluir {
+  border: 1px solid var(--cor-rosa);
+  background: color-mix(in srgb, var(--cor-rosa) 80%, white);
+  color: var(--cor-fundo-escuro);
 }
 
 .func-modal input:focus-visible,
 .func-modal select:focus-visible {
-  outline: 2px solid var(--func-azul-bebe);
+  outline: 2px solid var(--cor-azul-claro);
+}
+
+@media (max-width: 420px) {
+  .func-fundo-modal {
+    padding-left: 12px;
+  }
+
+  .func-modal {
+    width: 100%;
+  }
+
+  .func-modal-rodape--editar {
+    flex-wrap: wrap;
+  }
+
+  .func-modal-rodape--editar > span {
+    display: none;
+  }
 }
