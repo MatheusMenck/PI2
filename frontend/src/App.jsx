@@ -8,9 +8,12 @@ import Funcionarios from './pages/Funcionarios'
 import Dashboard from './pages/Dashboard'
 import Perfil from './pages/Perfil'
 import CadastroAluno from './pages/CadastroAluno'
+import PerfilAluno from './pages/PerfilAluno'
+import Responsaveis from './pages/Responsaveis'
 
 const PAGINAS = {
   funcionarios: Funcionarios,
+  responsaveis: Responsaveis,
   login: Login,
   primeiroacessotoken: PrimeiroAcessoToken,
   primeiroacesso: PrimeiroAcesso,
@@ -46,10 +49,13 @@ function App() {
     setPaginaAtual(limpo)
   }
 
-  const ComponenteTela = PAGINAS[paginaAtual] || (localStorage.getItem('auth_token') ? Dashboard : Login)
+  const ComponenteTela = PAGINAS[paginaAtual]
+    || (paginaAtual.startsWith('alunos/') ? PerfilAluno : null)
+    || (localStorage.getItem('auth_token') ? Dashboard : Login)
 
   return (
     <ComponenteTela
+      key={paginaAtual}
       rota={paginaAtual}
       aoNavegar={navegar}
       onNavigate={navegar}
