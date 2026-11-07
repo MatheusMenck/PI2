@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import './Login.css'
 
-function Login({ onNavigate }) {
+function Login({ onNavigate, aoNavegar }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  const navegar = onNavigate || aoNavegar
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -40,10 +42,10 @@ function Login({ onNavigate }) {
         localStorage.setItem('auth_user', JSON.stringify(data.user))
       }
 
-      if (onNavigate) {
-        onNavigate('inicio')
+      if (navegar) {
+        navegar('inicio')
       } else {
-        window.location.href = '/alunos'
+        window.location.href = '/inicio'
       }
     } catch (err) {
       setError(err.message)
@@ -52,23 +54,26 @@ function Login({ onNavigate }) {
     }
   }
 
-  function handleGoToPasswordRecovery() {
-    if (onNavigate) {
-      onNavigate('recuperacaosenha')
+  function handleGoToPasswordRecovery(e) {
+    if (e) e.preventDefault()
+    if (navegar) {
+      navegar('recuperacaosenha')
+    } else {
+      window.location.pathname = '/recuperacaosenha'
     }
   }
 
   function handleGoToStudents() {
-    if (onNavigate) {
-      onNavigate('alunos')
+    if (navegar) {
+      navegar('alunos')
     } else {
       window.location.href = '/alunos'
     }
   }
 
   function handleGoToEmployees() {
-    if (onNavigate) {
-      onNavigate('funcionarios')
+    if (navegar) {
+      navegar('funcionarios')
     } else {
       window.location.href = '/funcionarios'
     }
@@ -114,7 +119,16 @@ function Login({ onNavigate }) {
           <button type="submit" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
+
+          <button
+            type="button"
+            className="login-forgot-btn"
+            onClick={handleGoToPasswordRecovery}
+          >
+            Esqueci minha senha
+          </button>
         </form>
+
         <nav className="login-shortcuts" aria-label="Outras telas">
           <button type="button" onClick={handleGoToStudents}>Alunos</button>
           <button type="button" onClick={handleGoToEmployees}>Funcionários</button>

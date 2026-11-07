@@ -7,6 +7,10 @@ use App\Http\Controllers\FuncionarioController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::post('/password/forgot', [AuthController::class, 'forgotPassword']);
+Route::post('/password/verify-code', [AuthController::class, 'verifyResetCode']);
+Route::post('/password/reset', [AuthController::class, 'resetPassword']);
+
 Route::post('/funcionarios/ativar', [FuncionarioController::class, 'ativar']);
 Route::post('/funcionarios/definir-senha', [FuncionarioController::class, 'definirSenha']);
 Route::apiResource('funcionarios', FuncionarioController::class);

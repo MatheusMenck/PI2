@@ -19,6 +19,14 @@ const PAGINAS = {
   primeiroacesso: PrimeiroAcesso,
   alunos: Alunos,
   recuperacaosenha: RecuperacaoSenha,
+  'recuperacao-senha': RecuperacaoSenha,
+  recuperarsenha: RecuperacaoSenha,
+  'recuperar-senha': RecuperacaoSenha,
+  esqueciminhasenha: RecuperacaoSenha,
+  'esqueci-minha-senha': RecuperacaoSenha,
+  esquecisenha: RecuperacaoSenha,
+  'esqueci-senha': RecuperacaoSenha,
+  'forgot-password': RecuperacaoSenha,
   inicio: Dashboard,
   perfil: Perfil,
   'alunos/novo': CadastroAluno,
@@ -60,7 +68,7 @@ function App() {
       rota={paginaAtual}
       aoNavegar={navegar}
       onNavigate={navegar}
-      onBack={() => navegar('Login')}
+      onBack={() => navegar('login')}
     />
   )
 }

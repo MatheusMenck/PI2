@@ -151,6 +151,27 @@
   outline-offset: 2px;
 }
 
+.login-forgot-btn {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--cor-azul-claro) !important;
+  margin: 12px 0 0 !important;
+  padding: 6px 0 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 400 !important;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 150ms ease;
+  display: block !important;
+  text-align: center;
+}
+
+.login-forgot-btn:hover {
+  color: #93c5fd !important;
+  text-decoration: underline;
+  filter: none !important;
+}
+
 @media (max-width: 360px) {
   .login-page {
     padding: 12px;

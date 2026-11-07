@@ -164,7 +164,7 @@ function Perfil({ onNavigate }) {
                 id="perfil-senha-nova"
                 type="password"
                 autoComplete="new-password"
-                minLength={8}
+                minLength={6}
                 value={novaSenha}
                 onChange={(event) => setNovaSenha(event.target.value)}
                 required
@@ -174,7 +174,7 @@ function Perfil({ onNavigate }) {
                 id="perfil-senha-confirmacao"
                 type="password"
                 autoComplete="new-password"
-                minLength={8}
+                minLength={6}
                 value={confirmacaoSenha}
                 onChange={(event) => setConfirmacaoSenha(event.target.value)}
                 required
