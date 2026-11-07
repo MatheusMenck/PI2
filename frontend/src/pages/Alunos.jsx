@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import './Alunos.css'
 import logo from '../assets/logo.png'
 const alunos = [
-  { id: '1', status: 'Ativo', classe: 'ativo' },
-  { id: '2', status: 'Pendente', classe: 'pendente' },
-  { id: '3', status: 'Indeferida', classe: 'indeferida' },
+  { id: '1', nome: 'Cinnamoroll dos Santos Vieira', nascimento: '01/02/2007', cpf: '154.125.685-54', matricula: '15621456', status: 'Ativo', classe: 'ativo' },
+  { id: '2', nome: 'Hello Kitty da Silva', nascimento: '14/08/2010', cpf: '325.641.987-10', matricula: '15621457', status: 'Pendente', classe: 'pendente' },
+  { id: '3', nome: 'Kuromi Oliveira', nascimento: '22/11/2008', cpf: '498.215.736-02', matricula: '15621458', status: 'Indeferida', classe: 'indeferida' },
 ]
 
 function Icone({ nome, tamanho = 26 }) {
@@ -145,10 +145,10 @@ function Alunos({ rota, aoNavegar }) {
               <button key={aluno.id} className="cartao-aluno" onClick={() => abrirAluno(aluno.id)}>
                 <span className="avatar" aria-hidden="true" />
                 <span className="dados-aluno">
-                  <span className="campo nome"><small>Nome</small><span>Cinnamoroll</span></span>
-                  <span className="campo nascimento"><small>Data de Nascimento</small><span>31/10/2005</span></span>
-                  <span className="campo cpf"><small>CPF</small><span>341431123-9</span></span>
-                  <span className="campo matricula"><small>Matrícula</small><span>15621456</span></span>
+                  <span className="campo nome"><small>Nome</small><span>{aluno.nome}</span></span>
+                  <span className="campo nascimento"><small>Data de Nascimento</small><span>{aluno.nascimento}</span></span>
+                  <span className="campo cpf"><small>CPF</small><span>{aluno.cpf}</span></span>
+                  <span className="campo matricula"><small>Matrícula</small><span>{aluno.matricula}</span></span>
                 </span>
                 <span className={`status ${aluno.classe}`}><small>Status da Matrícula</small><span>{aluno.status}</span></span>
               </button>
