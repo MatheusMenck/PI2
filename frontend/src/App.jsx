@@ -7,6 +7,7 @@ import RecuperacaoSenha from './pages/RecuperacaoSenha'
 import Funcionarios from './pages/Funcionarios'
 import Dashboard from './pages/Dashboard'
 import Perfil from './pages/Perfil'
+import CadastroAluno from './pages/CadastroAluno'
 
 const PAGINAS = {
   funcionarios: Funcionarios,
@@ -17,6 +18,7 @@ const PAGINAS = {
   recuperacaosenha: RecuperacaoSenha,
   inicio: Dashboard,
   perfil: Perfil,
+  'alunos/novo': CadastroAluno,
 }
 
 function App() {
