@@ -50,6 +50,7 @@ function App() {
   }
 
   const ComponenteTela = PAGINAS[paginaAtual]
+    || (paginaAtual.startsWith('responsaveis/') ? Responsaveis : null)
     || (paginaAtual.startsWith('alunos/') ? PerfilAluno : null)
     || (localStorage.getItem('auth_token') ? Dashboard : Login)
 
