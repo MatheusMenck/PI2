@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Domicilio;
 use App\Models\Relato;
 use App\Models\Responsavel;
 use App\Models\User;
@@ -59,10 +60,35 @@ class AlunoController extends Controller
             'profissaoPai' => ['nullable', 'string', 'max:100'],
             'salarioPai' => ['nullable', 'numeric'],
             'enderecoComercialPai' => ['nullable', 'string', 'max:255'],
+
+            // Endereço e Residência (Etapa 5)
+            'cep' => ['required', 'string', 'max:20'],
+            'rua' => ['required', 'string', 'max:255'],
+            'bairro' => ['required', 'string', 'max:100'],
+            'numero' => ['required', 'numeric'],
+            'referencia' => ['nullable', 'string', 'max:255'],
+            'cidade' => ['required', 'string', 'max:100'],
+            'estado' => ['required', 'string', 'max:50'],
+            'tipoMoradia' => ['nullable', 'string'],
+            'agua' => ['nullable', 'numeric'],
+            'luz' => ['nullable', 'numeric'],
+            'gas' => ['nullable', 'numeric'],
+            'alimentacao' => ['nullable', 'numeric'],
+            'rendaTotal' => ['nullable', 'numeric'],
+            'rendaPerCapita' => ['nullable', 'numeric'],
+            'beneficio' => ['nullable', 'string'],
+            'nomeBeneficio' => ['nullable', 'string', 'max:100'],
+            'valorBeneficio' => ['nullable', 'numeric'],
         ], [
             'nome.required' => 'O nome da criança é obrigatório.',
             'cpf.unique' => 'Este CPF já está cadastrado no sistema.',
             'periodo.in' => 'O período escolar deve ser manha, tarde ou noite.',
+            'cep.required' => 'O CEP é obrigatório.',
+            'rua.required' => 'A rua é obrigatória.',
+            'bairro.required' => 'O bairro é obrigatório.',
+            'numero.required' => 'O número é obrigatório.',
+            'cidade.required' => 'A cidade é obrigatória.',
+            'estado.required' => 'O estado é obrigatório.',
         ]);
 
         // Pelo menos um responsável deve ser informado
@@ -76,8 +102,31 @@ class AlunoController extends Controller
         }
 
         return DB::transaction(function () use ($dadosValidados, $request) {
-            // 1. Criar o registro do Aluno
+            // 1. Normalizar moradia
+            $moradia = match (mb_strtolower($dadosValidados['tipoMoradia'] ?? 'propria')) {
+                'cedida' => 'cedida',
+                'alugada' => 'alugada',
+                default => 'propria',
+            };
+
+            // 2. Criar o Domicílio
+            $domicilio = Domicilio::create([
+                'endereco_residencial' => $dadosValidados['rua'],
+                'bairro' => $dadosValidados['bairro'],
+                'numero' => (int) $dadosValidados['numero'],
+                'ponto_referencia' => $dadosValidados['referencia'] ?? null,
+                'moradia' => $moradia,
+                'despesa_agua' => $dadosValidados['agua'] ?? 0.00,
+                'despesa_luz' => $dadosValidados['luz'] ?? 0.00,
+                'despesa_alimentacao' => $dadosValidados['alimentacao'] ?? 0.00,
+                'despesa_gas' => $dadosValidados['gas'] ?? 0.00,
+                'renda_total' => $dadosValidados['rendaTotal'] ?? 0.00,
+                'renda_percapta' => $dadosValidados['rendaPerCapita'] ?? 0.00,
+            ]);
+
+            // 3. Criar o registro do Aluno vinculado ao Domicílio
             $aluno = User::create([
+                'fk_domicilio_id' => $domicilio->id_domicilio,
                 'name' => $dadosValidados['nome'],
                 'religiao' => $dadosValidados['religiao'] ?? null,
                 'data_nascimento' => $dadosValidados['dataNascimento'] ?? null,
@@ -89,7 +138,7 @@ class AlunoController extends Controller
                 'escola_periodo' => $dadosValidados['periodo'] ?? null,
             ]);
 
-            // 2. Criar os Relatos (se fornecidos)
+            // 4. Criar os Relatos (se fornecidos)
             if (!empty($dadosValidados['relatos'])) {
                 $usuarioLogado = $request->user();
                 $idFuncionario = $usuarioLogado?->id_usuario ?? $usuarioLogado?->id;
@@ -111,9 +160,13 @@ class AlunoController extends Controller
                 }
             }
 
-            // 3. Criar e associar a Mãe (se informada)
+            $possuiBeneficio = ($dadosValidados['beneficio'] ?? 'Não') === 'Sim';
+            $valorBeneficio = $possuiBeneficio ? ($dadosValidados['valorBeneficio'] ?? 0.00) : 0.00;
+
+            // 5. Criar e associar a Mãe (se informada)
             if (!empty($dadosValidados['nomeMae'])) {
                 $mae = Responsavel::create([
+                    'fk_domicilio_id' => $domicilio->id_domicilio,
                     'nome' => $dadosValidados['nomeMae'],
                     'nis' => $dadosValidados['nisMae'] ?? null,
                     'data_nascimento' => $dadosValidados['nascimentoMae'] ?? null,
@@ -123,6 +176,8 @@ class AlunoController extends Controller
                     'telefone' => $dadosValidados['telefoneMae'] ?? null,
                     'profissao' => $dadosValidados['profissaoMae'] ?? null,
                     'salario' => $dadosValidados['salarioMae'] ?? 0.00,
+                    'beneficio_governo' => $possuiBeneficio,
+                    'valor_beneficio' => $valorBeneficio,
                     'endereco_comercial' => $dadosValidados['enderecoComercialMae'] ?? null,
                 ]);
 
@@ -133,9 +188,10 @@ class AlunoController extends Controller
                 ]);
             }
 
-            // 4. Criar e associar o Pai (se informado)
+            // 6. Criar e associar o Pai (se informado)
             if (!empty($dadosValidados['nomePai'])) {
                 $pai = Responsavel::create([
+                    'fk_domicilio_id' => $domicilio->id_domicilio,
                     'nome' => $dadosValidados['nomePai'],
                     'nis' => $dadosValidados['nisPai'] ?? null,
                     'data_nascimento' => $dadosValidados['nascimentoPai'] ?? null,
@@ -145,19 +201,21 @@ class AlunoController extends Controller
                     'telefone' => $dadosValidados['telefonePai'] ?? null,
                     'profissao' => $dadosValidados['profissaoPai'] ?? null,
                     'salario' => $dadosValidados['salarioPai'] ?? 0.00,
+                    'beneficio_governo' => empty($dadosValidados['nomeMae']) ? $possuiBeneficio : false,
+                    'valor_beneficio' => empty($dadosValidados['nomeMae']) ? $valorBeneficio : 0.00,
                     'endereco_comercial' => $dadosValidados['enderecoComercialPai'] ?? null,
                 ]);
 
                 $aluno->responsaveis()->attach($pai->id_responsavel, [
                     'parentesco' => 'Pai',
-                    'e_responsavel_legal' => empty($dadosValidados['nomeMae']), // se não houver mãe, pai é o principal
+                    'e_responsavel_legal' => empty($dadosValidados['nomeMae']),
                     'autorizado_retirar' => true,
                 ]);
             }
 
             return response()->json([
                 'message' => 'Aluno cadastrado com sucesso!',
-                'aluno' => $aluno->load(['relatos', 'responsaveis']),
+                'aluno' => $aluno->load(['relatos', 'responsaveis', 'domicilio']),
             ], 201);
         });
     }

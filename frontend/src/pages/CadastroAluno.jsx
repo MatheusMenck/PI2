@@ -53,6 +53,21 @@ function CadastroAluno({ aoNavegar }) {
         return
       }
     }
+    if (etapaAtual === 5) {
+      const camposObrigatoriosEndereco = [
+        { chave: 'cep', rotulo: 'CEP' },
+        { chave: 'rua', rotulo: 'Rua' },
+        { chave: 'bairro', rotulo: 'Bairro' },
+        { chave: 'numero', rotulo: 'Número' },
+        { chave: 'cidade', rotulo: 'Cidade' },
+        { chave: 'estado', rotulo: 'Estado' },
+      ]
+      const faltando = camposObrigatoriosEndereco.find((item) => !aluno[item.chave]?.toString().trim())
+      if (faltando) {
+        setErroEtapa(`Por favor, preencha o campo de endereço "${faltando.rotulo}" antes de prosseguir.`)
+        return
+      }
+    }
     setEtapaAtual((atual) => Math.min(9, atual + 1))
   }
   const voltar = () => etapaAtual === 1 ? aoNavegar('alunos') : setEtapaAtual((atual) => atual - 1)
@@ -157,7 +172,79 @@ function CadastroAluno({ aoNavegar }) {
         </>
       )
     }
-    if (etapaAtual === 5) return <><h2>Ficha de Matrícula - Residência</h2><h3>Composição Familiar</h3>{familia.map((pessoa, i) => <div className="linha-familia" key={i}><b>{i + 1}</b>{['nome', 'nascimento', 'parentesco', 'renda'].map((nome) => <label key={nome}>{nome === 'nascimento' ? 'Nasc.' : nome[0].toUpperCase() + nome.slice(1)}<input value={pessoa[nome]} onChange={(e) => atualizarLista(familia, setFamilia, i, nome, e.target.value)} /></label>)}</div>)}<button className="adicionar-linha" type="button" onClick={() => setFamilia((a) => [...a, { nome: '', nascimento: '', parentesco: '', renda: '' }])}>＋</button><h3>Endereço</h3><div className="grade endereco">{campo('cep', 'CEP')}{campo('rua', 'Rua')}{campo('bairro', 'Bairro')}{campo('numero', 'Número')}{campo('referencia', 'Referencia')}{campo('cidade', 'Cidade')}{campo('estado', 'Estado')}</div><h3>Renda e Despesas</h3><div className="caixa moradia">Tipo de Moradia {['Própria', 'Cedida', 'Alugada'].map((x) => <label key={x}><input type="radio" name="tipoMoradia" value={x} checked={aluno.tipoMoradia === x} onChange={atualizarAluno} />{x}</label>)}</div><div className="grade despesas">{campo('agua', 'Conta de água')}{campo('luz', 'Conta de luz')}{campo('gas', 'Gás')}{campo('alimentacao', 'Alimentação')}{campo('rendaTotal', 'Renda Total')}{campo('rendaPerCapita', 'Renda Percapto')}</div><h3>Benefícios</h3><div className="caixa moradia">Possui algum Benefício do Governo? {radio('beneficio')}</div><div className="grade beneficio">{campo('nomeBeneficio', 'Nome do Benefício')}{campo('valorBeneficio', 'Valor recebido')}</div></>
+    if (etapaAtual === 5) return (
+      <>
+        <h2>Ficha de Matrícula - Residência</h2>
+        {erroEtapa && <p className="mensagem-erro-etapa" style={{ color: '#d9534f', marginBottom: '10px' }}>{erroEtapa}</p>}
+        <h3>Composição Familiar</h3>
+        {familia.map((pessoa, i) => (
+          <div className="linha-familia" key={i}>
+            <b>{i + 1}</b>
+            {['nome', 'nascimento', 'parentesco', 'renda'].map((nome) => (
+              <label key={nome}>
+                {nome === 'nascimento' ? 'Nasc.' : nome[0].toUpperCase() + nome.slice(1)}
+                <input
+                  value={pessoa[nome]}
+                  onChange={(e) => atualizarLista(familia, setFamilia, i, nome, e.target.value)}
+                />
+              </label>
+            ))}
+          </div>
+        ))}
+        <button
+          className="adicionar-linha"
+          type="button"
+          onClick={() => setFamilia((a) => [...a, { nome: '', nascimento: '', parentesco: '', renda: '' }])}
+        >
+          ＋
+        </button>
+
+        <h3>Endereço</h3>
+        <div className="grade endereco">
+          {campo('cep', 'CEP *')}
+          {campo('rua', 'Rua *')}
+          {campo('bairro', 'Bairro *')}
+          {campo('numero', 'Número *', 'number')}
+          {campo('referencia', 'Referência (opcional)')}
+          {campo('cidade', 'Cidade *')}
+          {campo('estado', 'Estado *')}
+        </div>
+
+        <h3>Renda e Despesas</h3>
+        <div className="caixa moradia">
+          Tipo de Moradia
+          {['Própria', 'Cedida', 'Alugada'].map((x) => (
+            <label key={x}>
+              <input
+                type="radio"
+                name="tipoMoradia"
+                value={x}
+                checked={aluno.tipoMoradia === x}
+                onChange={atualizarAluno}
+              />
+              {x}
+            </label>
+          ))}
+        </div>
+        <div className="grade despesas">
+          {campo('agua', 'Conta de água', 'number')}
+          {campo('luz', 'Conta de luz', 'number')}
+          {campo('gas', 'Gás', 'number')}
+          {campo('alimentacao', 'Alimentação', 'number')}
+          {campo('rendaTotal', 'Renda Total', 'number')}
+          {campo('rendaPerCapita', 'Renda Percapto', 'number')}
+        </div>
+
+        <h3>Benefícios</h3>
+        <div className="caixa moradia">
+          Possui algum Benefício do Governo? {radio('beneficio')}
+        </div>
+        <div className="grade beneficio">
+          {campo('nomeBeneficio', 'Nome do Benefício')}
+          {campo('valorBeneficio', 'Valor recebido', 'number')}
+        </div>
+      </>
+    )
     if (etapaAtual === 6) return <><h2>Ficha de Saúde</h2>{[['problemaSaude', 'Possui algum problema de saúde?', 'problemaSaudeQual'], ['tratamento', 'Faz algum tratamento médico?', 'tratamentoQual'], ['alergia', 'Possui alguma Alergia?', 'alergiaQual']].map(([n, t, q]) => <div className="pergunta" key={n}><span>{t}</span>{radio(n)}{campo(q, 'Se sim, Qual(is)?')}</div>)}<div className="pergunta"><span>Que doença ele(a) já teve antes?</span>{campo('doencasAnteriores', '')}</div></>
     if (etapaAtual === 7 || etapaAtual === 8) return <><h2>Ficha Anamnese</h2>{etapaAtual === 7 && <><h3>Queixa Principal</h3><textarea className="grande" name="queixaPrincipal" value={aluno.queixaPrincipal} onChange={atualizarAluno} /><h3>Informações do Médico/Assistente</h3><div className="grade medico">{campo('medico', 'Nome')}{campo('telefoneMedico', 'Telefone')}</div>{[['doenca', 'Sofre de alguma doença?', 'doencaQual'], ['operado', 'Já foi operado?', 'operadoQual'], ['anestesia', 'Teve problema com anestesia?'], ['cicatrizacao', 'Teve problema com cicatrização?'], ['hemorragia', 'Teve problema com hemorragia?']].map(([n, t, q]) => <div className="pergunta" key={n}><span>{t}</span>{radio(n)}{q && campo(q, 'Se sim, Qual(is)?')}</div>)}<h3>Sofre de alguma dessas doenças?</h3></>}{(etapaAtual === 7 ? perguntas.slice(0, 5) : perguntas.slice(5)).map((texto) => <div className="pergunta" key={texto}><span>{texto}</span>{radio(`doenca-${texto}`)}</div>)}{etapaAtual === 8 && <><label className="texto-grande">Hábitos<textarea name="habitos" value={aluno.habitos} onChange={atualizarAluno} /></label><label className="texto-grande">Antecedentes Familiares<textarea name="antecedentes" value={aluno.antecedentes} onChange={atualizarAluno} /></label><label className="texto-grande">Outros Problemas<textarea name="outrosProblemas" value={aluno.outrosProblemas} onChange={atualizarAluno} /></label></>}</>
     return <><h2>Autorizações</h2><section className="termo"><h3>1 - Termo de compromisso a ser cumprido:</h3><p>1º Devo respeitar e cumprir todas as normas do Regulamento do Projeto Samaritano e incentivar meus filhos a cumpri-las também.</p><p>2º Estou ciente de que é importante participar de todas as convocações.</p><p>3º Autorizo meu filho (a) ir embora sozinho (a): {radio('acompanhante')}</p><p>Se não, Somente com:</p>{acompanhantes.map((item, i) => <div className="linha-acompanhante" key={i}>{['nome', 'parentesco', 'telefone'].map((nome) => <label key={nome}>{nome[0].toUpperCase() + nome.slice(1)}<input value={item[nome]} onChange={(e) => atualizarLista(acompanhantes, setAcompanhantes, i, nome, e.target.value)} /></label>)}</div>)}<button className="adicionar-linha" type="button" onClick={() => setAcompanhantes((a) => [...a, { nome: '', parentesco: '', telefone: '' }])}>＋</button><h3>2 - Projeto Samaritano</h3><p>Autorizo meu filho (a) a frequentar de segunda a sexta-feira, das 13h às 17 horas o Projeto Samaritano, pelo prazo de 1 mês de Adaptação, bem como participar de todas as atividades do Plano anual.</p><h3>3 - Autorização de Atendimento</h3><p>Eu, responsável legal, autorizo a passar pela avaliação e procedimentos odontológicos que sejam julgados necessários.</p><label className="texto-grande">Assinatura(foto ou arquivo digitalizado)<input type="file" onChange={(e) => setAluno((a) => ({ ...a, assinatura: e.target.files?.[0]?.name || '' }))} /></label></section></>

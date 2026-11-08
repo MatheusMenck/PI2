@@ -61,4 +61,9 @@ class User extends Authenticatable
                     ->withPivot('parentesco', 'e_responsavel_legal', 'autorizado_retirar')
                     ->withTimestamps();
     }
+
+    public function domicilio()
+    {
+        return $this->belongsTo(Domicilio::class, 'fk_domicilio_id', 'id_domicilio');
+    }
 }
