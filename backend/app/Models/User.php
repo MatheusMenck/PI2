@@ -49,4 +49,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function relatos()
+    {
+        return $this->hasMany(Relato::class, 'fk_aluno_id', 'id');
+    }
 }
