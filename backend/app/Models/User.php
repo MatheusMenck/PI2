@@ -54,4 +54,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(Relato::class, 'fk_aluno_id', 'id');
     }
+
+    public function responsaveis()
+    {
+        return $this->belongsToMany(Responsavel::class, 'aluno_responsavel', 'fk_aluno_id', 'fk_responsavel_id')
+                    ->withPivot('parentesco', 'e_responsavel_legal', 'autorizado_retirar')
+                    ->withTimestamps();
+    }
 }

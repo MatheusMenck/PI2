@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('aluno_responsavel', function (Blueprint $table) {
             $table->foreignId('fk_aluno_id')->constrained('users', 'id')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('fk_responsavel_id')->constrained('responsaveis', 'id_responsavel')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('fk_responsavel_id')->constrained('responsaveis', 'id_responsfavel')->onUpdate('cascade')->onDelete('cascade');
             $table->string('parentesco', 50);
             $table->boolean('e_responsavel_legal')->default(false);
             $table->boolean('autorizado_retirar')->default(false);

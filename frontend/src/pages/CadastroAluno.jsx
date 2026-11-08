@@ -47,6 +47,12 @@ function CadastroAluno({ aoNavegar }) {
         return
       }
     }
+    if (etapaAtual === 4) {
+      if (!aluno.nomeMae?.trim() && !aluno.nomePai?.trim()) {
+        setErroEtapa('Por favor, informe ao menos um responsável (Mãe ou Pai) para prosseguir.')
+        return
+      }
+    }
     setEtapaAtual((atual) => Math.min(9, atual + 1))
   }
   const voltar = () => etapaAtual === 1 ? aoNavegar('alunos') : setEtapaAtual((atual) => atual - 1)
@@ -126,7 +132,31 @@ function CadastroAluno({ aoNavegar }) {
         </button>
       </>
     )
-    if (etapaAtual === 3 || etapaAtual === 4) { const mae = etapaAtual === 3; const p = mae ? 'Mae' : 'Pai'; return <><h2>Ficha de Matrícula - {mae ? 'Mãe' : 'Pai'}</h2><div className="form-colunas">{foto(`foto${p}`)}<div className="grade responsavel">{campo(`nome${p}`, 'Nome')}{campo(`nis${p}`, 'NIS')}{campo(`nascimento${p}`, 'Data de Nascimento', 'date')}{campo(`cpf${p}`, 'CPF')}{campo(`escolaridade${p}`, 'Grau de escolaridade')}{campo(`rg${p}`, 'RG')}{campo(`telefone${p}`, 'Telefone', 'tel')}{campo(`profissao${p}`, 'Profissão')}{campo(`enderecoComercial${p}`, 'Endereço Comercial')}{campo(`salario${p}`, 'Salário')}</div></div></> }
+    if (etapaAtual === 3 || etapaAtual === 4) {
+      const mae = etapaAtual === 3
+      const p = mae ? 'Mae' : 'Pai'
+      return (
+        <>
+          <h2>Ficha de Matrícula - {mae ? 'Mãe' : 'Pai'}</h2>
+          {erroEtapa && <p className="mensagem-erro-etapa" style={{ color: '#d9534f', marginBottom: '10px' }}>{erroEtapa}</p>}
+          <div className="form-colunas">
+            {foto(`foto${p}`)}
+            <div className="grade responsavel">
+              {campo(`nome${p}`, 'Nome')}
+              {campo(`nis${p}`, 'NIS')}
+              {campo(`nascimento${p}`, 'Data de Nascimento', 'date')}
+              {campo(`cpf${p}`, 'CPF')}
+              {campo(`escolaridade${p}`, 'Grau de escolaridade')}
+              {campo(`rg${p}`, 'RG')}
+              {campo(`telefone${p}`, 'Telefone', 'tel')}
+              {campo(`profissao${p}`, 'Profissão')}
+              {campo(`enderecoComercial${p}`, 'Endereço Comercial')}
+              {campo(`salario${p}`, 'Salário', 'number')}
+            </div>
+          </div>
+        </>
+      )
+    }
     if (etapaAtual === 5) return <><h2>Ficha de Matrícula - Residência</h2><h3>Composição Familiar</h3>{familia.map((pessoa, i) => <div className="linha-familia" key={i}><b>{i + 1}</b>{['nome', 'nascimento', 'parentesco', 'renda'].map((nome) => <label key={nome}>{nome === 'nascimento' ? 'Nasc.' : nome[0].toUpperCase() + nome.slice(1)}<input value={pessoa[nome]} onChange={(e) => atualizarLista(familia, setFamilia, i, nome, e.target.value)} /></label>)}</div>)}<button className="adicionar-linha" type="button" onClick={() => setFamilia((a) => [...a, { nome: '', nascimento: '', parentesco: '', renda: '' }])}>＋</button><h3>Endereço</h3><div className="grade endereco">{campo('cep', 'CEP')}{campo('rua', 'Rua')}{campo('bairro', 'Bairro')}{campo('numero', 'Número')}{campo('referencia', 'Referencia')}{campo('cidade', 'Cidade')}{campo('estado', 'Estado')}</div><h3>Renda e Despesas</h3><div className="caixa moradia">Tipo de Moradia {['Própria', 'Cedida', 'Alugada'].map((x) => <label key={x}><input type="radio" name="tipoMoradia" value={x} checked={aluno.tipoMoradia === x} onChange={atualizarAluno} />{x}</label>)}</div><div className="grade despesas">{campo('agua', 'Conta de água')}{campo('luz', 'Conta de luz')}{campo('gas', 'Gás')}{campo('alimentacao', 'Alimentação')}{campo('rendaTotal', 'Renda Total')}{campo('rendaPerCapita', 'Renda Percapto')}</div><h3>Benefícios</h3><div className="caixa moradia">Possui algum Benefício do Governo? {radio('beneficio')}</div><div className="grade beneficio">{campo('nomeBeneficio', 'Nome do Benefício')}{campo('valorBeneficio', 'Valor recebido')}</div></>
     if (etapaAtual === 6) return <><h2>Ficha de Saúde</h2>{[['problemaSaude', 'Possui algum problema de saúde?', 'problemaSaudeQual'], ['tratamento', 'Faz algum tratamento médico?', 'tratamentoQual'], ['alergia', 'Possui alguma Alergia?', 'alergiaQual']].map(([n, t, q]) => <div className="pergunta" key={n}><span>{t}</span>{radio(n)}{campo(q, 'Se sim, Qual(is)?')}</div>)}<div className="pergunta"><span>Que doença ele(a) já teve antes?</span>{campo('doencasAnteriores', '')}</div></>
     if (etapaAtual === 7 || etapaAtual === 8) return <><h2>Ficha Anamnese</h2>{etapaAtual === 7 && <><h3>Queixa Principal</h3><textarea className="grande" name="queixaPrincipal" value={aluno.queixaPrincipal} onChange={atualizarAluno} /><h3>Informações do Médico/Assistente</h3><div className="grade medico">{campo('medico', 'Nome')}{campo('telefoneMedico', 'Telefone')}</div>{[['doenca', 'Sofre de alguma doença?', 'doencaQual'], ['operado', 'Já foi operado?', 'operadoQual'], ['anestesia', 'Teve problema com anestesia?'], ['cicatrizacao', 'Teve problema com cicatrização?'], ['hemorragia', 'Teve problema com hemorragia?']].map(([n, t, q]) => <div className="pergunta" key={n}><span>{t}</span>{radio(n)}{q && campo(q, 'Se sim, Qual(is)?')}</div>)}<h3>Sofre de alguma dessas doenças?</h3></>}{(etapaAtual === 7 ? perguntas.slice(0, 5) : perguntas.slice(5)).map((texto) => <div className="pergunta" key={texto}><span>{texto}</span>{radio(`doenca-${texto}`)}</div>)}{etapaAtual === 8 && <><label className="texto-grande">Hábitos<textarea name="habitos" value={aluno.habitos} onChange={atualizarAluno} /></label><label className="texto-grande">Antecedentes Familiares<textarea name="antecedentes" value={aluno.antecedentes} onChange={atualizarAluno} /></label><label className="texto-grande">Outros Problemas<textarea name="outrosProblemas" value={aluno.outrosProblemas} onChange={atualizarAluno} /></label></>}</>
