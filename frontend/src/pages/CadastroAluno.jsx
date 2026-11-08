@@ -28,12 +28,26 @@ function Icone({ nome, tamanho = 24 }) {
 function CadastroAluno({ aoNavegar }) {
   const [etapaAtual, setEtapaAtual] = useState(1)
   const [aluno, setAluno] = useState(vazio)
+  const [erroEtapa, setErroEtapa] = useState('')
   const [familia, setFamilia] = useState([{ nome: '', nascimento: '', parentesco: '', renda: '' }])
   const [acompanhantes, setAcompanhantes] = useState([{ nome: '', parentesco: '', telefone: '' }])
-  const atualizarAluno = (evento) => setAluno((atual) => ({ ...atual, [evento.target.name]: evento.target.value }))
+  const atualizarAluno = (evento) => {
+    setErroEtapa('')
+    setAluno((atual) => ({ ...atual, [evento.target.name]: evento.target.value }))
+  }
   const campo = (nome, titulo, tipo = 'text') => <label className="campo-form">{titulo}<input type={tipo} name={nome} value={aluno[nome]} onChange={atualizarAluno} /></label>
   const radio = (nome) => <span className="radios">{['Sim', 'Não'].map((opcao) => <label key={opcao}><input type="radio" name={nome} value={opcao} checked={aluno[nome] === opcao} onChange={atualizarAluno} />{opcao}</label>)}</span>
-  const avancar = () => setEtapaAtual((atual) => Math.min(9, atual + 1))
+  
+  const avancar = () => {
+    setErroEtapa('')
+    if (etapaAtual === 1) {
+      if (!aluno.nome.trim()) {
+        setErroEtapa('Por favor, informe o nome da criança antes de prosseguir.')
+        return
+      }
+    }
+    setEtapaAtual((atual) => Math.min(9, atual + 1))
+  }
   const voltar = () => etapaAtual === 1 ? aoNavegar('alunos') : setEtapaAtual((atual) => atual - 1)
   const foto = (nome) => <label className="foto"><span>{aluno[nome] ? <img src={aluno[nome]} alt="Prévia" /> : 'Foto'}</span><input type="file" accept="image/*" onChange={(e) => { const arquivo = e.target.files?.[0]; if (arquivo) setAluno((a) => ({ ...a, [nome]: URL.createObjectURL(arquivo) })) }} />Enviar Foto</label>
   const atualizarLista = (lista, setLista, indice, nome, valor) => setLista((atual) => atual.map((item, i) => i === indice ? { ...item, [nome]: valor } : item))
@@ -41,7 +55,34 @@ function CadastroAluno({ aoNavegar }) {
   const usuario = (() => { try { return JSON.parse(localStorage.getItem('auth_user')) || null } catch { return null } })()
 
   function etapa() {
-    if (etapaAtual === 1) return <><h2>Ficha de Matrícula - Criança</h2><div className="form-colunas">{foto('fotoAluno')}<div className="grade campos-crianca">{campo('nome', 'Nome')} {campo('religiao', 'Religião')} {campo('dataNascimento', 'Data de Nascimento', 'date')} {campo('cpf', 'CPF')} {campo('escola', 'Escola')} {campo('rg', 'RG')} {campo('telefone', 'Telefone Principal', 'tel')} {campo('serie', 'Série')} {campo('periodo', 'Período')}</div></div></>
+    if (etapaAtual === 1) return (
+      <>
+        <h2>Ficha de Matrícula - Criança</h2>
+        {erroEtapa && <p className="mensagem-erro-etapa" style={{ color: '#d9534f', marginBottom: '10px' }}>{erroEtapa}</p>}
+        <div className="form-colunas">
+          {foto('fotoAluno')}
+          <div className="grade campos-crianca">
+            {campo('nome', 'Nome')}
+            {campo('religiao', 'Religião')}
+            {campo('dataNascimento', 'Data de Nascimento', 'date')}
+            {campo('cpf', 'CPF')}
+            {campo('escola', 'Escola')}
+            {campo('rg', 'RG')}
+            {campo('telefone', 'Telefone Principal', 'tel')}
+            {campo('serie', 'Série')}
+            <label className="campo-form">
+              Período
+              <select name="periodo" value={aluno.periodo} onChange={atualizarAluno}>
+                <option value="">Selecione o período</option>
+                <option value="manha">Manhã</option>
+                <option value="tarde">Tarde</option>
+                <option value="noite">Noite</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </>
+    )
     if (etapaAtual === 2) return <><h2>Ficha de Matrícula - Relatos</h2><div className="caixa"><div className="grade relato-topo">{campo('relatoData', 'Data', 'date')}{campo('relatoTitulo', 'Título')}</div><label className="campo-form">Relato<textarea name="relato" value={aluno.relato} onChange={atualizarAluno} placeholder="Insira um relato que ocorreu com o aluno" /></label></div><button className="adicionar-linha" type="button">＋</button></>
     if (etapaAtual === 3 || etapaAtual === 4) { const mae = etapaAtual === 3; const p = mae ? 'Mae' : 'Pai'; return <><h2>Ficha de Matrícula - {mae ? 'Mãe' : 'Pai'}</h2><div className="form-colunas">{foto(`foto${p}`)}<div className="grade responsavel">{campo(`nome${p}`, 'Nome')}{campo(`nis${p}`, 'NIS')}{campo(`nascimento${p}`, 'Data de Nascimento', 'date')}{campo(`cpf${p}`, 'CPF')}{campo(`escolaridade${p}`, 'Grau de escolaridade')}{campo(`rg${p}`, 'RG')}{campo(`telefone${p}`, 'Telefone', 'tel')}{campo(`profissao${p}`, 'Profissão')}{campo(`enderecoComercial${p}`, 'Endereço Comercial')}{campo(`salario${p}`, 'Salário')}</div></div></> }
     if (etapaAtual === 5) return <><h2>Ficha de Matrícula - Residência</h2><h3>Composição Familiar</h3>{familia.map((pessoa, i) => <div className="linha-familia" key={i}><b>{i + 1}</b>{['nome', 'nascimento', 'parentesco', 'renda'].map((nome) => <label key={nome}>{nome === 'nascimento' ? 'Nasc.' : nome[0].toUpperCase() + nome.slice(1)}<input value={pessoa[nome]} onChange={(e) => atualizarLista(familia, setFamilia, i, nome, e.target.value)} /></label>)}</div>)}<button className="adicionar-linha" type="button" onClick={() => setFamilia((a) => [...a, { nome: '', nascimento: '', parentesco: '', renda: '' }])}>＋</button><h3>Endereço</h3><div className="grade endereco">{campo('cep', 'CEP')}{campo('rua', 'Rua')}{campo('bairro', 'Bairro')}{campo('numero', 'Número')}{campo('referencia', 'Referencia')}{campo('cidade', 'Cidade')}{campo('estado', 'Estado')}</div><h3>Renda e Despesas</h3><div className="caixa moradia">Tipo de Moradia {['Própria', 'Cedida', 'Alugada'].map((x) => <label key={x}><input type="radio" name="tipoMoradia" value={x} checked={aluno.tipoMoradia === x} onChange={atualizarAluno} />{x}</label>)}</div><div className="grade despesas">{campo('agua', 'Conta de água')}{campo('luz', 'Conta de luz')}{campo('gas', 'Gás')}{campo('alimentacao', 'Alimentação')}{campo('rendaTotal', 'Renda Total')}{campo('rendaPerCapita', 'Renda Percapto')}</div><h3>Benefícios</h3><div className="caixa moradia">Possui algum Benefício do Governo? {radio('beneficio')}</div><div className="grade beneficio">{campo('nomeBeneficio', 'Nome do Benefício')}{campo('valorBeneficio', 'Valor recebido')}</div></>

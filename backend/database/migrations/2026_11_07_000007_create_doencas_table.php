@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('funcionarios', function (Blueprint $table) {
-            $table->string('password')->nullable()->after('token_acesso');
+        Schema::create('doencas', function (Blueprint $table) {
+            $table->id('id_doenca');
+            $table->string('nome', 150);
+            $table->text('detalhes')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('funcionarios', function (Blueprint $table) {
-            $table->dropColumn('password');
-        });
+        Schema::dropIfExists('doencas');
     }
 };
+

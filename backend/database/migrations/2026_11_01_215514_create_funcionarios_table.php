@@ -12,14 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('funcionarios', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome');
-            $table->string('email')->unique();
-            $table->string('cargo')->default('Funcionario');
-            $table->string('admissao')->nullable();
-            $table->string('telefone')->nullable();
+            $table->id('id_usuario');
+            $table->string('nome', 255);
+            $table->string('usuario', 50)->nullable()->unique();
+            $table->string('senha', 255)->nullable();
+            $table->string('email', 255)->unique();
+            $table->enum('cargo', ['admin', 'funcionario'])->default('funcionario');
+            $table->enum('status', ['ativo', 'inativo'])->default('ativo');
+            $table->date('data_admissao')->nullable();
+            $table->string('admissao', 50)->nullable();
+            $table->string('telefone', 20)->nullable();
             $table->boolean('ativo')->default(true);
             $table->string('token_acesso')->nullable();
+            $table->string('token', 255)->nullable();
+            $table->string('password')->nullable();
             $table->timestamps();
         });
     }

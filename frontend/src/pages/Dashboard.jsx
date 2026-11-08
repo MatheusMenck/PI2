@@ -63,7 +63,13 @@ function Dashboard({ rota, aoNavegar }) {
           </section>
 
           <section className="dashboard-actions" aria-label="Ações futuras">
-            <article><span>Adicionar Aluno</span><Icon name="plus" size={25} /></article>
+            <article 
+    onClick={() => navegar('alunos/novo')} 
+    style={{ cursor: 'pointer' }}
+  >
+    <span>Adicionar Aluno</span>
+    <Icon name="plus" size={25} />
+  </article>
             <article><span>Adicionar Responsavel</span><Icon name="plus" size={25} /></article>
             <article><span>Adicionar Relatos</span><Icon name="plus" size={25} /></article>
           </section>
