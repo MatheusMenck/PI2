@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Domicilio;
 use App\Models\Relato;
 use App\Models\Responsavel;
+use App\Models\SaudeAluno;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -79,6 +80,15 @@ class AlunoController extends Controller
             'beneficio' => ['nullable', 'string'],
             'nomeBeneficio' => ['nullable', 'string', 'max:100'],
             'valorBeneficio' => ['nullable', 'numeric'],
+
+            // Ficha de Saúde (Etapa 6)
+            'problemaSaude' => ['nullable', 'string'],
+            'problemaSaudeQual' => ['nullable', 'string'],
+            'tratamento' => ['nullable', 'string'],
+            'tratamentoQual' => ['nullable', 'string'],
+            'alergia' => ['nullable', 'string'],
+            'alergiaQual' => ['nullable', 'string'],
+            'doencasAnteriores' => ['nullable', 'string'],
         ], [
             'nome.required' => 'O nome da criança é obrigatório.',
             'cpf.unique' => 'Este CPF já está cadastrado no sistema.',
@@ -213,9 +223,28 @@ class AlunoController extends Controller
                 ]);
             }
 
+            // 7. Criar a Ficha de Saúde (Etapa 6)
+            $possuiAlergia = ($dadosValidados['alergia'] ?? 'Não') === 'Sim';
+            $emTratamento = ($dadosValidados['tratamento'] ?? 'Não') === 'Sim';
+            $possuiProblemaSaude = ($dadosValidados['problemaSaude'] ?? 'Não') === 'Sim';
+
+            $detalhesObservacoes = array_filter([
+                !empty($dadosValidados['doencasAnteriores']) ? 'Doenças anteriores: ' . $dadosValidados['doencasAnteriores'] : null,
+                ($possuiProblemaSaude && !empty($dadosValidados['problemaSaudeQual'])) ? 'Problema de saúde: ' . $dadosValidados['problemaSaudeQual'] : null,
+                ($emTratamento && !empty($dadosValidados['tratamentoQual'])) ? 'Tratamento: ' . $dadosValidados['tratamentoQual'] : null,
+            ]);
+
+            SaudeAluno::create([
+                'fk_aluno_id' => $aluno->id,
+                'possui_alergia' => $possuiAlergia,
+                'descricao_alergia' => $possuiAlergia ? ($dadosValidados['alergiaQual'] ?? null) : null,
+                'em_tratamento_medico' => $emTratamento,
+                'observacoes_saude' => !empty($detalhesObservacoes) ? implode(" | ", $detalhesObservacoes) : null,
+            ]);
+
             return response()->json([
                 'message' => 'Aluno cadastrado com sucesso!',
-                'aluno' => $aluno->load(['relatos', 'responsaveis', 'domicilio']),
+                'aluno' => $aluno->load(['relatos', 'responsaveis', 'domicilio', 'saude']),
             ], 201);
         });
     }

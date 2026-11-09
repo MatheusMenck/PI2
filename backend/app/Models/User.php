@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Domicilio::class, 'fk_domicilio_id', 'id_domicilio');
     }
+
+    public function saude()
+    {
+        return $this->hasOne(SaudeAluno::class, 'fk_aluno_id', 'id');
+    }
 }
