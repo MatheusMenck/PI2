@@ -46,6 +46,12 @@ const responsaveis = [
   },
 ]
 
+const alunosReferencia = [
+  { id: 'aluno-1', nome: 'Cinnamoroll dos Santos Vieira', nascimento: '01/02/2007', telefone: '(15) 99785-4515', foto: fotoAluno },
+  { id: 'aluno-2', nome: 'Kuromi Oliveira', nascimento: '22/11/2008', telefone: '(15) 99775-0102', foto: fotoAluno },
+  { id: 'aluno-3', nome: 'Hello Kitty da Silva', nascimento: '14/08/2010', telefone: '(15) 99810-3147', foto: fotoAluno },
+]
+
 const filtrosVazios = { nome: '', cpf: '', telefone: '', nis: '' }
 
 function Icone({ nome, tamanho = 24 }) {
@@ -276,11 +282,156 @@ function DetalhesResponsavel({ responsavel }) {
   )
 }
 
+function FormularioResponsavel({ aoNavegar }) {
+  const [fotoFormulario, setFotoFormulario] = useState(fotoResponsavel)
+  const [pesquisaAluno, setPesquisaAluno] = useState('')
+  const [alunosSelecionados, setAlunosSelecionados] = useState([])
+
+  const alunosDisponiveis = alunosReferencia.filter(
+    (aluno) => !alunosSelecionados.some((selecionado) => selecionado.id === aluno.id),
+  )
+
+  const alunosFiltrados = alunosDisponiveis.filter((aluno) =>
+    aluno.nome.toLowerCase().includes(pesquisaAluno.trim().toLowerCase()),
+  )
+
+  function adicionarAluno(aluno) {
+    setAlunosSelecionados((ativos) => {
+      if (ativos.some((item) => item.id === aluno.id)) return ativos
+      return [...ativos, aluno]
+    })
+  }
+
+  function removerAluno(id) {
+    setAlunosSelecionados((ativos) => ativos.filter((aluno) => aluno.id !== id))
+  }
+
+  function onFotoChange(evento) {
+    const arquivo = evento.target.files?.[0]
+    if (!arquivo) return
+    const url = URL.createObjectURL(arquivo)
+    setFotoFormulario(url)
+  }
+
+  return (
+    <main className="alunos-pagina responsaveis-pagina">
+      <NavegacaoResponsaveis rota="responsaveis" aoNavegar={aoNavegar} />
+      <section className="area-principal">
+        <Cabecalho />
+        <div className="responsaveis-conteudo">
+          <div className="responsavel-cadastro">
+            <h2 className="responsavel-titulo-cadastro">Adicionar novo Responsável</h2>
+
+            <div className="responsavel-formulario">
+              <div className="responsavel-foto-coluna">
+                <div className="responsavel-foto-area">
+                  <img src={fotoFormulario} alt="Foto do responsável" />
+                </div>
+                <label className="responsavel-enviar-foto">
+                  <input type="file" accept="image/*" onChange={onFotoChange} />
+                  <span>Enviar Foto</span>
+                </label>
+              </div>
+
+              <div className="responsavel-campos">
+                <label className="responsavel-campo">
+                  <span>Nome</span>
+                  <input type="text" defaultValue="Mamãe Kuromi" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>NIS</span>
+                  <input type="text" defaultValue="2154642560" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>Data de Nascimento</span>
+                  <input type="text" defaultValue="01/05/2007" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>CPF</span>
+                  <input type="text" defaultValue="15485120-9" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>Grau de escolaridade</span>
+                  <input type="text" defaultValue="3º Ensino Médio - Completo" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>RG</span>
+                  <input type="text" defaultValue="15485120" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>Telefone</span>
+                  <input type="text" defaultValue="(15) 99723-0439" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>Profissão</span>
+                  <input type="text" defaultValue="Médica" />
+                </label>
+                <label className="responsavel-campo responsavel-campo-largo">
+                  <span>Endereço Comercial</span>
+                  <input type="text" defaultValue="Rua Arnaldo de Campos, Bairro Ayrton cena, nº 10" />
+                </label>
+                <label className="responsavel-campo">
+                  <span>Salário</span>
+                  <input type="text" defaultValue="R$ 2000" />
+                </label>
+              </div>
+            </div>
+
+            <div className="responsavel-vinculo">
+              <h3>Responsável de:</h3>
+              <div className="responsavel-pesquisa">
+                <Icone nome="busca" tamanho={18} />
+                <input
+                  type="search"
+                  value={pesquisaAluno}
+                  onChange={(evento) => setPesquisaAluno(evento.target.value)}
+                  placeholder="Pesquise aqui o nome do aluno"
+                  aria-label="Pesquisar aluno"
+                />
+              </div>
+
+              <div className="responsavel-alunos-disponiveis">
+                {alunosFiltrados.map((aluno) => (
+                  <button key={aluno.id} type="button" className="responsavel-aluno-card" onClick={() => adicionarAluno(aluno)}>
+                    <img src={aluno.foto} alt="" />
+                    <span>{aluno.nome}</span>
+                  </button>
+                ))}
+              </div>
+
+              {alunosSelecionados.map((aluno) => (
+                <div key={aluno.id} className="responsavel-selecionado-card">
+                  <div className="responsavel-selecionado-info">
+                    <img src={aluno.foto} alt="" />
+                    <div>
+                      <strong>{aluno.nome}</strong>
+                      <p>Data de Nascimento: {aluno.nascimento}</p>
+                      <p>Telefone Principal: {aluno.telefone}</p>
+                    </div>
+                  </div>
+                  <button type="button" className="responsavel-remover" onClick={() => removerAluno(aluno.id)} aria-label={`Remover ${aluno.nome}`}>
+                    <Icone nome="fechar" tamanho={28} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="responsavel-acoes">
+              <button type="button" className="responsavel-cancelar" onClick={() => aoNavegar('responsaveis')}>Cancelar</button>
+              <button type="button" className="responsavel-confirmar">Confirmar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  )
+}
+
 function Responsaveis({ rota, aoNavegar }) {
   const [busca, setBusca] = useState('')
   const [modalFiltroAberto, setModalFiltroAberto] = useState(false)
   const [filtros, setFiltros] = useState(filtrosVazios)
-  const responsavelSelecionado = rota.startsWith('responsaveis/')
+  const responsavelSelecionado = rota.startsWith('responsaveis/') && rota !== 'responsaveis/novo'
     ? responsaveis.find((item) => item.id === rota.split('/')[1])
     : null
   const origemBusca = useRef(null)
@@ -289,6 +440,10 @@ function Responsaveis({ rota, aoNavegar }) {
     setModalFiltroAberto(false)
     origemBusca.current?.focus()
   }, [])
+
+  if (rota === 'responsaveis/novo') {
+    return <FormularioResponsavel aoNavegar={aoNavegar} />
+  }
 
   function abrirResponsavel(id) {
     aoNavegar(`responsaveis/${id}`)
@@ -332,7 +487,7 @@ function Responsaveis({ rota, aoNavegar }) {
               <button type="submit" aria-label="Pesquisar"><Icone nome="busca" tamanho={26} /></button>
               <button type="button" onClick={abrirFiltro} aria-label="Abrir filtros de responsáveis"><Icone nome="filtro" tamanho={26} /></button>
             </form>
-            <button className="adicionar-aluno responsaveis-adicionar" type="button">
+            <button className="adicionar-aluno responsaveis-adicionar" type="button" onClick={() => aoNavegar('responsaveis/novo')}>
               Adicionar Responsável <strong>+</strong>
             </button>
             <section className="responsaveis-lista" aria-label="Lista de responsáveis">
