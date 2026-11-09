@@ -142,12 +142,14 @@ class AuthController extends Controller
             Mail::to($userEmail)->send(new RecuperacaoSenhaMail($user, $token));
         } catch (\Throwable $e) {
             Log::error('Erro ao enviar e-mail de recuperação: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Não foi possível enviar o e-mail de recuperação. Tente novamente mais tarde.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return response()->json([
             'message' => 'Código de verificação enviado para seu e-mail.',
             'email' => $userEmail,
-            'code' => config('app.debug') ? $token : null,
         ], Response::HTTP_OK);
     }
 

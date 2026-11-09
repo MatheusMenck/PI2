@@ -9,7 +9,6 @@ function RecuperacaoSenha({ onNavigate }) {
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [debugCode, setDebugCode] = useState(null)
   const [infoMsg, setInfoMsg] = useState('')
 
   function handleVoltarLogin() {
@@ -55,9 +54,6 @@ function RecuperacaoSenha({ onNavigate }) {
       if (data.email) {
         setEmail(data.email)
       }
-      if (data.code) {
-        setDebugCode(data.code)
-      }
 
       setInfoMsg(data.message || 'Código de verificação enviado para o seu e-mail!')
       setEtapa(2)
@@ -91,10 +87,6 @@ function RecuperacaoSenha({ onNavigate }) {
           (data.errors && Object.values(data.errors)[0]?.[0]) ||
           'Erro ao reenviar código.'
         throw new Error(errorMsg)
-      }
-
-      if (data.code) {
-        setDebugCode(data.code)
       }
 
       setInfoMsg('Novo código enviado com sucesso!')
@@ -166,12 +158,6 @@ function RecuperacaoSenha({ onNavigate }) {
     }
   }
 
-  function handlePreencherCodigoDebug() {
-    if (debugCode) {
-      setCodigo(debugCode)
-    }
-  }
-
   return (
     <main className="recuperacao-pagina">
       <button
@@ -228,15 +214,6 @@ function RecuperacaoSenha({ onNavigate }) {
             <p>
               Enviamos um código para <strong>{email}</strong>. Digite-o abaixo e crie sua nova senha.
             </p>
-
-            {debugCode && (
-              <aside className="recuperacao-debug-card" aria-label="Código de teste">
-                <span>Código gerado: <strong>{debugCode}</strong></span>
-                <button type="button" onClick={handlePreencherCodigoDebug}>
-                  Preencher
-                </button>
-              </aside>
-            )}
 
             {infoMsg && <div className="recuperacao-info" role="status">{infoMsg}</div>}
             {error && <div className="recuperacao-error" role="alert">{error}</div>}
