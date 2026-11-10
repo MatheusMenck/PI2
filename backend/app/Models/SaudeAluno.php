@@ -14,6 +14,7 @@ class SaudeAluno extends Model
 
     protected $fillable = [
         'fk_aluno_id',
+        'queixa_principal',
         'possui_alergia',
         'descricao_alergia',
         'em_tratamento_medico',

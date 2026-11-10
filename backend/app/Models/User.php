@@ -71,4 +71,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(SaudeAluno::class, 'fk_aluno_id', 'id');
     }
+
+    public function doencas()
+    {
+        return $this->belongsToMany(Doenca::class, 'aluno_doenca', 'fk_aluno_id', 'fk_doenca_id')
+                    ->withPivot('observacao', 'medicacao_em_uso', 'status', 'requer_cuidados_especiais')
+                    ->withTimestamps();
+    }
 }

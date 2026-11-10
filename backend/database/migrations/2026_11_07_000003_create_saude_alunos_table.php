@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('saude_alunos', function (Blueprint $table) {
             $table->id('id_saude_aluno');
             $table->foreignId('fk_aluno_id')->unique()->constrained('users', 'id')->onUpdate('cascade')->onDelete('cascade');
+            $table->text('queixa_principal')->nullable();
             $table->boolean('possui_alergia')->default(false);
             $table->text('descricao_alergia')->nullable();
             $table->boolean('em_tratamento_medico')->default(false);

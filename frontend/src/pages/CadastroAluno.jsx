@@ -8,9 +8,21 @@ const vazio = {
   nomeMae: '', nisMae: '', nascimentoMae: '', cpfMae: '', escolaridadeMae: '', rgMae: '', telefoneMae: '', profissaoMae: '', salarioMae: '', enderecoComercialMae: '',
   nomePai: '', nisPai: '', nascimentoPai: '', cpfPai: '', escolaridadePai: '', rgPai: '', telefonePai: '', profissaoPai: '', salarioPai: '', enderecoComercialPai: '',
   cep: '', rua: '', bairro: '', numero: '', referencia: '', cidade: '', estado: '', tipoMoradia: 'Própria', agua: '', luz: '', gas: '', alimentacao: '', rendaTotal: '', rendaPerCapita: '', beneficio: 'Sim', nomeBeneficio: '', valorBeneficio: '',
-  problemaSaude: 'Sim', problemaSaudeQual: '', tratamento: 'Sim', tratamentoQual: '', alergia: 'Sim', alergiaQual: '', doencasAnteriores: '',
-  queixaPrincipal: '', medico: '', telefoneMedico: '', doenca: 'Sim', doencaQual: '', operado: 'Sim', operadoQual: '', anestesia: 'Sim', cicatrizacao: 'Sim', hemorragia: 'Sim', habitos: '', antecedentes: '', outrosProblemas: '', assinatura: '', acompanhante: '',
+  problemaSaude: 'Não', problemaSaudeQual: '', tratamento: 'Não', tratamentoQual: '', alergia: 'Não', alergiaQual: '', doencasAnteriores: '',
+  queixaPrincipal: '', medico: '', telefoneMedico: '', doenca: 'Não', doencaQual: '', operado: 'Não', operadoQual: '', anestesia: 'Não', cicatrizacao: 'Não', hemorragia: 'Não', habitos: '', antecedentes: '', outrosProblemas: '', assinatura: '', acompanhante: '',
 }
+
+const DOENCAS_ESPECIFICAS = [
+  'Febre Reumática',
+  'Problemas Cardíacos',
+  'Problemas Renais',
+  'Problemas Gástricos',
+  'Problemas Respiratórios',
+  'Problemas com Alergia',
+  'Problemas Articulares ou Reumatismo',
+  'Diabetes',
+  'Hipertensão Arterial',
+]
 
 const perguntas = ['Febre Reumática?', 'Problemas Cardíacos?', 'Problemas Renais?', 'Problemas Gástricos?', 'Problemas Respiratórios?', 'Problemas com Alergia?', 'Problemas Articulares ou Reumatismo', 'Diabetes?', 'Hipertensão Arterial']
 
@@ -32,14 +44,49 @@ function CadastroAluno({ aoNavegar }) {
   const [relatos, setRelatos] = useState([{ data: '', titulo: '', relato: '' }])
   const [familia, setFamilia] = useState([{ nome: '', nascimento: '', parentesco: '', renda: '' }])
   const [acompanhantes, setAcompanhantes] = useState([{ nome: '', parentesco: '', telefone: '' }])
+  const [doencasEspecificasSelecionadas, setDoencasEspecificasSelecionadas] = useState(new Set())
   const atualizarAluno = (evento) => {
     setErroEtapa('')
     setAluno((atual) => ({ ...atual, [evento.target.name]: evento.target.value }))
   }
   const campo = (nome, titulo, tipo = 'text') => <label className="campo-form">{titulo}<input type={tipo} name={nome} value={aluno[nome]} onChange={atualizarAluno} /></label>
   const radio = (nome) => <span className="radios">{['Sim', 'Não'].map((opcao) => <label key={opcao}><input type="radio" name={nome} value={opcao} checked={aluno[nome] === opcao} onChange={atualizarAluno} />{opcao}</label>)}</span>
-  
-  const avancar = () => {
+
+  const toggleDoencaEspecifica = (nomeDoenca, marcadoSim) => {
+    setDoencasEspecificasSelecionadas((atual) => {
+      const novo = new Set(atual)
+      if (marcadoSim) {
+        novo.add(nomeDoenca)
+      } else {
+        novo.delete(nomeDoenca)
+      }
+      return novo
+    })
+  }
+
+  const radioDoencaEspecifica = (nomeDoenca) => (
+    <span className="radios">
+      {['Sim', 'Não'].map((opcao) => (
+        <label key={opcao}>
+          <input
+            type="radio"
+            value={opcao}
+            checked={opcao === 'Sim' ? doencasEspecificasSelecionadas.has(nomeDoenca) : !doencasEspecificasSelecionadas.has(nomeDoenca)}
+            onChange={() => toggleDoencaEspecifica(nomeDoenca, opcao === 'Sim')}
+          />
+          {opcao}
+        </label>
+      ))}
+    </span>
+  )
+
+  const montarPayload = () => ({
+    ...aluno,
+    relatos: relatos.filter((r) => r.relato.trim() || r.titulo.trim()),
+    doencasEspecificas: Array.from(doencasEspecificasSelecionadas),
+  })
+
+  const avancar = async () => {
     setErroEtapa('')
     if (etapaAtual === 1) {
       if (!aluno.nome.trim()) {
@@ -68,7 +115,37 @@ function CadastroAluno({ aoNavegar }) {
         return
       }
     }
+    if (etapaAtual === 9) {
+      await enviarCadastro()
+      return
+    }
     setEtapaAtual((atual) => Math.min(9, atual + 1))
+  }
+
+  const enviarCadastro = async () => {
+    const token = localStorage.getItem('auth_token')
+    try {
+      const resposta = await fetch('http://localhost:8000/api/alunos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(montarPayload()),
+      })
+      const dados = await resposta.json()
+      if (!resposta.ok) {
+        const mensagensErro = dados.errors
+          ? Object.values(dados.errors).flat().join(' | ')
+          : dados.message || 'Erro ao cadastrar aluno.'
+        setErroEtapa(mensagensErro)
+        return
+      }
+      aoNavegar('alunos')
+    } catch {
+      setErroEtapa('Erro de conexão. Verifique o servidor e tente novamente.')
+    }
   }
   const voltar = () => etapaAtual === 1 ? aoNavegar('alunos') : setEtapaAtual((atual) => atual - 1)
   const foto = (nome) => <label className="foto"><span>{aluno[nome] ? <img src={aluno[nome]} alt="Prévia" /> : 'Foto'}</span><input type="file" accept="image/*" onChange={(e) => { const arquivo = e.target.files?.[0]; if (arquivo) setAluno((a) => ({ ...a, [nome]: URL.createObjectURL(arquivo) })) }} />Enviar Foto</label>
@@ -246,8 +323,79 @@ function CadastroAluno({ aoNavegar }) {
       </>
     )
     if (etapaAtual === 6) return <><h2>Ficha de Saúde</h2>{[['problemaSaude', 'Possui algum problema de saúde?', 'problemaSaudeQual'], ['tratamento', 'Faz algum tratamento médico?', 'tratamentoQual'], ['alergia', 'Possui alguma Alergia?', 'alergiaQual']].map(([n, t, q]) => <div className="pergunta" key={n}><span>{t}</span>{radio(n)}{campo(q, 'Se sim, Qual(is)?')}</div>)}<div className="pergunta"><span>Que doença ele(a) já teve antes?</span>{campo('doencasAnteriores', '')}</div></>
-    if (etapaAtual === 7 || etapaAtual === 8) return <><h2>Ficha Anamnese</h2>{etapaAtual === 7 && <><h3>Queixa Principal</h3><textarea className="grande" name="queixaPrincipal" value={aluno.queixaPrincipal} onChange={atualizarAluno} /><h3>Informações do Médico/Assistente</h3><div className="grade medico">{campo('medico', 'Nome')}{campo('telefoneMedico', 'Telefone')}</div>{[['doenca', 'Sofre de alguma doença?', 'doencaQual'], ['operado', 'Já foi operado?', 'operadoQual'], ['anestesia', 'Teve problema com anestesia?'], ['cicatrizacao', 'Teve problema com cicatrização?'], ['hemorragia', 'Teve problema com hemorragia?']].map(([n, t, q]) => <div className="pergunta" key={n}><span>{t}</span>{radio(n)}{q && campo(q, 'Se sim, Qual(is)?')}</div>)}<h3>Sofre de alguma dessas doenças?</h3></>}{(etapaAtual === 7 ? perguntas.slice(0, 5) : perguntas.slice(5)).map((texto) => <div className="pergunta" key={texto}><span>{texto}</span>{radio(`doenca-${texto}`)}</div>)}{etapaAtual === 8 && <><label className="texto-grande">Hábitos<textarea name="habitos" value={aluno.habitos} onChange={atualizarAluno} /></label><label className="texto-grande">Antecedentes Familiares<textarea name="antecedentes" value={aluno.antecedentes} onChange={atualizarAluno} /></label><label className="texto-grande">Outros Problemas<textarea name="outrosProblemas" value={aluno.outrosProblemas} onChange={atualizarAluno} /></label></>}</>
-    return <><h2>Autorizações</h2><section className="termo"><h3>1 - Termo de compromisso a ser cumprido:</h3><p>1º Devo respeitar e cumprir todas as normas do Regulamento do Projeto Samaritano e incentivar meus filhos a cumpri-las também.</p><p>2º Estou ciente de que é importante participar de todas as convocações.</p><p>3º Autorizo meu filho (a) ir embora sozinho (a): {radio('acompanhante')}</p><p>Se não, Somente com:</p>{acompanhantes.map((item, i) => <div className="linha-acompanhante" key={i}>{['nome', 'parentesco', 'telefone'].map((nome) => <label key={nome}>{nome[0].toUpperCase() + nome.slice(1)}<input value={item[nome]} onChange={(e) => atualizarLista(acompanhantes, setAcompanhantes, i, nome, e.target.value)} /></label>)}</div>)}<button className="adicionar-linha" type="button" onClick={() => setAcompanhantes((a) => [...a, { nome: '', parentesco: '', telefone: '' }])}>＋</button><h3>2 - Projeto Samaritano</h3><p>Autorizo meu filho (a) a frequentar de segunda a sexta-feira, das 13h às 17 horas o Projeto Samaritano, pelo prazo de 1 mês de Adaptação, bem como participar de todas as atividades do Plano anual.</p><h3>3 - Autorização de Atendimento</h3><p>Eu, responsável legal, autorizo a passar pela avaliação e procedimentos odontológicos que sejam julgados necessários.</p><label className="texto-grande">Assinatura(foto ou arquivo digitalizado)<input type="file" onChange={(e) => setAluno((a) => ({ ...a, assinatura: e.target.files?.[0]?.name || '' }))} /></label></section></>
+    if (etapaAtual === 7 || etapaAtual === 8) return (
+      <>
+        <h2>Ficha Anamnese</h2>
+        {erroEtapa && <p className="mensagem-erro-etapa" style={{ color: '#d9534f', marginBottom: '10px' }}>{erroEtapa}</p>}
+        {etapaAtual === 7 && (
+          <>
+            <h3>Queixa Principal</h3>
+            <textarea className="grande" name="queixaPrincipal" value={aluno.queixaPrincipal} onChange={atualizarAluno} />
+            <h3>Informações do Médico/Assistente</h3>
+            <div className="grade medico">
+              {campo('medico', 'Nome')}
+              {campo('telefoneMedico', 'Telefone')}
+            </div>
+            {[
+              ['doenca', 'Sofre de alguma doença?', 'doencaQual'],
+              ['operado', 'Já foi operado?', 'operadoQual'],
+              ['anestesia', 'Teve problema com anestesia?'],
+              ['cicatrizacao', 'Teve problema com cicatrização?'],
+              ['hemorragia', 'Teve problema com hemorragia?'],
+            ].map(([n, t, q]) => (
+              <div className="pergunta" key={n}>
+                <span>{t}</span>
+                {radio(n)}
+                {q && campo(q, 'Se sim, Qual(is)?')}
+              </div>
+            ))}
+            <h3>Sofre de alguma dessas doenças?</h3>
+          </>
+        )}
+        {(etapaAtual === 7 ? DOENCAS_ESPECIFICAS.slice(0, 5) : DOENCAS_ESPECIFICAS.slice(5)).map((nomeDoenca, idx) => (
+          <div className="pergunta" key={nomeDoenca}>
+            <span>{perguntas[etapaAtual === 7 ? idx : idx + 5]}</span>
+            {radioDoencaEspecifica(nomeDoenca)}
+          </div>
+        ))}
+        {etapaAtual === 8 && (
+          <>
+            <label className="texto-grande">Hábitos<textarea name="habitos" value={aluno.habitos} onChange={atualizarAluno} /></label>
+            <label className="texto-grande">Antecedentes Familiares<textarea name="antecedentes" value={aluno.antecedentes} onChange={atualizarAluno} /></label>
+            <label className="texto-grande">Outros Problemas<textarea name="outrosProblemas" value={aluno.outrosProblemas} onChange={atualizarAluno} /></label>
+          </>
+        )}
+      </>
+    )
+    return (
+      <>
+        <h2>Autorizações</h2>
+        {erroEtapa && <p className="mensagem-erro-etapa" style={{ color: '#d9534f', marginBottom: '10px' }}>{erroEtapa}</p>}
+        <section className="termo">
+          <h3>1 - Termo de compromisso a ser cumprido:</h3>
+          <p>1º Devo respeitar e cumprir todas as normas do Regulamento do Projeto Samaritano e incentivar meus filhos a cumpri-las também.</p>
+          <p>2º Estou ciente de que é importante participar de todas as convocações.</p>
+          <p>3º Autorizo meu filho (a) ir embora sozinho (a): {radio('acompanhante')}</p>
+          <p>Se não, Somente com:</p>
+          {acompanhantes.map((item, i) => (
+            <div className="linha-acompanhante" key={i}>
+              {['nome', 'parentesco', 'telefone'].map((nome) => (
+                <label key={nome}>
+                  {nome[0].toUpperCase() + nome.slice(1)}
+                  <input value={item[nome]} onChange={(e) => atualizarLista(acompanhantes, setAcompanhantes, i, nome, e.target.value)} />
+                </label>
+              ))}
+            </div>
+          ))}
+          <button className="adicionar-linha" type="button" onClick={() => setAcompanhantes((a) => [...a, { nome: '', parentesco: '', telefone: '' }])}>＋</button>
+          <h3>2 - Projeto Samaritano</h3>
+          <p>Autorizo meu filho (a) a frequentar de segunda a sexta-feira, das 13h às 17 horas o Projeto Samaritano, pelo prazo de 1 mês de Adaptação, bem como participar de todas as atividades do Plano anual.</p>
+          <h3>3 - Autorização de Atendimento</h3>
+          <p>Eu, responsável legal, autorizo a passar pela avaliação e procedimentos odontológicos que sejam julgados necessários.</p>
+          <label className="texto-grande">Assinatura (foto ou arquivo digitalizado)<input type="file" onChange={(e) => setAluno((a) => ({ ...a, assinatura: e.target.files?.[0]?.name || '' }))} /></label>
+        </section>
+      </>
+    )
   }
 
   return <main className="cadastro-pagina"><aside className="menu"><img className="logo" src={logo} alt="Logo Recanto Betel" /><nav><button className="item-menu" onClick={() => aoNavegar('inicio')}><Icone nome="inicio" /><span>Início</span></button><button className="item-menu selecionado" onClick={() => aoNavegar('alunos')}><Icone nome="alunos" /><span>Alunos</span></button><button className="item-menu" onClick={() => aoNavegar('responsaveis')}><Icone nome="responsaveis" /><span>Responsáveis</span></button></nav></aside><section className="area-principal"><header className="cabecalho"><h1>Recanto Betel</h1><span className="perfil-cadastro"><Icone nome="perfil" tamanho={32} />{usuario?.name || 'NOME'}</span></header><div className="conteudo-cadastro"><div className="progresso">{['Matrícula', 'Saúde', 'Autorizações'].map((nome, i) => <div className={`passo ${grupo >= i + 1 ? 'ativo' : ''}`} key={nome}><b>{i + 1}</b><span>{nome}</span></div>)}</div><section className="cartao-cadastro">{etapa()}<footer className="acoes"><button type="button" className="voltar" onClick={voltar}>Voltar</button><button type="button" className="prosseguir" onClick={avancar}>{etapaAtual === 9 ? 'Finalizar' : 'Prosseguir'}</button></footer></section></div></section></main>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doenca;
 use App\Models\Domicilio;
 use App\Models\Relato;
 use App\Models\Responsavel;
@@ -13,13 +14,10 @@ use Illuminate\Validation\Rule;
 
 class AlunoController extends Controller
 {
-    /**
-     * Cadastra um novo aluno com base nos dados do formulário de matrícula.
-     */
     public function store(Request $request)
     {
         $dadosValidados = $request->validate([
-            // Dados da Criança (Etapa 1)
+            // Etapa 1
             'nome' => ['required', 'string', 'max:255'],
             'religiao' => ['nullable', 'string', 'max:50'],
             'dataNascimento' => ['nullable', 'date'],
@@ -30,7 +28,7 @@ class AlunoController extends Controller
             'serie' => ['nullable', 'string', 'max:50'],
             'periodo' => ['nullable', 'string', Rule::in(['manha', 'tarde', 'noite'])],
 
-            // Relatos da Criança (Etapa 2 - Opcionais)
+            // Etapa 2 
             'relatos' => ['nullable', 'array'],
             'relatos.*.titulo' => ['nullable', 'string', 'max:150'],
             'relatos.*.relato' => ['nullable', 'string'],
@@ -38,7 +36,7 @@ class AlunoController extends Controller
             'relatos.*.data' => ['nullable', 'date'],
             'relatos.*.data_registro' => ['nullable', 'date'],
 
-            // Dados da Mãe (Etapa 3)
+            // Etapa 3
             'nomeMae' => ['nullable', 'string', 'max:255'],
             'nisMae' => ['nullable', 'string', 'max:20'],
             'nascimentoMae' => ['nullable', 'date'],
@@ -50,7 +48,7 @@ class AlunoController extends Controller
             'salarioMae' => ['nullable', 'numeric'],
             'enderecoComercialMae' => ['nullable', 'string', 'max:255'],
 
-            // Dados do Pai (Etapa 4)
+            // Etapa 4
             'nomePai' => ['nullable', 'string', 'max:255'],
             'nisPai' => ['nullable', 'string', 'max:20'],
             'nascimentoPai' => ['nullable', 'date'],
@@ -62,7 +60,7 @@ class AlunoController extends Controller
             'salarioPai' => ['nullable', 'numeric'],
             'enderecoComercialPai' => ['nullable', 'string', 'max:255'],
 
-            // Endereço e Residência (Etapa 5)
+            // Etapa 5
             'cep' => ['required', 'string', 'max:20'],
             'rua' => ['required', 'string', 'max:255'],
             'bairro' => ['required', 'string', 'max:100'],
@@ -81,7 +79,7 @@ class AlunoController extends Controller
             'nomeBeneficio' => ['nullable', 'string', 'max:100'],
             'valorBeneficio' => ['nullable', 'numeric'],
 
-            // Ficha de Saúde (Etapa 6)
+            // Etapa 6
             'problemaSaude' => ['nullable', 'string'],
             'problemaSaudeQual' => ['nullable', 'string'],
             'tratamento' => ['nullable', 'string'],
@@ -89,6 +87,23 @@ class AlunoController extends Controller
             'alergia' => ['nullable', 'string'],
             'alergiaQual' => ['nullable', 'string'],
             'doencasAnteriores' => ['nullable', 'string'],
+
+            // Etapas 7 e 8
+            'queixaPrincipal' => ['nullable', 'string'],
+            'medico' => ['nullable', 'string', 'max:255'],
+            'telefoneMedico' => ['nullable', 'string', 'max:20'],
+            'doenca' => ['nullable', 'string'],
+            'doencaQual' => ['nullable', 'string'],
+            'operado' => ['nullable', 'string'],
+            'operadoQual' => ['nullable', 'string'],
+            'anestesia' => ['nullable', 'string'],
+            'cicatrizacao' => ['nullable', 'string'],
+            'hemorragia' => ['nullable', 'string'],
+            'doencasEspecificas' => ['nullable', 'array'],
+            'doencasEspecificas.*' => ['nullable', 'string'],
+            'habitos' => ['nullable', 'string'],
+            'antecedentes' => ['nullable', 'string'],
+            'outrosProblemas' => ['nullable', 'string'],
         ], [
             'nome.required' => 'O nome da criança é obrigatório.',
             'cpf.unique' => 'Este CPF já está cadastrado no sistema.',
@@ -100,8 +115,6 @@ class AlunoController extends Controller
             'cidade.required' => 'A cidade é obrigatória.',
             'estado.required' => 'O estado é obrigatório.',
         ]);
-
-        // Pelo menos um responsável deve ser informado
         if (empty($dadosValidados['nomeMae']) && empty($dadosValidados['nomePai'])) {
             return response()->json([
                 'message' => 'Pelo menos um dos responsáveis (Mãe ou Pai) deve ter o nome informado.',
@@ -112,14 +125,14 @@ class AlunoController extends Controller
         }
 
         return DB::transaction(function () use ($dadosValidados, $request) {
-            // 1. Normalizar moradia
             $moradia = match (mb_strtolower($dadosValidados['tipoMoradia'] ?? 'propria')) {
                 'cedida' => 'cedida',
                 'alugada' => 'alugada',
                 default => 'propria',
             };
 
-            // 2. Criar o Domicílio
+
+            // Etapa 2 do formulario de aluno
             $domicilio = Domicilio::create([
                 'endereco_residencial' => $dadosValidados['rua'],
                 'bairro' => $dadosValidados['bairro'],
@@ -134,7 +147,7 @@ class AlunoController extends Controller
                 'renda_percapta' => $dadosValidados['rendaPerCapita'] ?? 0.00,
             ]);
 
-            // 3. Criar o registro do Aluno vinculado ao Domicílio
+            // Etapa 3 do formulario de aluno
             $aluno = User::create([
                 'fk_domicilio_id' => $domicilio->id_domicilio,
                 'name' => $dadosValidados['nome'],
@@ -148,7 +161,7 @@ class AlunoController extends Controller
                 'escola_periodo' => $dadosValidados['periodo'] ?? null,
             ]);
 
-            // 4. Criar os Relatos (se fornecidos)
+            // Etapa 4 do formulario de aluno
             if (!empty($dadosValidados['relatos'])) {
                 $usuarioLogado = $request->user();
                 $idFuncionario = $usuarioLogado?->id_usuario ?? $usuarioLogado?->id;
@@ -173,7 +186,8 @@ class AlunoController extends Controller
             $possuiBeneficio = ($dadosValidados['beneficio'] ?? 'Não') === 'Sim';
             $valorBeneficio = $possuiBeneficio ? ($dadosValidados['valorBeneficio'] ?? 0.00) : 0.00;
 
-            // 5. Criar e associar a Mãe (se informada)
+
+            // Etapa 5 do formulario de aluno
             if (!empty($dadosValidados['nomeMae'])) {
                 $mae = Responsavel::create([
                     'fk_domicilio_id' => $domicilio->id_domicilio,
@@ -198,7 +212,7 @@ class AlunoController extends Controller
                 ]);
             }
 
-            // 6. Criar e associar o Pai (se informado)
+            // Etapa 6 do formulario de aluno
             if (!empty($dadosValidados['nomePai'])) {
                 $pai = Responsavel::create([
                     'fk_domicilio_id' => $domicilio->id_domicilio,
@@ -223,28 +237,80 @@ class AlunoController extends Controller
                 ]);
             }
 
-            // 7. Criar a Ficha de Saúde (Etapa 6)
+            // Etapa 7 do formulario de aluno
             $possuiAlergia = ($dadosValidados['alergia'] ?? 'Não') === 'Sim';
             $emTratamento = ($dadosValidados['tratamento'] ?? 'Não') === 'Sim';
             $possuiProblemaSaude = ($dadosValidados['problemaSaude'] ?? 'Não') === 'Sim';
+            $foiOperado = ($dadosValidados['operado'] ?? 'Não') === 'Sim';
+            $problemaAnestesia = ($dadosValidados['anestesia'] ?? 'Não') === 'Sim';
+            $problemaCicatrizacao = ($dadosValidados['cicatrizacao'] ?? 'Não') === 'Sim';
+            $problemaHemorragia = ($dadosValidados['hemorragia'] ?? 'Não') === 'Sim';
 
             $detalhesObservacoes = array_filter([
                 !empty($dadosValidados['doencasAnteriores']) ? 'Doenças anteriores: ' . $dadosValidados['doencasAnteriores'] : null,
                 ($possuiProblemaSaude && !empty($dadosValidados['problemaSaudeQual'])) ? 'Problema de saúde: ' . $dadosValidados['problemaSaudeQual'] : null,
                 ($emTratamento && !empty($dadosValidados['tratamentoQual'])) ? 'Tratamento: ' . $dadosValidados['tratamentoQual'] : null,
+                !empty($dadosValidados['outrosProblemas']) ? 'Outros problemas: ' . $dadosValidados['outrosProblemas'] : null,
             ]);
 
             SaudeAluno::create([
                 'fk_aluno_id' => $aluno->id,
+                // Etapa 6 do formulario
                 'possui_alergia' => $possuiAlergia,
                 'descricao_alergia' => $possuiAlergia ? ($dadosValidados['alergiaQual'] ?? null) : null,
                 'em_tratamento_medico' => $emTratamento,
-                'observacoes_saude' => !empty($detalhesObservacoes) ? implode(" | ", $detalhesObservacoes) : null,
+                'observacoes_saude' => !empty($detalhesObservacoes) ? implode(' | ', $detalhesObservacoes) : null,
+                // Etapa 7 do formulario
+                'queixa_principal' => $dadosValidados['queixaPrincipal'] ?? null,
+                'medico_responsavel_nome' => $dadosValidados['medico'] ?? null,
+                'medico_responsavel_telefone' => $dadosValidados['telefoneMedico'] ?? null,
+                'ja_foi_operado' => $foiOperado,
+                'descricao_cirurgias' => $foiOperado ? ($dadosValidados['operadoQual'] ?? null) : null,
+                'problema_anestesia' => $problemaAnestesia,
+                'problema_cicatrizacao' => $problemaCicatrizacao,
+                'problema_hemorragia' => $problemaHemorragia,
+                // Etapa 8 do formulario
+                'habitos' => $dadosValidados['habitos'] ?? null,
+                'antecedentes_familiares' => $dadosValidados['antecedentes'] ?? null,
             ]);
+
+            $doencasParaVincular = [];
+
+            if (($dadosValidados['doenca'] ?? 'Não') === 'Sim' && !empty($dadosValidados['doencaQual'])) {
+                $doencasParaVincular[] = [
+                    'nome' => $dadosValidados['doencaQual'],
+                    'status' => 'atual',
+                ];
+            }
+
+            if (!empty($dadosValidados['doencasEspecificas'])) {
+                foreach ($dadosValidados['doencasEspecificas'] as $nomeDoenca) {
+                    if (!empty($nomeDoenca)) {
+                        $doencasParaVincular[] = [
+                            'nome' => $nomeDoenca,
+                            'status' => 'atual',
+                        ];
+                    }
+                }
+            }
+
+            foreach ($doencasParaVincular as $dadosDoenca) {
+                $doenca = Doenca::firstOrCreate(
+                    ['nome' => $dadosDoenca['nome']],
+                    ['detalhes' => null]
+                );
+
+                if (!$aluno->doencas()->where('fk_doenca_id', $doenca->id_doenca)->exists()) {
+                    $aluno->doencas()->attach($doenca->id_doenca, [
+                        'status' => $dadosDoenca['status'],
+                        'requer_cuidados_especiais' => false,
+                    ]);
+                }
+            }
 
             return response()->json([
                 'message' => 'Aluno cadastrado com sucesso!',
-                'aluno' => $aluno->load(['relatos', 'responsaveis', 'domicilio', 'saude']),
+                'aluno' => $aluno->load(['relatos', 'responsaveis', 'domicilio', 'saude', 'doencas']),
             ], 201);
         });
     }
