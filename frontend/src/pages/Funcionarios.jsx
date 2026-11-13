@@ -17,7 +17,7 @@ function IconeMenu({ nome }) {
   return <svg {...svg}><circle cx="21" cy="11" r="7" /><path d="m16 16-11 11v2h4v-3h3v-3h3l1-1" /></svg>
 }
 
-const FORM_VAZIO = { nome: '', admissao: '', cargo: 'Funcionário', email: '', telefone: '' }
+const FORM_VAZIO = { nome: '', admissao: '', cargo: 'funcionario', email: '', telefone: '' }
 const FUNCIONARIO_EXEMPLO = {
   nome: 'Talda Fernanda',
   admissao: '10/08/2026',
@@ -52,6 +52,8 @@ function Funcionarios({ aoNavegar }) {
   const [modalAberto, setModalAberto] = useState('')
   const [novoFuncionario, setNovoFuncionario] = useState(FORM_VAZIO)
   const [editarFuncionario, setEditarFuncionario] = useState(FUNCIONARIO_EXEMPLO)
+  const [salvando, setSalvando] = useState(false)
+  const [formErro, setFormErro] = useState('')
 
   async function carregarFuncionarios() {
     setCarregando(true)
@@ -97,12 +99,46 @@ function Funcionarios({ aoNavegar }) {
 
   function fecharModal() {
     setModalAberto('')
+    setNovoFuncionario(FORM_VAZIO)
+    setFormErro('')
   }
 
-  function adicionar(e) {
+  async function adicionar(e) {
     e.preventDefault()
-    setEditarFuncionario(FUNCIONARIO_EXEMPLO)
-    setModalAberto('editar')
+    setSalvando(true)
+    setFormErro('')
+    try {
+      const token = localStorage.getItem('auth_token')
+      const resposta = await fetch('http://localhost:8000/api/funcionarios', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          nome: novoFuncionario.nome.trim(),
+          admissao: novoFuncionario.admissao.trim(),
+          cargo: novoFuncionario.cargo || 'Funcionario',
+          email: novoFuncionario.email.trim(),
+          telefone: novoFuncionario.telefone?.trim() || null,
+        }),
+      })
+      const data = await resposta.json()
+      if (!resposta.ok) {
+        throw new Error(
+          data.message ||
+          (data.errors && Object.values(data.errors)[0]?.[0]) ||
+          'Erro ao cadastrar funcionário.'
+        )
+      }
+      await carregarFuncionarios()
+      fecharModal()
+    } catch (err) {
+      setFormErro(err.message)
+    } finally {
+      setSalvando(false)
+    }
   }
 
   const usuario = (() => {
@@ -218,7 +254,7 @@ function Funcionarios({ aoNavegar }) {
             )}
 
             {!carregando && !erro && filtrados.map((f) => (
-              <div className="func-linha" key={f.id}>
+              <div className="func-linha" key={f.id_usuario}>
                 <div className="func-nome">
                   <span className="func-avatar">{iniciais(f.nome)}</span>
                   <div>
@@ -277,7 +313,7 @@ function Funcionarios({ aoNavegar }) {
                 </svg>
               </button>
             </header>
-
+            {formErro && <div className="func-erro" role="alert">{formErro}</div>}
             <div className="func-modal-corpo">
               <label className="func-campo">
                 <span>Nome Completo</span>
@@ -291,7 +327,7 @@ function Funcionarios({ aoNavegar }) {
                 <span>Cargo</span>
                 <div className="func-campo-select">
                   <select name="cargo" value={novoFuncionario.cargo} onChange={(e) => alterarCampo(e, 'novo')}>
-                    <option value="Funcionário">Funcionário</option>
+                    <option value="funcionario">Funcionário</option>
                   </select>
                   <svg width="11" height="6" viewBox="0 0 11 6" fill="none" aria-hidden="true"><path d="M0 0L5.5 6L11 0" stroke="black" /></svg>
                 </div>

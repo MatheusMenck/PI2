@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('funcionarios', function (Blueprint $table) {
             $table->id('id_usuario');
             $table->string('nome', 255);
-            $table->string('usuario', 50)->nullable()->unique();
             $table->string('senha', 255)->nullable();
             $table->string('email', 255)->unique();
             $table->enum('cargo', ['admin', 'funcionario'])->default('funcionario');
