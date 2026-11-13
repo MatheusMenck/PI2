@@ -16,7 +16,7 @@ class FuncionarioController extends Controller
      */
     public function index()
     {
-        $funcionarios = Funcionario::orderBy('id', 'desc')->get();
+        $funcionarios = Funcionario::orderBy('id_usuario', 'desc')->get();
         return response()->json($funcionarios, Response::HTTP_OK);
     }
 
@@ -28,7 +28,7 @@ class FuncionarioController extends Controller
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:funcionarios,email',
-            'cargo' => 'nullable|string|max:255',
+            'cargo' => 'nullable|in:admin,funcionario',
             'admissao' => 'required|string|max:50',
             'telefone' => 'nullable|string|max:50',
             'ativo' => 'nullable|boolean',
@@ -39,7 +39,7 @@ class FuncionarioController extends Controller
         $funcionario = Funcionario::create([
             'nome' => $validated['nome'],
             'email' => $validated['email'],
-            'cargo' => $validated['cargo'] ?? 'Funcionario',
+            'cargo' => $validated['cargo'] ?? 'funcionario',
             'admissao' => $validated['admissao'],
             'telefone' => $validated['telefone'] ?? null,
             'ativo' => false,
@@ -76,7 +76,7 @@ class FuncionarioController extends Controller
 
         $validated = $request->validate([
             'nome' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:funcionarios,email,' . $funcionario->id,
+            'email' => 'sometimes|required|string|email|max:255|unique:funcionarios,email,' . $funcionario->getKey() . ',id_usuario',
             'cargo' => 'nullable|string|max:255',
             'admissao' => 'sometimes|required|string|max:50',
             'telefone' => 'nullable|string|max:50',
@@ -132,7 +132,7 @@ class FuncionarioController extends Controller
     public function definirSenha(Request $request)
     {
         $validated = $request->validate([
-            'funcionario_id' => 'required|exists:funcionarios,id',
+            'funcionario_id' => 'required|exists:funcionarios,id_usuario',
             'password' => 'required|string|min:6|confirmed',
         ]);
 

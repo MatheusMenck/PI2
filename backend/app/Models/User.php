@@ -11,12 +11,30 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'fk_domicilio_id',
+        'data_nascimento',
+        'cpf',
+        'rg',
+        'telefone',
+        'religiao',
+        'escola',
+        'escola_ano',
+        'escola_periodo',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -27,7 +45,37 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'data_nascimento' => 'date',
             'password' => 'hashed',
         ];
+    }
+
+    public function relatos()
+    {
+        return $this->hasMany(Relato::class, 'fk_aluno_id', 'id');
+    }
+
+    public function responsaveis()
+    {
+        return $this->belongsToMany(Responsavel::class, 'aluno_responsavel', 'fk_aluno_id', 'fk_responsavel_id')
+                    ->withPivot('parentesco', 'e_responsavel_legal', 'autorizado_retirar')
+                    ->withTimestamps();
+    }
+
+    public function domicilio()
+    {
+        return $this->belongsTo(Domicilio::class, 'fk_domicilio_id', 'id_domicilio');
+    }
+
+    public function saude()
+    {
+        return $this->hasOne(SaudeAluno::class, 'fk_aluno_id', 'id');
+    }
+
+    public function doencas()
+    {
+        return $this->belongsToMany(Doenca::class, 'aluno_doenca', 'fk_aluno_id', 'fk_doenca_id')
+                    ->withPivot('observacao', 'medicacao_em_uso', 'status', 'requer_cuidados_especiais')
+                    ->withTimestamps();
     }
 }

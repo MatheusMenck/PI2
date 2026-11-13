@@ -12,11 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->id('id');
+            $table->foreignId('fk_domicilio_id')->nullable()->constrained('domicilios', 'id_domicilio')->onUpdate('cascade')->onDelete('set null');
+            $table->string('name', 255);
+            $table->date('data_nascimento')->nullable();
+            $table->string('cpf', 14)->nullable()->unique();
+            $table->string('rg', 20)->nullable();
+            $table->string('telefone', 20)->nullable();
+            $table->string('religiao', 50)->nullable();
+            $table->string('escola', 150)->nullable();
+            $table->string('escola_ano', 50)->nullable();
+            $table->enum('escola_periodo', ['manha', 'tarde', 'noite'])->nullable();
+            $table->string('email', 255)->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
