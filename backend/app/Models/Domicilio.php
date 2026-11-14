@@ -13,6 +13,12 @@ class Domicilio extends Model
     protected $primaryKey = 'id_domicilio';
 
     protected $fillable = [
+        'cep',
+        'cidade',
+        'estado',
+        'nome_beneficio',
+        'beneficio_governo',
+        'valor_beneficio',
         'endereco_residencial',
         'bairro',
         'numero',
@@ -29,6 +35,8 @@ class Domicilio extends Model
     protected function casts(): array
     {
         return [
+            'beneficio_governo' => 'boolean',
+            'valor_beneficio' => 'decimal:2',
             'numero' => 'integer',
             'despesa_agua' => 'decimal:2',
             'despesa_luz' => 'decimal:2',
@@ -37,6 +45,11 @@ class Domicilio extends Model
             'renda_total' => 'decimal:2',
             'renda_percapta' => 'decimal:2',
         ];
+    }
+
+    public function membrosFamilia()
+    {
+        return $this->hasMany(MembroFamilia::class, 'fk_domicilio_id', 'id_domicilio');
     }
 
     public function alunos()

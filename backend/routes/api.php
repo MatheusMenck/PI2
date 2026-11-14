@@ -4,8 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\AlunoController;
+use App\Http\Controllers\ResponsavelController;
+use App\Http\Middleware\EnsureFuncionario;
 
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/password/forgot', [AuthController::class, 'forgotPassword']);
@@ -14,7 +15,6 @@ Route::post('/password/reset', [AuthController::class, 'resetPassword']);
 
 Route::post('/funcionarios/ativar', [FuncionarioController::class, 'ativar']);
 Route::post('/funcionarios/definir-senha', [FuncionarioController::class, 'definirSenha']);
-Route::apiResource('funcionarios', FuncionarioController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -22,5 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (\Illuminate\Http\Request $request) {
         return $request->user();
     });
-    Route::post('/alunos', [AlunoController::class, 'store']);
+    Route::post('/alunos', [AlunoController::class, 'store'])->middleware(EnsureFuncionario::class);
+    Route::get('/responsaveis/por-cpf', [ResponsavelController::class, 'buscarPorCpf'])->middleware(EnsureFuncionario::class);
+    Route::apiResource('funcionarios', FuncionarioController::class)
+        ->middleware(EnsureFuncionario::class . ':admin');
 });
