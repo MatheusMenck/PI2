@@ -328,6 +328,7 @@ function Funcionarios({ aoNavegar }) {
                 <div className="func-campo-select">
                   <select name="cargo" value={novoFuncionario.cargo} onChange={(e) => alterarCampo(e, 'novo')}>
                     <option value="funcionario">Funcionário</option>
+                    <option value="administrador">Administrador</option>
                   </select>
                   <svg width="11" height="6" viewBox="0 0 11 6" fill="none" aria-hidden="true"><path d="M0 0L5.5 6L11 0" stroke="black" /></svg>
                 </div>
