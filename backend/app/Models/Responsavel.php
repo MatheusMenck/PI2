@@ -13,6 +13,7 @@ class Responsavel extends Model
     protected $primaryKey = 'id_responsavel';
 
     protected $fillable = [
+        'foto',
         'fk_domicilio_id',
         'nome',
         'cpf',
@@ -23,8 +24,6 @@ class Responsavel extends Model
         'escolaridade',
         'nis',
         'salario',
-        'beneficio_governo',
-        'valor_beneficio',
         'endereco_comercial',
     ];
 
@@ -33,8 +32,6 @@ class Responsavel extends Model
         return [
             'data_nascimento' => 'date',
             'salario' => 'decimal:2',
-            'beneficio_governo' => 'boolean',
-            'valor_beneficio' => 'decimal:2',
         ];
     }
 

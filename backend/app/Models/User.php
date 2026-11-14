@@ -17,6 +17,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
+        'foto',
         'name',
         'email',
         'password',
@@ -48,6 +49,11 @@ class User extends Authenticatable
             'data_nascimento' => 'date',
             'password' => 'hashed',
         ];
+    }
+
+    public function matriculas()
+    {
+        return $this->hasMany(Matricula::class, 'fk_aluno_id', 'id');
     }
 
     public function relatos()

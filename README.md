@@ -28,9 +28,7 @@ Projeto feito durante a matéria de Projeto Integrador 2
 | `docker exec -it laravel_api php artisan migrate` | Faz as migrations |
 | `docker exec -it laravel_api php artisan migrate:rollback` | Faz o rollback das migrations |
 
---- exemplo
-
-##  React
+<!-- ##  React
 |Comando | O que faz? |
-| :--- | :--- |
+| :--- | :--- | -->
 
