@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Alunos.css'
 import logo from '../assets/logo.png'
 const alunos = [
@@ -29,7 +30,6 @@ function Icone({ nome, tamanho = 26 }) {
 }
 
 function Alunos({ rota, aoNavegar }) {
-  const [perfil, setPerfil] = useState(false)
   const [modalAlunos, setModalAlunos] = useState(false)
   const [filtroAlunos, setFiltroAlunos] = useState({
     nome: '', cpf: '', telefone: '', dataInicio: '', dataFim: '', status: 'Todos',
@@ -77,33 +77,7 @@ function Alunos({ rota, aoNavegar }) {
     return () => window.removeEventListener('keydown', aoTeclar)
   }, [modalAlunos])
 
-  const usuarioSalvo = (() => {
-    try {
-      return JSON.parse(localStorage.getItem('auth_user')) || null
-    } catch {
-      return null
-    }
-  })()
-
-  async function fazerLogout() {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      try {
-        await fetch('http://localhost:8000/api/logout', {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        })
-      } catch (err) {
-        console.error('Erro ao deslogar na API:', err)
-      }
-    }
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('auth_user')
-    navegar('login')
-  }
+  const usuarioSalvo = getStoredAuthUser()
 
   return (
     <main className="alunos-pagina">
@@ -125,9 +99,9 @@ function Alunos({ rota, aoNavegar }) {
       <section className="area-principal">
         <header className="cabecalho">
           <h1>Recanto Betel</h1>
-          <button className="botao-perfil" onClick={() => setPerfil(true)} aria-label="Abrir perfil">
+          <button className="botao-perfil" onClick={() => navegar('perfil')} aria-label="Abrir perfil">
             <Icone nome="perfil" tamanho={34} />
-            <span>{usuarioSalvo?.name || 'NOME'}</span>
+            <span>{getDisplayName(usuarioSalvo)}</span>
           </button>
         </header>
 
@@ -156,27 +130,6 @@ function Alunos({ rota, aoNavegar }) {
           </section>
         </div>
       </section>
-
-      {perfil && (
-        <div className="fundo-modal" onClick={() => setPerfil(false)}>
-          <section
-            className="modal-perfil"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Perfil"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button className="fechar-modal" onClick={() => setPerfil(false)} aria-label="Fechar">×</button>
-            <div className="perfil-info">
-              <h3>{usuarioSalvo?.name || 'Usuário'}</h3>
-              <p>{usuarioSalvo?.email || 'Sem e-mail cadastrado'}</p>
-            </div>
-            <button className="botao-logout" onClick={fazerLogout}>
-              Sair da conta
-            </button>
-          </section>
-        </div>
-      )}
 
       {modalAlunos && (
         <div className="fundo-modal fundo-modal--filtro" onClick={fecharModal}>

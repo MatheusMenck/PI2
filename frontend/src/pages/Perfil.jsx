@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getAdmissionDate, getDisplayName, getStoredAuthUser } from '../authUser'
 import './Perfil.css'
 
 function IconeUsuario() {
@@ -36,13 +37,7 @@ function Perfil({ onNavigate }) {
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
 
-  const usuario = (() => {
-    try {
-      return JSON.parse(localStorage.getItem('auth_user')) || null
-    } catch {
-      return null
-    }
-  })()
+  const usuario = getStoredAuthUser()
 
   function voltar() {
     onNavigate('inicio')
@@ -138,11 +133,11 @@ function Perfil({ onNavigate }) {
       <section className="perfil-card" aria-labelledby="perfil-titulo">
         <h1 id="perfil-titulo">Perfil</h1>
         <div className="perfil-avatar" aria-hidden="true"><IconeUsuario /></div>
-        <p className="perfil-data">{usuario?.name || 'Usuário'}</p>
+        <p className="perfil-data">Admissão: {getAdmissionDate(usuario) || 'Não informada'}</p>
 
         <div className="perfil-campos">
           <label htmlFor="perfil-nome">Nome</label>
-          <input id="perfil-nome" type="text" value={usuario?.name || ''} readOnly />
+          <input id="perfil-nome" type="text" value={getDisplayName(usuario, '')} readOnly />
 
           <label htmlFor="perfil-email">Email</label>
           <input id="perfil-email" type="email" value={usuario?.email || ''} readOnly />

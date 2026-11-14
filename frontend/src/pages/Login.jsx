@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { normalizeAuthUser } from '../authUser'
 import './Login.css'
 
 function Login({ onNavigate, aoNavegar }) {
@@ -38,8 +39,11 @@ function Login({ onNavigate, aoNavegar }) {
       }
 
       localStorage.setItem('auth_token', data.token)
-      if (data.user) {
-        localStorage.setItem('auth_user', JSON.stringify(data.user))
+      const usuario = normalizeAuthUser(data.user)
+      if (usuario) {
+        localStorage.setItem('auth_user', JSON.stringify(usuario))
+      } else {
+        localStorage.removeItem('auth_user')
       }
 
       if (navegar) {

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Alunos.css'
 import './Responsaveis.css'
 import logo from '../assets/logo.png'
@@ -102,22 +103,16 @@ function NavegacaoResponsaveis({ rota, aoNavegar }) {
   )
 }
 
-function Cabecalho() {
-  const usuario = (() => {
-    try {
-      return JSON.parse(localStorage.getItem('auth_user')) || null
-    } catch {
-      return null
-    }
-  })()
+function Cabecalho({ aoNavegar }) {
+  const usuario = getStoredAuthUser()
 
   return (
     <header className="cabecalho">
-        <h1>Recanto Betel</h1>
-        <div className="botao-perfil">
-          <Icone nome="perfil" tamanho={34} />
-          <span>{usuario?.name || 'Talda Fernanda'}</span>
-        </div>
+      <h1>Recanto Betel</h1>
+      <button type="button" className="botao-perfil" onClick={() => aoNavegar('perfil')} aria-label="Abrir perfil">
+        <Icone nome="perfil" tamanho={34} />
+        <span>{getDisplayName(usuario)}</span>
+      </button>
     </header>
   )
 }
@@ -317,7 +312,7 @@ function FormularioResponsavel({ aoNavegar }) {
     <main className="alunos-pagina responsaveis-pagina">
       <NavegacaoResponsaveis rota="responsaveis" aoNavegar={aoNavegar} />
       <section className="area-principal">
-        <Cabecalho />
+        <Cabecalho aoNavegar={aoNavegar} />
         <div className="responsaveis-conteudo">
           <div className="responsavel-cadastro">
             <h2 className="responsavel-titulo-cadastro">Adicionar novo Responsável</h2>
@@ -465,7 +460,7 @@ function Responsaveis({ rota, aoNavegar }) {
     <main className="alunos-pagina responsaveis-pagina">
       <NavegacaoResponsaveis rota={rota} aoNavegar={aoNavegar} />
       <section className="area-principal">
-        <Cabecalho />
+        <Cabecalho aoNavegar={aoNavegar} />
         {responsavelSelecionado ? (
           <div className="responsaveis-conteudo">
             <button className="responsavel-voltar" type="button" onClick={() => aoNavegar('responsaveis')}>

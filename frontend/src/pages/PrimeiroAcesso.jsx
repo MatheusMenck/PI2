@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { normalizeAuthUser } from '../authUser'
 import './PrimeiroAcesso.css'
 
 function PrimeiroAcesso({ onNavigate }) {
@@ -70,7 +71,7 @@ function PrimeiroAcesso({ onNavigate }) {
         localStorage.setItem('auth_token', data.token)
       }
       if (data.funcionario) {
-        localStorage.setItem('auth_user', JSON.stringify(data.funcionario))
+        localStorage.setItem('auth_user', JSON.stringify(normalizeAuthUser(data.funcionario)))
       }
 
       if (onNavigate) {

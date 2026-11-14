@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './PerfilAluno.css'
 import logo from '../assets/logo.png'
 import fotoAlunoReferencia from '../assets/aluno-referencia.png'
@@ -139,6 +140,7 @@ function Dado({ titulo, valor }) {
 
 function PerfilAluno({ rota, aoNavegar }) {
   const id = rota.split('/')[1]
+  const usuario = getStoredAuthUser()
   const alunoBase = alunos[id] || alunos[1]
   const [etapaAtual, setEtapaAtual] = useState(4)
   const [dadosAluno, setDadosAluno] = useState(alunoBase)
@@ -285,7 +287,10 @@ function PerfilAluno({ rota, aoNavegar }) {
       <section className="perfil-area">
         <header className="perfil-topo">
           <h1>Recanto Betel</h1>
-          <span><Icone nome="pessoal" tamanho={30} /><small>Talda Fernanda</small></span>
+          <button type="button" className="perfil-topo-usuario" onClick={() => aoNavegar('perfil')} aria-label="Abrir perfil">
+            <Icone nome="pessoal" tamanho={30} />
+            <small>{getDisplayName(usuario)}</small>
+          </button>
         </header>
 
         <div className="perfil-conteudo">
