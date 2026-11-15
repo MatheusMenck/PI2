@@ -1,65 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './PerfilAluno.css'
 import logo from '../assets/logo.png'
-import fotoAlunoReferencia from '../assets/aluno-referencia.png'
-
-const alunos = {
-  1: {
-    nome: 'Cinnamoroll dos Santos Vieira',
-    status: 'Ativa',
-    cadastro: '17/05/2026',
-    foto: fotoAlunoReferencia,
-    cpf: '154.125.685-54',
-    rg: '154.125.685-54',
-    telefone: '(15) 99795-3456',
-    nascimento: '01/02/2007',
-    religiao: 'Católico',
-    rua: 'Pires Arnaldo de Campos',
-    numero: '524',
-    bairro: 'Jardim Aeroporto',
-    referencia: 'N/A',
-    cidade: 'São Paulo, SP',
-    escola: 'Etec Sales Gomes',
-    serie: '5º B',
-    periodo: 'Tarde',
-  },
-  2: {
-    nome: 'Hello Kitty da Silva',
-    status: 'Pendente',
-    cadastro: '18/05/2026',
-    cpf: '325.641.987-10',
-    rg: '325.641.987-10',
-    telefone: '(15) 99872-2210',
-    nascimento: '14/08/2010',
-    religiao: 'Católica',
-    rua: 'Rua das Flores',
-    numero: '105',
-    bairro: 'Centro',
-    referencia: 'Próximo à praça',
-    cidade: 'Tatuí, SP',
-    escola: 'EMEF João Paulo',
-    serie: '4º A',
-    periodo: 'Manhã',
-  },
-  3: {
-    nome: 'Kuromi Oliveira',
-    status: 'Indeferida',
-    cadastro: '20/05/2026',
-    cpf: '498.215.736-02',
-    rg: '498.215.736-02',
-    telefone: '(15) 99611-8721',
-    nascimento: '22/11/2008',
-    religiao: 'Não informado',
-    rua: 'Rua das Acácias',
-    numero: '88',
-    bairro: 'Vila Nova',
-    referencia: 'N/A',
-    cidade: 'Tatuí, SP',
-    escola: 'EE Barão de Suruí',
-    serie: '6º A',
-    periodo: 'Tarde',
-  },
-}
+import { buscarAlunos, dataBr, fotoUrl } from '../utils/alunosApi'
 
 const menu = [
   { id: 'inicio', icone: 'inicio', texto: 'Início' },
@@ -134,200 +76,103 @@ function Bloco({ titulo, children, classe = '' }) {
 }
 
 function Dado({ titulo, valor }) {
-  return <div className="dado-perfil"><small>{titulo}</small><strong>{valor}</strong></div>
+  return <div className="dado-perfil"><small>{titulo}</small><strong>{valor ?? 'Não informado'}</strong></div>
 }
 
 function PerfilAluno({ rota, aoNavegar }) {
   const id = rota.split('/')[1]
-  const alunoBase = alunos[id] || alunos[1]
-  const [etapaAtual, setEtapaAtual] = useState(4)
-  const [dadosAluno, setDadosAluno] = useState(alunoBase)
-  const [editando, setEditando] = useState(false)
-  const iniciais = useMemo(
-    () => dadosAluno.nome.split(' ').slice(0, 2).map((nome) => nome[0]).join(''),
-    [dadosAluno.nome],
-  )
-
-  function atualizarAluno(evento) {
-    setDadosAluno((atual) => ({ ...atual, [evento.target.name]: evento.target.value }))
-  }
-
-  function renderizarCampos(campos) {
-    return campos.map(([titulo, nome]) => (
-      editando
-        ? <label key={nome}>{titulo}<input name={nome} value={dadosAluno[nome]} onChange={atualizarAluno} /></label>
-        : <Dado key={nome} titulo={titulo} valor={dadosAluno[nome]} />
-    ))
-  }
-
-  function dadosPessoais() {
-    return (
-      <div className="grade-perfil dados-pessoais">
-        <Bloco titulo="Dados Pessoais">{renderizarCampos(camposPessoais)}</Bloco>
-        <Bloco titulo="Endereço">{renderizarCampos(camposEndereco)}</Bloco>
-        <Bloco titulo="Escolaridade">{renderizarCampos(camposEscolaridade)}</Bloco>
-      </div>
-    )
-  }
-
-  function familia() {
-    return (
-      <div className="grade-perfil familia-perfil">
-        <Bloco titulo="Responsável(is)">
-          <div className="pessoa">◉ <span><b>Mamãe Kurumi</b><small>Parentesco: Mãe</small></span></div>
-        </Bloco>
-        <Bloco titulo="Autorizações">
-          <small>Autorização para Sair Sozinho:</small>
-          <b>Não, Saída somente com:</b>
-          <div className="pessoa"><span><b>Gabriely Hello Kitty</b><small>☎ (15) 99785-6425</small></span><em>Irmã</em></div>
-          <div className="pessoa"><span><b>Renan Kitty</b><small>☎ (15) 99785-6425</small></span><em>Pai</em></div>
-          <small>Autorização Odontológica:</small>
-          <b>Sim</b>
-        </Bloco>
-        <Bloco titulo="Composição Familiar">
-          <div className="familia-item"><b>Gabriely Hello Kitty</b><small>Nasc: 05/03/2014</small><em>Irmã</em></div>
-          <div className="familia-item"><b>Renan Kitty</b><small>Nasc: 05/03/1985</small><em>Pai</em></div>
-        </Bloco>
-      </div>
-    )
-  }
-
-  function saude() {
-    const condicoes = [
-      'Doenças Pré-Existentes',
-      'Febre Reumática',
-      'Cardíacos',
-      'Renais',
-      'Gástricos',
-      'Respiratórios',
-      'Articulares',
-      'Diabetes',
-      'Hipertensão Arterial Sistêmica',
-    ]
-    const historico = [
-      'Já foi operado?',
-      'Problema com anestesia?',
-      'Problema com cicatrização?',
-      'Problema com hemorragia?',
-    ]
-
-    return (
-      <div className="grade-saude">
+  const [aba, setAba] = useState(1)
+  const [aluno, setAluno] = useState(null)
+  const [erro, setErro] = useState('')
+  useEffect(() => {
+    const controller = new AbortController()
+    buscarAlunos(`/${id}`, controller.signal).then((dados) => setAluno(dados.aluno))
+      .catch((erro) => { if (erro.name !== 'AbortError') setErro(erro.message) })
+    return () => controller.abort()
+  }, [id])
+  let usuario = null
+  try { usuario = JSON.parse(localStorage.getItem('auth_user')) } catch { /* Sessão ausente. */ }
+  const simNao = (valor) => valor == null ? 'Não informado' : valor === true || valor === 1 || valor === '1' ? 'Sim' : 'Não'
+  const campos = (lista, dados = aluno) => lista.map(([titulo, campo]) => <Dado key={campo} titulo={titulo} valor={campo === 'nascimento' ? dataBr(dados[campo]) : dados[campo]} />)
+  function conteudo() {
+    if (aba === 1) return <div className="grade-perfil dados-pessoais">
+      <Bloco titulo="Dados Pessoais">{campos(camposPessoais)}</Bloco>
+      <Bloco titulo="Endereço">{campos(camposEndereco)}</Bloco>
+      <Bloco titulo="Escolaridade">{campos(camposEscolaridade)}</Bloco>
+    </div>
+    if (aba === 2) return <div className="grade-perfil familia-perfil">
+      <Bloco titulo="Responsável(is)">
+        {!aluno.responsaveis.length && <p>Nenhum responsável cadastrado.</p>}
+        {aluno.responsaveis.map((p) => <div className="pessoa" key={p.id}><span><b>{p.nome}</b><small>Parentesco: {p.parentesco || 'Não informado'}</small><small>{p.telefone || 'Telefone não informado'}</small></span></div>)}
+      </Bloco>
+      <Bloco titulo="Autorizações">
+        <Dado titulo="Autorização para sair sozinho" valor={simNao(aluno.autorizado_sair_sozinho)} />
+        {aluno.autorizado_sair_sozinho === false && <><b>Saída somente com:</b>
+          {!aluno.pessoas_autorizadas.length && <p>Nenhuma pessoa autorizada cadastrada.</p>}
+          {aluno.pessoas_autorizadas.map((p) => <div className="pessoa" key={p.id_pessoa_autorizada}><span><b>{p.nome}</b><small>{p.telefone}</small></span><em>{p.parentesco}</em></div>)}
+        </>}
+        <Dado titulo="Autorização odontológica" valor={simNao(aluno.saude?.autoriza_atendimento_odontologico)} />
+      </Bloco>
+      <Bloco titulo="Composição Familiar">
+        {!aluno.familia.length && <p>Nenhum membro da família cadastrado.</p>}
+        {aluno.familia.map((p) => <div className="familia-item" key={p.id_membro_familia}><b>{p.nome}</b><small>Nasc: {dataBr(p.data_nascimento)}</small><em>{p.parentesco}</em></div>)}
+      </Bloco>
+    </div>
+    if (aba === 3) {
+      const saude = aluno.saude
+      if (!saude) return <p>Nenhuma informação de saúde cadastrada.</p>
+      return <div className="grade-saude">
         <Bloco titulo="Doenças e Alergias">
-          <small>Alergias Catalogadas</small>
-          <p><mark>Amendoim</mark> <mark>Frutos do mar</mark> <mark>Mel</mark></p>
-          {condicoes.map((item, indice) => (
-            <div className="linha-saude" key={item}>
-              {item}<b className={indice % 3 === 0 ? 'sim' : 'nao'}>{indice % 3 === 0 ? 'Sim' : 'Não'}</b>
-            </div>
-          ))}
+          <Dado titulo="Possui alergia" valor={simNao(saude.possui_alergia)} />
+          <Dado titulo="Descrição da alergia" valor={saude.descricao_alergia} />
+          {!aluno.doencas.length && <p>Nenhuma doença cadastrada.</p>}
+          {aluno.doencas.map((d) => <div key={d.id_doenca}>
+            <Dado titulo="Doença" valor={d.nome} />
+            <Dado titulo="Status" valor={d.pivot?.status} />
+            <Dado titulo="Observação" valor={d.pivot?.observacao} />
+            <Dado titulo="Medicação" valor={d.pivot?.medicacao_em_uso} />
+            <Dado titulo="Cuidados especiais" valor={simNao(d.pivot?.requer_cuidados_especiais)} />
+          </div>)}
+          <Dado titulo="Em tratamento médico" valor={simNao(saude.em_tratamento_medico)} />
+          <Dado titulo="Gestante" valor={simNao(saude.gestante)} />
+          <Dado titulo="Usa medicação contínua" valor={simNao(saude.usa_medicacao_continua)} />
+          <Dado titulo="Descrição da medicação" valor={saude.descricao_medicacao} />
         </Bloco>
         <Bloco titulo="Histórico Cirúrgico">
-          {historico.map((item, indice) => (
-            <div className="linha-saude" key={item}>
-              {item}<b className={indice === 2 ? 'nao' : 'sim'}>{indice === 2 ? 'Não' : 'Sim'}</b>
-            </div>
-          ))}
+          {[['Já foi operado?', 'ja_foi_operado'], ['Problema com anestesia?', 'problema_anestesia'], ['Problema com cicatrização?', 'problema_cicatrizacao'], ['Problema com hemorragia?', 'problema_hemorragia']].map(([titulo, campo]) => <Dado key={campo} titulo={titulo} valor={simNao(saude[campo])} />)}
+          <Dado titulo="Descrição das cirurgias" valor={saude.descricao_cirurgias} />
         </Bloco>
-        <Bloco titulo="Antecedentes Familiares">
-          <div className="caixa-texto">Relatos de Antecedências<br /><small>Nenhum relato constatado na matrícula</small></div>
-        </Bloco>
-        <Bloco titulo="Hábitos">
-          <div className="caixa-texto">Sono regular médio de 8 horas noturnas mantendo excelente aceitação hídrica durante todo o expediente de aulas.</div>
-        </Bloco>
-        <Bloco titulo="Outros Problemas">
-          <div className="caixa-texto alerta">Observação<br />Ficar alerta caso o aluno demonstre agitação psicomotora ou ansiedade atípica.</div>
-        </Bloco>
-        <Bloco titulo="Informações do Médico">
-          <div className="caixa-texto"><b>Dra. Kuromi</b><hr /><b>Queixa Principal</b><br />N/A</div>
-        </Bloco>
+        <Bloco titulo="Antecedentes Familiares"><div className="caixa-texto">{saude.antecedentes_familiares || 'Não informado'}</div></Bloco>
+        <Bloco titulo="Hábitos"><div className="caixa-texto">{saude.habitos || 'Não informado'}</div></Bloco>
+        <Bloco titulo="Outros Problemas"><div className="caixa-texto">{saude.observacoes_saude || 'Não informado'}</div></Bloco>
+        <Bloco titulo="Informações do Médico">{campos([['Médico', 'medico_responsavel_nome'], ['Telefone', 'medico_responsavel_telefone'], ['Queixa principal', 'queixa_principal']], saude)}</Bloco>
       </div>
-    )
+    }
+    return <Bloco titulo="Histórico de Relatos" classe="historico">
+      {!aluno.relatos.length && <p>Nenhum relato cadastrado.</p>}
+      {aluno.relatos.map((r) => <article className="relato" key={r.id_relato}><header><i aria-hidden="true" /><small>{dataBr(r.data_registro)} - {r.titulo}</small></header><p style={{ whiteSpace: 'pre-wrap' }}>{r.descricao || 'Sem descrição'}</p></article>)}
+    </Bloco>
   }
-
-  function relatos() {
-    return (
-      <Bloco titulo="Histórico de Relatos" classe="historico">
-        <button className="novo-relato" type="button">
-          Novo Relato <Icone nome="adicionar" tamanho={20} />
-        </button>
-        <article className="relato">
-          <header><i aria-hidden="true" /><small>17/06/2026 - Problemas de saúde</small></header>
-          <p>
-            Durante o período de aula, o aluno apresentou um mal-estar repentino, relatando tontura e fraqueza. O professor foi informado e prestou os primeiros cuidados, mantendo o aluno em repouso e comunicando a situação à coordenação da escola. Em seguida, os responsáveis foram avisados para que pudessem tomar as providências necessárias.
-            <br />
-            O aluno permaneceu acompanhado até a chegada do responsável. A situação foi registrada pela escola para fins de acompanhamento.
-          </p>
-        </article>
-      </Bloco>
-    )
-  }
-
-  const conteudo = [dadosPessoais, familia, saude, relatos][etapaAtual - 1]
-
-  return (
-    <main className="perfil-aluno">
-      <aside className="menu-perfil" aria-label="Navegação principal">
-        <img src={logo} alt="Logo Recanto Betel" />
-        {menu.map((item) => (
-          <button
-            type="button"
-            className={item.id === 'alunos' ? 'selecionado' : ''}
-            key={item.id}
-            onClick={() => aoNavegar(item.id)}
-          >
-            <Icone nome={item.icone} tamanho={26} />
-            <span>{item.texto}</span>
-          </button>
-        ))}
-      </aside>
-
-      <section className="perfil-area">
-        <header className="perfil-topo">
-          <h1>Recanto Betel</h1>
-          <span><Icone nome="pessoal" tamanho={30} /><small>Talda Fernanda</small></span>
-        </header>
-
-        <div className="perfil-conteudo">
+  return <main className="perfil-aluno">
+    <aside className="menu-perfil" aria-label="Navegação principal"><img src={logo} alt="Logo Recanto Betel" />
+      {menu.map((item) => <button type="button" className={item.id === 'alunos' ? 'selecionado' : ''} key={item.id} onClick={() => aoNavegar(item.id)}><Icone nome={item.icone} tamanho={26} /><span>{item.texto}</span></button>)}
+    </aside>
+    <section className="perfil-area"><header className="perfil-topo"><h1>Recanto Betel</h1><span><Icone nome="pessoal" tamanho={30} /><small>{usuario?.name || 'Usuário'}</small></span></header>
+      <div className="perfil-conteudo">
+        {erro && <p role="alert">{erro}</p>}
+        {!erro && !aluno && <p role="status">Carregando aluno...</p>}
+        {aluno && <>
           <section className="cabecalho-aluno">
-            <div className="avatar-aluno">
-              {dadosAluno.foto ? <img src={dadosAluno.foto} alt="" /> : iniciais}
-            </div>
-            <div className="aluno-identificacao">
-              <h2>{dadosAluno.nome}</h2>
-              <span className={`status-aluno ${dadosAluno.status.toLowerCase()}`}>Status: {dadosAluno.status}</span>
-            </div>
-            <button
-              type="button"
-              className="editar"
-              aria-label={editando ? 'Concluir edição do aluno' : 'Editar aluno'}
-              onClick={() => setEditando(!editando)}
-            >
-              <Icone nome={editando ? 'adicionar' : 'editar'} tamanho={27} />
-            </button>
-            <p>Data de cadastro {dadosAluno.cadastro}</p>
+            <div className="avatar-aluno">{aluno.foto ? <img src={fotoUrl(aluno.foto)} alt="" /> : aluno.nome.split(' ').slice(0, 2).map((n) => n[0]).join('')}</div>
+            <div className="aluno-identificacao"><h2>{aluno.nome}</h2><span className={`status-aluno ${aluno.status?.toLowerCase() || ''}`}>Status: {aluno.status || 'Não informado'}</span></div>
+            <p>Data de cadastro {dataBr(aluno.cadastro)}</p>
           </section>
-
-          <nav className="abas-perfil" aria-label="Informações do aluno">
-            {abas.map((aba) => (
-              <button
-                type="button"
-                className={etapaAtual === aba.id ? 'ativa' : ''}
-                key={aba.id}
-                aria-current={etapaAtual === aba.id ? 'page' : undefined}
-                onClick={() => setEtapaAtual(aba.id)}
-              >
-                <Icone nome={aba.icone} tamanho={24} />
-                {aba.texto}
-              </button>
-            ))}
-          </nav>
-
+          <nav className="abas-perfil" aria-label="Informações do aluno">{abas.map((item) => <button type="button" className={aba === item.id ? 'ativa' : ''} key={item.id} aria-current={aba === item.id ? 'page' : undefined} onClick={() => setAba(item.id)}><Icone nome={item.icone} />{item.texto}</button>)}</nav>
           <div className="conteudo-perfil">{conteudo()}</div>
-        </div>
-      </section>
-    </main>
-  )
+        </>}
+      </div>
+    </section>
+  </main>
 }
 
 export default PerfilAluno

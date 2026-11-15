@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import './Alunos.css'
+import { buscarAlunos, dataBr, fotoUrl } from '../utils/alunosApi'
 import logo from '../assets/logo.png'
-const alunos = [
-  { id: '1', nome: 'Cinnamoroll dos Santos Vieira', nascimento: '01/02/2007', cpf: '154.125.685-54', matricula: '15621456', status: 'Ativo', classe: 'ativo' },
-  { id: '2', nome: 'Hello Kitty da Silva', nascimento: '14/08/2010', cpf: '325.641.987-10', matricula: '15621457', status: 'Pendente', classe: 'pendente' },
-  { id: '3', nome: 'Kuromi Oliveira', nascimento: '22/11/2008', cpf: '498.215.736-02', matricula: '15621458', status: 'Indeferida', classe: 'indeferida' },
-]
 
 function Icone({ nome, tamanho = 26 }) {
   const comum = {
@@ -29,6 +25,17 @@ function Icone({ nome, tamanho = 26 }) {
 }
 
 function Alunos({ rota, aoNavegar }) {
+  const [alunos, setAlunos] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState('')
+  useEffect(() => {
+    const controller = new AbortController()
+    buscarAlunos('', controller.signal).then((dados) => setAlunos(dados.alunos))
+      .catch((erro) => { if (erro.name !== 'AbortError') setErro(erro.message) })
+      .finally(() => { if (!controller.signal.aborted) setCarregando(false) })
+    return () => controller.abort()
+  }, [])
+
   const [perfil, setPerfil] = useState(false)
   const [modalAlunos, setModalAlunos] = useState(false)
   const [filtroAlunos, setFiltroAlunos] = useState({
@@ -141,16 +148,19 @@ function Alunos({ rota, aoNavegar }) {
           <button className="adicionar-aluno" onClick={adicionarAluno}>Adicionar Aluno <strong>+</strong></button>
 
           <section className="lista-alunos" aria-label="Alunos">
+            {carregando && <p role="status">Carregando alunos...</p>}
+            {erro && <p role="alert">{erro}</p>}
+            {!carregando && !erro && alunos.length === 0 && <p>Nenhum aluno cadastrado.</p>}
             {alunos.map((aluno) => (
               <button key={aluno.id} className="cartao-aluno" onClick={() => abrirAluno(aluno.id)}>
-                <span className="avatar" aria-hidden="true" />
+                <span className="avatar" aria-hidden="true" style={{ backgroundImage: aluno.foto ? `url("${fotoUrl(aluno.foto)}")` : 'none' }} />
                 <span className="dados-aluno">
                   <span className="campo nome"><small>Nome</small><span>{aluno.nome}</span></span>
-                  <span className="campo nascimento"><small>Data de Nascimento</small><span>{aluno.nascimento}</span></span>
-                  <span className="campo cpf"><small>CPF</small><span>{aluno.cpf}</span></span>
-                  <span className="campo matricula"><small>Matrícula</small><span>{aluno.matricula}</span></span>
+                  <span className="campo nascimento"><small>Data de Nascimento</small><span>{dataBr(aluno.nascimento)}</span></span>
+                  <span className="campo cpf"><small>CPF</small><span>{aluno.cpf || 'Não informado'}</span></span>
+                  <span className="campo telefone"><small>Telefone</small><span>{aluno.telefone || 'Não informado'}</span></span>
                 </span>
-                <span className={`status ${aluno.classe}`}><small>Status da Matrícula</small><span>{aluno.status}</span></span>
+                <span className={`status ${aluno.status?.toLowerCase() || 'sem-status'}`}><small>Status da Matrícula</small><span>{aluno.status || 'Não informado'}</span></span>
               </button>
             ))}
           </section>
@@ -192,7 +202,7 @@ function Alunos({ rota, aoNavegar }) {
               <label>Telefone<input name="telefone" value={filtroAlunos.telefone} onChange={alterarFiltro} placeholder="Ex: 15997854565" /></label>
               <fieldset className="filtro-data"><legend>Data de Cadastro</legend><label>De<input type="date" name="dataInicio" value={filtroAlunos.dataInicio} onChange={alterarFiltro} /></label><span>—</span><label>Até<input type="date" name="dataFim" value={filtroAlunos.dataFim} onChange={alterarFiltro} /></label></fieldset>
               <fieldset className="filtro-status"><legend>Status de Matrícula</legend>
-                {['Todos', 'Ativos', 'Indeferidos', 'Pendentes', 'Concluídos'].map((status) => <button type="button" key={status} className={`${filtroAlunos.status === status ? 'selecionado ' : ''}${status.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`} onClick={() => setFiltroAlunos((atual) => ({ ...atual, status }))}>{status !== 'Todos' && <i />} {status}</button>)}
+                {['Todos', 'Ativos', 'Pendentes'].map((status) => <button type="button" key={status} className={`${filtroAlunos.status === status ? 'selecionado ' : ''}${status.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`} onClick={() => setFiltroAlunos((atual) => ({ ...atual, status }))}>{status !== 'Todos' && <i />} {status}</button>)}
               </fieldset>
             </div>
             <footer className="modal-filtro-rodape">

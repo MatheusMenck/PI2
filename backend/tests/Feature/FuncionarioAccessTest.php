@@ -19,6 +19,8 @@ class FuncionarioAccessTest extends TestCase
     {
         $this->postJson('/api/alunos', [])->assertUnauthorized();
         $this->getJson('/api/funcionarios')->assertUnauthorized();
+        $this->getJson('/api/alunos')->assertUnauthorized();
+        $this->getJson('/api/alunos/1')->assertUnauthorized();
         $this->getJson('/api/responsaveis/por-cpf?cpf=52998224725')->assertUnauthorized();
     }
 
@@ -27,6 +29,8 @@ class FuncionarioAccessTest extends TestCase
         Sanctum::actingAs(new User(['name' => 'Aluno']));
 
         $this->postJson('/api/alunos', [])->assertForbidden();
+        $this->getJson('/api/alunos')->assertForbidden();
+        $this->getJson('/api/alunos/1')->assertForbidden();
         $this->getJson('/api/funcionarios')->assertForbidden();
         $this->getJson('/api/responsaveis/por-cpf?cpf=52998224725')->assertForbidden();
     }
@@ -66,6 +70,8 @@ class FuncionarioAccessTest extends TestCase
         Sanctum::actingAs(new Funcionario(['ativo' => false, 'cargo' => 'admin']));
 
         $this->postJson('/api/alunos', [])->assertForbidden();
+        $this->getJson('/api/alunos')->assertForbidden();
+        $this->getJson('/api/alunos/1')->assertForbidden();
         $this->getJson('/api/funcionarios')->assertForbidden();
     }
 }
