@@ -4,48 +4,9 @@ import './Alunos.css'
 import './Responsaveis.css'
 import logo from '../assets/logo.png'
 import fotoResponsavel from '../assets/responsavel-referencia.png'
-import fotoResponsavelCartao from '../assets/responsavel-cartao-referencia.png'
+import { buscarResponsaveis } from '../utils/responsaveisApi'
+import { dataBr, fotoUrl } from '../utils/alunosApi'
 import fotoAluno from '../assets/aluno-vinculado-referencia.png'
-
-const responsaveis = [
-  {
-    id: '1',
-    nome: 'Mamãe Kuromi',
-    profissao: 'Médica',
-    cpf: '341431123-9',
-    nis: '1587424',
-    telefone: '(15) 99785-4515',
-    cadastro: '17/05/2026',
-    foto: fotoResponsavel,
-    endereco: {
-      bairro: 'Jardim Aeroporto',
-      rua: 'Arnaldo de Campos',
-      numero: '358',
-      referencia: 'N/A',
-      cidade: 'Tatuí, SP',
-      comercial: 'Rua 11 de Agosto, Bairro 13 de Maio, n 840, Sorocaba, SP',
-    },
-    dados: {
-      rg: '154.125.412-54',
-      nascimento: '01/02/2007',
-      escolaridade: '3 Ano do Ensino Médio - Completo',
-    },
-    renda: {
-      salario: 'R$1.580,98',
-      total: 'R$10.580,98',
-      percapta: 'R$700,00',
-      beneficio: 'Sim, Bolsa Família R$700',
-      moradia: 'Casa',
-    },
-    despesas: [
-      ['Água', 'R$100'],
-      ['Luz', 'R$100'],
-      ['Gás', 'R$100'],
-      ['Alimentação', 'R$100'],
-    ],
-    alunos: [{ nome: 'Cinnamoroll dos Santos Vieira', parentesco: 'Filho' }],
-  },
-]
 
 const alunosReferencia = [
   { id: 'aluno-1', nome: 'Cinnamoroll dos Santos Vieira', nascimento: '01/02/2007', telefone: '(15) 99785-4515', foto: fotoAluno },
@@ -121,7 +82,7 @@ function CampoInfo({ rotulo, valor }) {
   return (
     <div className="responsavel-dado">
       <small>{rotulo}</small>
-      <span>{valor || 'Não informado'}</span>
+      <span>{valor === null || valor === undefined || valor === '' ? 'Não informado' : valor}</span>
     </div>
   )
 }
@@ -186,7 +147,7 @@ function CartaoResponsavel({ responsavel, abrir }) {
   return (
     <button className="responsavel-cartao" type="button" onClick={() => abrir(responsavel.id)}>
       {responsavel.foto
-        ? <img className="responsavel-cartao-foto" src={fotoResponsavelCartao} alt="" />
+        ? <img className="responsavel-cartao-foto" src={fotoUrl(responsavel.foto)} alt="" />
         : <span className="responsavel-cartao-iniciais">{responsavel.nome.slice(0, 1)}</span>}
       <span className="responsavel-cartao-campos">
         <span><small>Nome</small><strong>{responsavel.nome}</strong></span>
@@ -208,13 +169,13 @@ function DetalhesResponsavel({ responsavel }) {
         </header>
         <div className="responsavel-painel-perfil">
           <div className="responsavel-avatar-grande">
-            {responsavel.foto ? <img src={responsavel.foto} alt="" /> : responsavel.nome.slice(0, 1)}
+            {responsavel.foto ? <img src={fotoUrl(responsavel.foto)} alt="" /> : responsavel.nome.slice(0, 1)}
           </div>
           <div className="responsavel-nome">
             <h3>{responsavel.nome}</h3>
             <strong>NIS: {responsavel.nis}</strong>
           </div>
-          <p>Data de cadastro: {responsavel.cadastro}</p>
+          <p>Data de cadastro: {dataBr(responsavel.cadastro)}</p>
         </div>
       </section>
 
@@ -223,8 +184,8 @@ function DetalhesResponsavel({ responsavel }) {
         <div className="responsavel-lista-dependentes">
           {responsavel.alunos.length
             ? responsavel.alunos.map((aluno) => (
-              <article className="responsavel-dependente" key={`${aluno.nome}-${aluno.parentesco}`}>
-                <img src={fotoAluno} alt="" />
+              <article className="responsavel-dependente" key={aluno.id}>
+                <span className="responsavel-dependente-avatar">{aluno.foto ? <img src={fotoUrl(aluno.foto)} alt="" /> : aluno.nome.slice(0, 1)}</span>
                 <span><strong>{aluno.nome}</strong><small>Parentesco: {aluno.parentesco}</small></span>
               </article>
             ))
@@ -250,7 +211,7 @@ function DetalhesResponsavel({ responsavel }) {
             <CampoInfo rotulo="CPF" valor={responsavel.cpf} />
             <CampoInfo rotulo="RG" valor={responsavel.dados.rg} />
             <CampoInfo rotulo="Telefone Principal" valor={responsavel.telefone} />
-            <CampoInfo rotulo="Data de Nascimento" valor={responsavel.dados.nascimento} />
+            <CampoInfo rotulo="Data de Nascimento" valor={dataBr(responsavel.dados.nascimento)} />
             <CampoInfo rotulo="Profissão" valor={responsavel.profissao} />
             <CampoInfo rotulo="Grau de escolaridade" valor={responsavel.dados.escolaridade} />
             <CampoInfo rotulo="NIS" valor={responsavel.nis} />
@@ -426,8 +387,21 @@ function Responsaveis({ rota, aoNavegar }) {
   const [busca, setBusca] = useState('')
   const [modalFiltroAberto, setModalFiltroAberto] = useState(false)
   const [filtros, setFiltros] = useState(filtrosVazios)
+  const [resultado, setResultado] = useState(null)
+  const [erro, setErro] = useState('')
+  const detalhe = rota.startsWith('responsaveis/') && rota !== 'responsaveis/novo'
+  useEffect(() => {
+    if (rota === 'responsaveis/novo') return
+    const controller = new AbortController()
+    buscarResponsaveis(detalhe ? `/${rota.split('/')[1]}` : '', controller.signal)
+      .then((dados) => { if (!controller.signal.aborted) setResultado({ rota, dados }) })
+      .catch((falha) => { if (!controller.signal.aborted) setErro(falha.message) })
+    return () => controller.abort()
+  }, [rota, detalhe])
+  const carregando = !erro && resultado?.rota !== rota
+  const responsaveis = resultado?.rota === rota ? (resultado.dados.responsaveis || []) : []
   const responsavelSelecionado = rota.startsWith('responsaveis/') && rota !== 'responsaveis/novo'
-    ? responsaveis.find((item) => item.id === rota.split('/')[1])
+    ? (resultado?.rota === rota ? resultado.dados.responsavel : null)
     : null
   const origemBusca = useRef(null)
 
@@ -461,12 +435,14 @@ function Responsaveis({ rota, aoNavegar }) {
       <NavegacaoResponsaveis rota={rota} aoNavegar={aoNavegar} />
       <section className="area-principal">
         <Cabecalho aoNavegar={aoNavegar} />
-        {responsavelSelecionado ? (
+        {detalhe ? (
           <div className="responsaveis-conteudo">
             <button className="responsavel-voltar" type="button" onClick={() => aoNavegar('responsaveis')}>
               <Icone nome="voltar" tamanho={19} /> Voltar para Responsáveis
             </button>
-            <DetalhesResponsavel responsavel={responsavelSelecionado} />
+            {erro && <p role="alert">{erro}</p>}
+            {carregando && <p role="status">Carregando responsável...</p>}
+            {responsavelSelecionado && <DetalhesResponsavel responsavel={responsavelSelecionado} />}
           </div>
         ) : (
           <div className="responsaveis-conteudo">
@@ -486,6 +462,9 @@ function Responsaveis({ rota, aoNavegar }) {
               Adicionar Responsável <strong>+</strong>
             </button>
             <section className="responsaveis-lista" aria-label="Lista de responsáveis">
+              {erro && <p role="alert">{erro}</p>}
+              {carregando && <p role="status">Carregando responsáveis...</p>}
+              {!erro && !carregando && !responsaveis.length && <p>Nenhum responsável cadastrado.</p>}
               {responsaveis.map((responsavel) => (
                 <CartaoResponsavel key={responsavel.id} responsavel={responsavel} abrir={abrirResponsavel} />
               ))}

@@ -25,6 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/alunos', [AlunoController::class, 'index'])->middleware(EnsureFuncionario::class);
     Route::get('/alunos/{id}', [AlunoController::class, 'show'])->whereNumber('id')->middleware(EnsureFuncionario::class);
     Route::post('/alunos', [AlunoController::class, 'store'])->middleware(EnsureFuncionario::class);
+    Route::get('/responsaveis', [ResponsavelController::class, 'index'])->middleware(EnsureFuncionario::class);
+    Route::get('/responsaveis/{id}', [ResponsavelController::class, 'show'])->whereNumber('id')->middleware(EnsureFuncionario::class);
     Route::get('/responsaveis/por-cpf', [ResponsavelController::class, 'buscarPorCpf'])->middleware(EnsureFuncionario::class);
     Route::apiResource('funcionarios', FuncionarioController::class)
         ->middleware(EnsureFuncionario::class . ':admin');

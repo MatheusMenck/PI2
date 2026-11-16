@@ -992,3 +992,14 @@
     width: 100%;
   }
 }
+
+.responsavel-dependente-avatar {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 50%;
+  background: #eee;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
