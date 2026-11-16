@@ -81,7 +81,6 @@ function Dado({ titulo, valor }) {
 }
 
 function simNao(valor) {
-  if (valor == null) return 'Não informado'
   return valor === true || valor === 1 || valor === '1' ? 'Sim' : 'Não'
 }
 
@@ -187,7 +186,7 @@ function PerfilAluno({ rota, aoNavegar }) {
     ]
     const linha = (titulo, valor) => (
       <div className="linha-saude" key={titulo}>
-        {titulo}<b className={valor == null ? '' : simNao(valor) === 'Sim' ? 'sim' : 'nao'}>{simNao(valor)}</b>
+        {titulo}<b className={simNao(valor) === 'Sim' ? 'sim' : 'nao'}>{simNao(valor)}</b>
       </div>
     )
 
