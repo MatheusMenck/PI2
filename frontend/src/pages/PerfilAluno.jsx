@@ -1,9 +1,66 @@
-import { useEffect, useState } from 'react'
 import { useMemo, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './PerfilAluno.css'
 import logo from '../assets/logo.png'
-import { buscarAlunos, dataBr, fotoUrl } from '../utils/alunosApi'
+import fotoAlunoReferencia from '../assets/aluno-referencia.png'
+
+const alunos = {
+  1: {
+    nome: 'Cinnamoroll dos Santos Vieira',
+    status: 'Ativa',
+    cadastro: '17/05/2026',
+    foto: fotoAlunoReferencia,
+    cpf: '154.125.685-54',
+    rg: '154.125.685-54',
+    telefone: '(15) 99795-3456',
+    nascimento: '01/02/2007',
+    religiao: 'Católico',
+    rua: 'Pires Arnaldo de Campos',
+    numero: '524',
+    bairro: 'Jardim Aeroporto',
+    referencia: 'N/A',
+    cidade: 'São Paulo, SP',
+    escola: 'Etec Sales Gomes',
+    serie: '5º B',
+    periodo: 'Tarde',
+  },
+  2: {
+    nome: 'Hello Kitty da Silva',
+    status: 'Pendente',
+    cadastro: '18/05/2026',
+    cpf: '325.641.987-10',
+    rg: '325.641.987-10',
+    telefone: '(15) 99872-2210',
+    nascimento: '14/08/2010',
+    religiao: 'Católica',
+    rua: 'Rua das Flores',
+    numero: '105',
+    bairro: 'Centro',
+    referencia: 'Próximo à praça',
+    cidade: 'Tatuí, SP',
+    escola: 'EMEF João Paulo',
+    serie: '4º A',
+    periodo: 'Manhã',
+  },
+  3: {
+    nome: 'Kuromi Oliveira',
+    status: 'Indeferida',
+    cadastro: '20/05/2026',
+    cpf: '498.215.736-02',
+    rg: '498.215.736-02',
+    telefone: '(15) 99611-8721',
+    nascimento: '22/11/2008',
+    religiao: 'Não informado',
+    rua: 'Rua das Acácias',
+    numero: '88',
+    bairro: 'Vila Nova',
+    referencia: 'N/A',
+    cidade: 'Tatuí, SP',
+    escola: 'EE Barão de Suruí',
+    serie: '6º A',
+    periodo: 'Tarde',
+  },
+}
 
 const menu = [
   { id: 'inicio', icone: 'inicio', texto: 'Início' },
@@ -78,7 +135,7 @@ function Bloco({ titulo, children, classe = '' }) {
 }
 
 function Dado({ titulo, valor }) {
-  return <div className="dado-perfil"><small>{titulo}</small><strong>{valor ?? 'Não informado'}</strong></div>
+  return <div className="dado-perfil"><small>{titulo}</small><strong>{valor}</strong></div>
 }
 
 function PerfilAluno({ rota, aoNavegar }) {
@@ -159,36 +216,35 @@ function PerfilAluno({ rota, aoNavegar }) {
     return (
       <div className="grade-saude">
         <Bloco titulo="Doenças e Alergias">
-          <Dado titulo="Possui alergia" valor={simNao(saude.possui_alergia)} />
-          <Dado titulo="Descrição da alergia" valor={saude.descricao_alergia} />
-          {!aluno.doencas.length && <p>Nenhuma doença cadastrada.</p>}
-          {aluno.doencas.map((d) => <div key={d.id_doenca}>
-            <Dado titulo="Doença" valor={d.nome} />
-            <Dado titulo="Status" valor={d.pivot?.status} />
-            <Dado titulo="Observação" valor={d.pivot?.observacao} />
-            <Dado titulo="Medicação" valor={d.pivot?.medicacao_em_uso} />
-            <Dado titulo="Cuidados especiais" valor={simNao(d.pivot?.requer_cuidados_especiais)} />
-          </div>)}
-          <Dado titulo="Em tratamento médico" valor={simNao(saude.em_tratamento_medico)} />
-          <Dado titulo="Gestante" valor={simNao(saude.gestante)} />
-          <Dado titulo="Usa medicação contínua" valor={simNao(saude.usa_medicacao_continua)} />
-          <Dado titulo="Descrição da medicação" valor={saude.descricao_medicacao} />
+          <small>Alergias Catalogadas</small>
+          <p><mark>Amendoim</mark> <mark>Frutos do mar</mark> <mark>Mel</mark></p>
+          {condicoes.map((item, indice) => (
+            <div className="linha-saude" key={item}>
+              {item}<b className={indice % 3 === 0 ? 'sim' : 'nao'}>{indice % 3 === 0 ? 'Sim' : 'Não'}</b>
+            </div>
+          ))}
         </Bloco>
         <Bloco titulo="Histórico Cirúrgico">
-          {[['Já foi operado?', 'ja_foi_operado'], ['Problema com anestesia?', 'problema_anestesia'], ['Problema com cicatrização?', 'problema_cicatrizacao'], ['Problema com hemorragia?', 'problema_hemorragia']].map(([titulo, campo]) => <Dado key={campo} titulo={titulo} valor={simNao(saude[campo])} />)}
-          <Dado titulo="Descrição das cirurgias" valor={saude.descricao_cirurgias} />
+          {historico.map((item, indice) => (
+            <div className="linha-saude" key={item}>
+              {item}<b className={indice === 2 ? 'nao' : 'sim'}>{indice === 2 ? 'Não' : 'Sim'}</b>
+            </div>
+          ))}
         </Bloco>
-        <Bloco titulo="Antecedentes Familiares"><div className="caixa-texto">{saude.antecedentes_familiares || 'Não informado'}</div></Bloco>
-        <Bloco titulo="Hábitos"><div className="caixa-texto">{saude.habitos || 'Não informado'}</div></Bloco>
-        <Bloco titulo="Outros Problemas"><div className="caixa-texto">{saude.observacoes_saude || 'Não informado'}</div></Bloco>
-        <Bloco titulo="Informações do Médico">{campos([['Médico', 'medico_responsavel_nome'], ['Telefone', 'medico_responsavel_telefone'], ['Queixa principal', 'queixa_principal']], saude)}</Bloco>
+        <Bloco titulo="Antecedentes Familiares">
+          <div className="caixa-texto">Relatos de Antecedências<br /><small>Nenhum relato constatado na matrícula</small></div>
+        </Bloco>
+        <Bloco titulo="Hábitos">
+          <div className="caixa-texto">Sono regular médio de 8 horas noturnas mantendo excelente aceitação hídrica durante todo o expediente de aulas.</div>
+        </Bloco>
+        <Bloco titulo="Outros Problemas">
+          <div className="caixa-texto alerta">Observação<br />Ficar alerta caso o aluno demonstre agitação psicomotora ou ansiedade atípica.</div>
+        </Bloco>
+        <Bloco titulo="Informações do Médico">
+          <div className="caixa-texto"><b>Dra. Kuromi</b><hr /><b>Queixa Principal</b><br />N/A</div>
+        </Bloco>
       </div>
-    }
-    return <Bloco titulo="Histórico de Relatos" classe="historico">
-      <button class="novo-relato" type="button">Novo Relato <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
-      {!aluno.relatos.length && <p>Nenhum relato cadastrado.</p>}
-      {aluno.relatos.map((r) => <article className="relato" key={r.id_relato}><header><i aria-hidden="true" /><small>{dataBr(r.data_registro)} - {r.titulo}</small></header><p style={{ whiteSpace: 'pre-wrap' }}>{r.descricao || 'Sem descrição'}</p></article>)}
-    </Bloco>
+    )
   }
 
   function relatos() {
@@ -239,16 +295,44 @@ function PerfilAluno({ rota, aoNavegar }) {
 
         <div className="perfil-conteudo">
           <section className="cabecalho-aluno">
-            <div className="avatar-aluno">{aluno.foto ? <img src={fotoUrl(aluno.foto)} alt="" /> : aluno.nome.split(' ').slice(0, 2).map((n) => n[0]).join('')}</div>
-            <div className="aluno-identificacao"><h2>{aluno.nome}</h2><span className={`status-aluno ${aluno.status?.toLowerCase() || ''}`}>Status: {aluno.status || 'Não informado'}</span></div>
-            <p>Data de cadastro {dataBr(aluno.cadastro)}</p>
+            <div className="avatar-aluno">
+              {dadosAluno.foto ? <img src={dadosAluno.foto} alt="" /> : iniciais}
+            </div>
+            <div className="aluno-identificacao">
+              <h2>{dadosAluno.nome}</h2>
+              <span className={`status-aluno ${dadosAluno.status.toLowerCase()}`}>Status: {dadosAluno.status}</span>
+            </div>
+            <button
+              type="button"
+              className="editar"
+              aria-label={editando ? 'Concluir edição do aluno' : 'Editar aluno'}
+              onClick={() => setEditando(!editando)}
+            >
+              <Icone nome={editando ? 'adicionar' : 'editar'} tamanho={27} />
+            </button>
+            <p>Data de cadastro {dadosAluno.cadastro}</p>
           </section>
-          <nav className="abas-perfil" aria-label="Informações do aluno">{abas.map((item) => <button type="button" className={aba === item.id ? 'ativa' : ''} key={item.id} aria-current={aba === item.id ? 'page' : undefined} onClick={() => setAba(item.id)}><Icone nome={item.icone} />{item.texto}</button>)}</nav>
+
+          <nav className="abas-perfil" aria-label="Informações do aluno">
+            {abas.map((aba) => (
+              <button
+                type="button"
+                className={etapaAtual === aba.id ? 'ativa' : ''}
+                key={aba.id}
+                aria-current={etapaAtual === aba.id ? 'page' : undefined}
+                onClick={() => setEtapaAtual(aba.id)}
+              >
+                <Icone nome={aba.icone} tamanho={24} />
+                {aba.texto}
+              </button>
+            ))}
+          </nav>
+
           <div className="conteudo-perfil">{conteudo()}</div>
-        </>}
-      </div>
-    </section>
-  </main>
+        </div>
+      </section>
+    </main>
+  )
 }
 
 export default PerfilAluno

@@ -51,25 +51,6 @@ class User extends Authenticatable
         ];
     }
 
-    public function matriculaAtual()
-    {
-        return $this->hasOne(Matricula::class, 'fk_aluno_id', 'id')
-            ->ofMany(['data_matricula' => 'max', 'id_matricula' => 'max']);
-    }
-
-    public function statusMatricula(): ?string
-    {
-        // Cadastros antigos sem matrícula usam a data de criação do aluno.
-        $data = $this->matriculaAtual?->data_matricula ?? $this->created_at;
-        if (!$data) {
-            return null;
-        }
-
-        $vencimento = $data->copy()->startOfYear()->addYear();
-
-        return now()->greaterThanOrEqualTo($vencimento) ? 'Pendente' : 'Ativo';
-    }
-
     public function matriculas()
     {
         return $this->hasMany(Matricula::class, 'fk_aluno_id', 'id');

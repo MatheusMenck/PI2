@@ -16,59 +16,6 @@ use Illuminate\Validation\Rule;
 
 class AlunoController extends Controller
 {
-    public function index()
-    {
-        return response()->json(['alunos' => User::with('matriculaAtual')->orderBy('name')->get([
-            'id', 'name', 'data_nascimento', 'cpf', 'telefone', 'foto', 'created_at',
-        ])->map(fn ($aluno) => [
-            'id' => $aluno->id,
-            'nome' => $aluno->name,
-            'nascimento' => $aluno->data_nascimento?->format('Y-m-d'),
-            'cpf' => $aluno->cpf,
-            'telefone' => $aluno->telefone,
-            'foto' => $aluno->foto ? '/storage/' . ltrim($aluno->foto, '/') : null,
-            'status' => $aluno->statusMatricula(),
-        ])]);
-    }
-
-    public function show(string $id)
-    {
-        $aluno = User::with([
-            'domicilio.membrosFamilia', 'responsaveis', 'saude', 'doencas', 'matriculaAtual',
-            'matriculas' => fn ($query) => $query->orderByDesc('data_matricula')->orderByDesc('id_matricula'),
-            'matriculas.pessoasAutorizadas',
-            'relatos' => fn ($query) => $query->orderByDesc('data_registro')->orderByDesc('id_relato'),
-        ])->findOrFail($id);
-
-        return response()->json(['aluno' => [
-            'id' => $aluno->id,
-            'nome' => $aluno->name,
-            'foto' => $aluno->foto ? '/storage/' . ltrim($aluno->foto, '/') : null,
-            'status' => $aluno->statusMatricula(),
-            'cadastro' => $aluno->created_at?->format('Y-m-d'),
-            'cpf' => $aluno->cpf, 'rg' => $aluno->rg,
-            'telefone' => $aluno->telefone,
-            'nascimento' => $aluno->data_nascimento?->format('Y-m-d'),
-            'religiao' => $aluno->religiao,
-            'rua' => $aluno->domicilio?->endereco_residencial,
-            'numero' => $aluno->domicilio?->numero,
-            'bairro' => $aluno->domicilio?->bairro,
-            'referencia' => $aluno->domicilio?->ponto_referencia,
-            'cidade' => $aluno->domicilio ? implode(' / ', array_filter([$aluno->domicilio->cidade, $aluno->domicilio->estado])) : null,
-            'escola' => $aluno->escola, 'serie' => $aluno->escola_ano, 'periodo' => $aluno->escola_periodo,
-            'responsaveis' => $aluno->responsaveis->map(fn ($pessoa) => [
-                'id' => $pessoa->id_responsavel, 'nome' => $pessoa->nome,
-                'telefone' => $pessoa->telefone, 'parentesco' => $pessoa->pivot->parentesco,
-            ]),
-            'familia' => $aluno->domicilio?->membrosFamilia ?? [],
-            'autorizado_sair_sozinho' => $aluno->matriculas->first()?->autorizado_sair_sozinho,
-            'pessoas_autorizadas' => $aluno->matriculas->first()?->pessoasAutorizadas ?? [],
-            'saude' => $aluno->saude,
-            'doencas' => $aluno->doencas,
-            'relatos' => $aluno->relatos,
-        ]]);
-    }
-
     public function store(Request $request)
     {
         foreach (['cpfMae', 'cpfPai'] as $campo) {
