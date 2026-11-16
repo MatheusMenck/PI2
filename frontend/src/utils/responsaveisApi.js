@@ -22,3 +22,21 @@ export async function buscarResponsaveis(caminho = '', signal) {
   }
   return dados
 }
+
+export async function consultarCpf(cpf) {
+  const resposta = await fetch(`${API_URL}/responsaveis/por-cpf?cpf=${encodeURIComponent(cpf)}`, {
+    headers: { Accept: 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}` },
+  })
+  if (!resposta.ok) throw new Error('Não foi possível consultar o CPF. Tente novamente.')
+  return (await resposta.json()).responsavel
+}
+
+export async function salvarResponsavel(formulario) {
+  const resposta = await fetch(`${API_URL}/responsaveis`, {
+    method: 'POST', body: formulario,
+    headers: { Accept: 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}` },
+  })
+  const dados = await resposta.json()
+  if (!resposta.ok) throw new Error(dados.errors ? Object.values(dados.errors).flat().join(' | ') : dados.message || 'Não foi possível salvar o responsável.')
+  return dados.responsavel
+}
