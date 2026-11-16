@@ -41,6 +41,67 @@ class AlunoMatriculaTest extends TestCase
         ], $alteracoes);
     }
 
+    public function test_reads_saved_student_and_all_profile_sections(): void
+    {
+        $funcionario = Funcionario::create(['nome' => 'Equipe', 'email' => 'equipe@example.com', 'ativo' => true, 'cargo' => 'funcionario']);
+        Sanctum::actingAs($funcionario);
+        $this->getJson('/api/alunos')->assertOk()->assertExactJson(['alunos' => []]);
+        $resposta = $this->postJson('/api/alunos', $this->dados([
+            'telefone' => '11988887777', 'dataNascimento' => '2015-02-03',
+            'fotoAluno' => $this->imagem('aluno.png'),
+            'familia' => [['nome' => 'Ana', 'parentesco' => 'Tia', 'nascimento' => '1990-01-02']],
+            'alergia' => 'Sim', 'alergiaQual' => 'Leite', 'habitos' => 'Sono regular',
+            'doencasEspecificas' => ['Diabetes'],
+            'relatos' => [['titulo' => 'Adaptação', 'descricao' => 'Participou das atividades', 'data_registro' => '2026-11-12']],
+        ]))->assertCreated();
+        $id = $resposta->json('aluno.id');
+        $this->getJson('/api/alunos')->assertOk()->assertJsonCount(1, 'alunos')
+            ->assertJsonPath('alunos.0.telefone', '11988887777')
+            ->assertJsonPath('alunos.0.nascimento', '2015-02-03');
+        $this->getJson("/api/alunos/{$id}")->assertOk()
+            ->assertJsonPath('aluno.nome', 'Criança')
+            ->assertJsonPath('aluno.rua', 'Rua A')
+            ->assertJsonPath('aluno.cidade', 'São Paulo / SP')
+            ->assertJsonPath('aluno.cadastro', '2026-11-13')
+            ->assertJsonPath('aluno.status', 'Ativo')
+            ->assertJsonPath('aluno.responsaveis.0.nome', 'Maria')
+            ->assertJsonPath('aluno.familia.0.nome', 'Ana')
+            ->assertJsonPath('aluno.autorizado_sair_sozinho', false)
+            ->assertJsonPath('aluno.pessoas_autorizadas.0.nome', 'Ana')
+            ->assertJsonPath('aluno.saude.descricao_alergia', 'Leite')
+            ->assertJsonPath('aluno.saude.habitos', 'Sono regular')
+            ->assertJsonPath('aluno.doencas.0.nome', 'Diabetes')
+            ->assertJsonPath('aluno.relatos.0.titulo', 'Adaptação')
+            ->assertJsonMissingPath('aluno.password');
+    }
+
+    public function test_enrollment_expires_on_january_first_and_latest_enrollment_renews_status(): void
+    {
+        $resposta = $this->postJson('/api/alunos', $this->dados())->assertCreated();
+        $id = $resposta->json('aluno.id');
+        foreach ([['2026-12-31 23:59:59', 'Ativo'], ['2027-01-01 00:00:00', 'Pendente'], ['2028-01-15 12:00:00', 'Pendente']] as [$data, $status]) {
+            $this->travelTo(\Illuminate\Support\Carbon::parse($data));
+            $this->getJson('/api/alunos')->assertOk()->assertJsonPath('alunos.0.status', $status);
+            $this->getJson("/api/alunos/{$id}")->assertOk()->assertJsonPath('aluno.status', $status);
+        }
+        Matricula::create(['fk_aluno_id' => $id, 'data_matricula' => '2028-01-15']);
+        $this->getJson('/api/alunos')->assertOk()->assertJsonPath('alunos.0.status', 'Ativo');
+        $this->getJson("/api/alunos/{$id}")->assertOk()->assertJsonPath('aluno.status', 'Ativo');
+        $this->travelTo(\Illuminate\Support\Carbon::parse('2029-01-01'));
+        $this->getJson("/api/alunos/{$id}")->assertOk()->assertJsonPath('aluno.status', 'Pendente');
+    }
+
+    public function test_missing_student_is_404_and_optional_relations_are_empty(): void
+    {
+        $this->getJson('/api/alunos/999999')->assertNotFound();
+        $aluno = \App\Models\User::create(['name' => 'Sem cadastro completo']);
+        $this->getJson("/api/alunos/{$aluno->id}")->assertOk()
+            ->assertJsonPath('aluno.saude', null)
+            ->assertJsonPath('aluno.familia', [])
+            ->assertJsonPath('aluno.relatos', [])
+            ->assertJsonPath('aluno.autorizado_sair_sozinho', null);
+    }
+
     public function test_saves_authorizations_and_prioritizes_mother(): void
     {
         $this->postJson('/api/alunos', $this->dados())->assertCreated()

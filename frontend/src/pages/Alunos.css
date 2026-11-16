@@ -195,7 +195,7 @@
   flex: 0 0 72px;
   border: 1px solid #151515;
   border-radius: 6px;
-  background: #ccc url('../image.png') no-repeat center / cover;
+  background: #ccc no-repeat center / cover;
 }
 
 .dados-aluno {
@@ -256,7 +256,7 @@
   grid-column: 2;
 }
 
-.campo.matricula {
+.campo.telefone {
   grid-column: 3;
 }
 
@@ -660,7 +660,7 @@ input:focus-visible {
     grid-column: 1;
   }
 
-  .campo.matricula {
+  .campo.telefone {
     grid-column: 2;
   }
 
@@ -687,3 +687,6 @@ input:focus-visible {
     flex: 0 0 48px;
   }
 }
+
+.alunos-pagina .status.sem-status { background: #efefef; }
+.perfil-aluno .dado-perfil strong { white-space: pre-wrap; overflow-wrap: anywhere; }
