@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { buscarIndicadores } from '../utils/dashboardApi'
 import './Dashboard.css'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import logo from '../assets/logo.png'
@@ -22,12 +24,21 @@ const links = [
 ]
 
 const indicadores = [
-  { label: 'Alunos Ativos', value: 458, tone: 'green' },
-  { label: 'Rematriculas Pedente', value: 52, tone: 'yellow' },
-  { label: 'Indeferido', value: 5, tone: 'red' },
+  { label: 'Alunos Ativos', key: 'ativos', tone: 'green' },
+  { label: 'Rematriculas Pedente', key: 'pendentes', tone: 'yellow' },
+  { label: 'Indeferido', key: 'indeferidos', tone: 'red' },
 ]
 
 function Dashboard({ rota, aoNavegar }) {
+  const [totais, setTotais] = useState(null)
+  const [erro, setErro] = useState('')
+  useEffect(() => {
+    const controller = new AbortController()
+    buscarIndicadores(controller.signal)
+      .then((dados) => { if (!controller.signal.aborted) setTotais(dados) })
+      .catch((falha) => { if (!controller.signal.aborted) setErro(falha.message) })
+    return () => controller.abort()
+  }, [])
   const usuario = getStoredAuthUser()
   const primeiroNome = getDisplayName(usuario).trim().split(/\s+/)[0]
 
@@ -73,12 +84,13 @@ function Dashboard({ rota, aoNavegar }) {
             <article><span>Adicionar Relatos</span><Icon name="plus" size={25} /></article>
           </section>
 
-          <section className="dashboard-indicators" aria-label="Indicadores demonstrativos">
+          {erro && <p role="alert">{erro}</p>}
+          <section className="dashboard-indicators" aria-label="Indicadores de alunos" aria-busy={!totais && !erro}>
             {indicadores.map((indicador) => (
               <article className="dashboard-card" key={indicador.label}>
                 <span className={`dashboard-status dashboard-status--${indicador.tone}`} aria-hidden="true" />
                 <p>{indicador.label}</p>
-                <strong>{indicador.value}</strong>
+                <strong>{indicador.key === 'indeferidos' ? 0 : totais?.[indicador.key] ?? '—'}</strong>
               </article>
             ))}
           </section>

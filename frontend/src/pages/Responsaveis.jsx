@@ -3,55 +3,11 @@ import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Alunos.css'
 import './Responsaveis.css'
 import logo from '../assets/logo.png'
-import fotoResponsavel from '../assets/responsavel-referencia.png'
-import fotoResponsavelCartao from '../assets/responsavel-cartao-referencia.png'
-import fotoAluno from '../assets/aluno-vinculado-referencia.png'
-
-const responsaveis = [
-  {
-    id: '1',
-    nome: 'Mamãe Kuromi',
-    profissao: 'Médica',
-    cpf: '341431123-9',
-    nis: '1587424',
-    telefone: '(15) 99785-4515',
-    cadastro: '17/05/2026',
-    foto: fotoResponsavel,
-    endereco: {
-      bairro: 'Jardim Aeroporto',
-      rua: 'Arnaldo de Campos',
-      numero: '358',
-      referencia: 'N/A',
-      cidade: 'Tatuí, SP',
-      comercial: 'Rua 11 de Agosto, Bairro 13 de Maio, n 840, Sorocaba, SP',
-    },
-    dados: {
-      rg: '154.125.412-54',
-      nascimento: '01/02/2007',
-      escolaridade: '3 Ano do Ensino Médio - Completo',
-    },
-    renda: {
-      salario: 'R$1.580,98',
-      total: 'R$10.580,98',
-      percapta: 'R$700,00',
-      beneficio: 'Sim, Bolsa Família R$700',
-      moradia: 'Casa',
-    },
-    despesas: [
-      ['Água', 'R$100'],
-      ['Luz', 'R$100'],
-      ['Gás', 'R$100'],
-      ['Alimentação', 'R$100'],
-    ],
-    alunos: [{ nome: 'Cinnamoroll dos Santos Vieira', parentesco: 'Filho' }],
-  },
-]
-
-const alunosReferencia = [
-  { id: 'aluno-1', nome: 'Cinnamoroll dos Santos Vieira', nascimento: '01/02/2007', telefone: '(15) 99785-4515', foto: fotoAluno },
-  { id: 'aluno-2', nome: 'Kuromi Oliveira', nascimento: '22/11/2008', telefone: '(15) 99775-0102', foto: fotoAluno },
-  { id: 'aluno-3', nome: 'Hello Kitty da Silva', nascimento: '14/08/2010', telefone: '(15) 99810-3147', foto: fotoAluno },
-]
+import { buscarResponsaveis } from '../utils/responsaveisApi'
+import { dataBr, fotoUrl } from '../utils/alunosApi'
+import { buscarAlunos } from '../utils/alunosApi'
+import { consultarCpf, salvarResponsavel } from '../utils/responsaveisApi'
+import { cpfValido, normalizarCpf } from '../utils/cpf'
 
 const filtrosVazios = { nome: '', cpf: '', telefone: '', nis: '' }
 
@@ -121,7 +77,7 @@ function CampoInfo({ rotulo, valor }) {
   return (
     <div className="responsavel-dado">
       <small>{rotulo}</small>
-      <span>{valor || 'Não informado'}</span>
+      <span>{valor === null || valor === undefined || valor === '' ? 'Não informado' : valor}</span>
     </div>
   )
 }
@@ -186,7 +142,7 @@ function CartaoResponsavel({ responsavel, abrir }) {
   return (
     <button className="responsavel-cartao" type="button" onClick={() => abrir(responsavel.id)}>
       {responsavel.foto
-        ? <img className="responsavel-cartao-foto" src={fotoResponsavelCartao} alt="" />
+        ? <img className="responsavel-cartao-foto" src={fotoUrl(responsavel.foto)} alt="" />
         : <span className="responsavel-cartao-iniciais">{responsavel.nome.slice(0, 1)}</span>}
       <span className="responsavel-cartao-campos">
         <span><small>Nome</small><strong>{responsavel.nome}</strong></span>
@@ -208,13 +164,13 @@ function DetalhesResponsavel({ responsavel }) {
         </header>
         <div className="responsavel-painel-perfil">
           <div className="responsavel-avatar-grande">
-            {responsavel.foto ? <img src={responsavel.foto} alt="" /> : responsavel.nome.slice(0, 1)}
+            {responsavel.foto ? <img src={fotoUrl(responsavel.foto)} alt="" /> : responsavel.nome.slice(0, 1)}
           </div>
           <div className="responsavel-nome">
             <h3>{responsavel.nome}</h3>
             <strong>NIS: {responsavel.nis}</strong>
           </div>
-          <p>Data de cadastro: {responsavel.cadastro}</p>
+          <p>Data de cadastro: {dataBr(responsavel.cadastro)}</p>
         </div>
       </section>
 
@@ -223,8 +179,8 @@ function DetalhesResponsavel({ responsavel }) {
         <div className="responsavel-lista-dependentes">
           {responsavel.alunos.length
             ? responsavel.alunos.map((aluno) => (
-              <article className="responsavel-dependente" key={`${aluno.nome}-${aluno.parentesco}`}>
-                <img src={fotoAluno} alt="" />
+              <article className="responsavel-dependente" key={aluno.id}>
+                <span className="responsavel-dependente-avatar">{aluno.foto ? <img src={fotoUrl(aluno.foto)} alt="" /> : aluno.nome.slice(0, 1)}</span>
                 <span><strong>{aluno.nome}</strong><small>Parentesco: {aluno.parentesco}</small></span>
               </article>
             ))
@@ -250,7 +206,7 @@ function DetalhesResponsavel({ responsavel }) {
             <CampoInfo rotulo="CPF" valor={responsavel.cpf} />
             <CampoInfo rotulo="RG" valor={responsavel.dados.rg} />
             <CampoInfo rotulo="Telefone Principal" valor={responsavel.telefone} />
-            <CampoInfo rotulo="Data de Nascimento" valor={responsavel.dados.nascimento} />
+            <CampoInfo rotulo="Data de Nascimento" valor={dataBr(responsavel.dados.nascimento)} />
             <CampoInfo rotulo="Profissão" valor={responsavel.profissao} />
             <CampoInfo rotulo="Grau de escolaridade" valor={responsavel.dados.escolaridade} />
             <CampoInfo rotulo="NIS" valor={responsavel.nis} />
@@ -277,146 +233,159 @@ function DetalhesResponsavel({ responsavel }) {
   )
 }
 
+const camposResponsavel = [
+  ['nome', 'Nome *', 'text'], ['nis', 'NIS', 'text'], ['data_nascimento', 'Data de Nascimento', 'date'],
+  ['cpf', 'CPF *', 'text'], ['escolaridade', 'Grau de escolaridade', 'text'], ['rg', 'RG', 'text'],
+  ['telefone', 'Telefone', 'tel'], ['profissao', 'Profissão', 'text'],
+  ['endereco_comercial', 'Endereço Comercial', 'text'], ['salario', 'Salário', 'number'],
+]
+const formularioVazio = Object.fromEntries(camposResponsavel.map(([chave]) => [chave, '']))
+
 function FormularioResponsavel({ aoNavegar }) {
-  const [fotoFormulario, setFotoFormulario] = useState(fotoResponsavel)
+  const [dados, setDados] = useState(formularioVazio)
+  const [foto, setFoto] = useState(null)
+  const [previa, setPrevia] = useState(null)
+  const urlPrevia = useRef(null)
+  const consultaAtual = useRef({ id: 0 })
+  const envioAtivo = useRef(false)
+  const [existente, setExistente] = useState(null)
+  const [consultando, setConsultando] = useState(false)
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+  const [alunos, setAlunos] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erroAlunos, setErroAlunos] = useState('')
   const [pesquisaAluno, setPesquisaAluno] = useState('')
   const [alunosSelecionados, setAlunosSelecionados] = useState([])
 
-  const alunosDisponiveis = alunosReferencia.filter(
-    (aluno) => !alunosSelecionados.some((selecionado) => selecionado.id === aluno.id),
-  )
+  useEffect(() => {
+    const controller = new AbortController()
+    const estadoConsulta = consultaAtual.current
+    buscarAlunos('', controller.signal).then((resposta) => { if (!controller.signal.aborted) setAlunos(resposta.alunos) })
+      .catch((falha) => { if (!controller.signal.aborted) setErroAlunos(falha.message) })
+      .finally(() => { if (!controller.signal.aborted) setCarregando(false) })
+    return () => { controller.abort(); estadoConsulta.id++; if (urlPrevia.current) URL.revokeObjectURL(urlPrevia.current) }
+  }, [])
 
-  const alunosFiltrados = alunosDisponiveis.filter((aluno) =>
-    aluno.nome.toLowerCase().includes(pesquisaAluno.trim().toLowerCase()),
-  )
-
-  function adicionarAluno(aluno) {
-    setAlunosSelecionados((ativos) => {
-      if (ativos.some((item) => item.id === aluno.id)) return ativos
-      return [...ativos, aluno]
-    })
+  async function buscarCpf() {
+    if (!cpfValido(dados.cpf)) { setErro('Informe um CPF válido.'); return }
+    const consulta = ++consultaAtual.current.id
+    setConsultando(true)
+    setErro('')
+    try {
+      const pessoa = await consultarCpf(normalizarCpf(dados.cpf))
+      if (consulta !== consultaAtual.current.id) return
+      setExistente(pessoa)
+      if (pessoa) {
+        setDados(Object.fromEntries(camposResponsavel.map(([chave]) => [chave, chave === 'data_nascimento' ? pessoa[chave]?.slice(0, 10) || '' : pessoa[chave] ?? ''])))
+        setFoto(null)
+        if (urlPrevia.current) URL.revokeObjectURL(urlPrevia.current)
+        urlPrevia.current = null
+        setPrevia(pessoa.foto ? fotoUrl(`/storage/${pessoa.foto}`) : null)
+      }
+    } catch (falha) { if (consulta === consultaAtual.current.id) setErro(falha.message) }
+    finally { if (consulta === consultaAtual.current.id) setConsultando(false) }
   }
 
-  function removerAluno(id) {
-    setAlunosSelecionados((ativos) => ativos.filter((aluno) => aluno.id !== id))
+  function alterarCampo(evento) {
+    const { name, value } = evento.target
+    if (name === 'cpf') {
+      consultaAtual.current.id++
+      setConsultando(false)
+      if (existente) { setDados({ ...formularioVazio, cpf: value }); setPrevia(null) }
+      else setDados((atual) => ({ ...atual, cpf: value }))
+      setExistente(null)
+    } else setDados((atual) => ({ ...atual, [name]: value }))
+    setErro('')
   }
 
   function onFotoChange(evento) {
     const arquivo = evento.target.files?.[0]
     if (!arquivo) return
-    const url = URL.createObjectURL(arquivo)
-    setFotoFormulario(url)
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(arquivo.type) || arquivo.size > 5 * 1024 * 1024) {
+      setErro('Envie uma foto JPEG, PNG ou WebP de até 5 MB.'); evento.target.value = ''; return
+    }
+    if (urlPrevia.current) URL.revokeObjectURL(urlPrevia.current)
+    urlPrevia.current = URL.createObjectURL(arquivo)
+    setPrevia(urlPrevia.current)
+    setFoto(arquivo)
+    setErro('')
   }
 
+  function alterarVinculo(id, campo, valor) {
+    setAlunosSelecionados((atuais) => atuais.map((aluno) => aluno.id === id ? { ...aluno, [campo]: valor } : aluno))
+  }
+
+  async function confirmar() {
+    if (envioAtivo.current || consultando) return
+    setErro('')
+    if (!dados.nome.trim() || !cpfValido(dados.cpf)) { setErro('Informe nome e CPF válido.'); return }
+    if (!alunosSelecionados.length || alunosSelecionados.some((aluno) => !aluno.parentesco)) {
+      setErro('Selecione ao menos um aluno e informe se o responsável é mãe ou pai de cada um.'); return
+    }
+    envioAtivo.current = true
+    setSalvando(true)
+    try {
+      const formulario = new FormData()
+      Object.entries(dados).forEach(([chave, valor]) => formulario.append(chave, valor))
+      if (foto && !existente) formulario.append('foto', foto)
+      alunosSelecionados.forEach((aluno, indice) => {
+        for (const chave of ['id', 'parentesco', 'e_responsavel_legal', 'autorizado_retirar']) {
+          formulario.append(`alunos[${indice}][${chave}]`, typeof aluno[chave] === 'boolean' ? Number(aluno[chave]) : aluno[chave])
+        }
+      })
+      const pessoa = await salvarResponsavel(formulario)
+      aoNavegar(`responsaveis/${pessoa.id}`)
+    } catch (falha) { setErro(falha.message) }
+    finally { envioAtivo.current = false; setSalvando(false) }
+  }
+
+  const alunosFiltrados = alunos.filter((aluno) => !alunosSelecionados.some((selecionado) => selecionado.id === aluno.id) && aluno.nome.toLowerCase().includes(pesquisaAluno.trim().toLowerCase()))
   return (
     <main className="alunos-pagina responsaveis-pagina">
       <NavegacaoResponsaveis rota="responsaveis" aoNavegar={aoNavegar} />
       <section className="area-principal">
         <Cabecalho aoNavegar={aoNavegar} />
-        <div className="responsaveis-conteudo">
-          <div className="responsavel-cadastro">
-            <h2 className="responsavel-titulo-cadastro">Adicionar novo Responsável</h2>
-
-            <div className="responsavel-formulario">
-              <div className="responsavel-foto-coluna">
-                <div className="responsavel-foto-area">
-                  <img src={fotoFormulario} alt="Foto do responsável" />
-                </div>
-                <label className="responsavel-enviar-foto">
-                  <input type="file" accept="image/*" onChange={onFotoChange} />
-                  <span>Enviar Foto</span>
-                </label>
-              </div>
-
-              <div className="responsavel-campos">
-                <label className="responsavel-campo">
-                  <span>Nome</span>
-                  <input type="text" defaultValue="Mamãe Kuromi" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>NIS</span>
-                  <input type="text" defaultValue="2154642560" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>Data de Nascimento</span>
-                  <input type="text" defaultValue="01/05/2007" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>CPF</span>
-                  <input type="text" defaultValue="15485120-9" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>Grau de escolaridade</span>
-                  <input type="text" defaultValue="3º Ensino Médio - Completo" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>RG</span>
-                  <input type="text" defaultValue="15485120" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>Telefone</span>
-                  <input type="text" defaultValue="(15) 99723-0439" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>Profissão</span>
-                  <input type="text" defaultValue="Médica" />
-                </label>
-                <label className="responsavel-campo responsavel-campo-largo">
-                  <span>Endereço Comercial</span>
-                  <input type="text" defaultValue="Rua Arnaldo de Campos, Bairro Ayrton cena, nº 10" />
-                </label>
-                <label className="responsavel-campo">
-                  <span>Salário</span>
-                  <input type="text" defaultValue="R$ 2000" />
-                </label>
-              </div>
+        <div className="responsaveis-conteudo"><div className="responsavel-cadastro">
+          <h2 className="responsavel-titulo-cadastro">Adicionar novo Responsável</h2>
+          {erro && <p role="alert">{erro}</p>}
+          {consultando && <p role="status">Consultando CPF...</p>}
+          {existente && <p role="status">Responsável encontrado. Os dados, a foto e os vínculos existentes serão preservados. Selecione os novos alunos abaixo.</p>}
+          <fieldset className="responsavel-form-sem-borda" disabled={salvando}>
+          <div className="responsavel-formulario">
+            <div className="responsavel-foto-coluna">
+              <div className="responsavel-foto-area">{previa ? <img src={previa} alt="Foto do responsável" /> : <span>Sem foto</span>}</div>
+              <label className="responsavel-enviar-foto"><input type="file" accept="image/jpeg,image/png,image/webp" disabled={!!existente} onChange={onFotoChange} /><span>Enviar Foto</span></label>
             </div>
-
-            <div className="responsavel-vinculo">
-              <h3>Responsável de:</h3>
-              <div className="responsavel-pesquisa">
-                <Icone nome="busca" tamanho={18} />
-                <input
-                  type="search"
-                  value={pesquisaAluno}
-                  onChange={(evento) => setPesquisaAluno(evento.target.value)}
-                  placeholder="Pesquise aqui o nome do aluno"
-                  aria-label="Pesquisar aluno"
-                />
-              </div>
-
-              <div className="responsavel-alunos-disponiveis">
-                {alunosFiltrados.map((aluno) => (
-                  <button key={aluno.id} type="button" className="responsavel-aluno-card" onClick={() => adicionarAluno(aluno)}>
-                    <img src={aluno.foto} alt="" />
-                    <span>{aluno.nome}</span>
-                  </button>
-                ))}
-              </div>
-
-              {alunosSelecionados.map((aluno) => (
-                <div key={aluno.id} className="responsavel-selecionado-card">
-                  <div className="responsavel-selecionado-info">
-                    <img src={aluno.foto} alt="" />
-                    <div>
-                      <strong>{aluno.nome}</strong>
-                      <p>Data de Nascimento: {aluno.nascimento}</p>
-                      <p>Telefone Principal: {aluno.telefone}</p>
-                    </div>
-                  </div>
-                  <button type="button" className="responsavel-remover" onClick={() => removerAluno(aluno.id)} aria-label={`Remover ${aluno.nome}`}>
-                    <Icone nome="fechar" tamanho={28} />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="responsavel-acoes">
-              <button type="button" className="responsavel-cancelar" onClick={() => aoNavegar('responsaveis')}>Cancelar</button>
-              <button type="button" className="responsavel-confirmar">Confirmar</button>
+            <div className="responsavel-campos">
+              {camposResponsavel.map(([chave, rotulo, tipo]) => <label key={chave} className={`responsavel-campo ${chave === 'endereco_comercial' ? 'responsavel-campo-largo' : ''}`}>
+                <span>{rotulo}</span><input type={tipo} name={chave} value={dados[chave]} onChange={alterarCampo} onBlur={chave === 'cpf' ? buscarCpf : undefined} readOnly={!!existente && chave !== 'cpf'} min={tipo === 'number' ? 0 : undefined} step={tipo === 'number' ? '0.01' : undefined} />
+              </label>)}
             </div>
           </div>
-        </div>
+          <div className="responsavel-vinculo">
+            <h3>Responsável de:</h3>
+            <div className="responsavel-pesquisa"><Icone nome="busca" tamanho={18} /><input type="search" value={pesquisaAluno} onChange={(e) => setPesquisaAluno(e.target.value)} placeholder="Pesquise aqui o nome do aluno" aria-label="Pesquisar aluno" /></div>
+            {carregando && <p role="status">Carregando alunos...</p>}
+            {erroAlunos && <p role="alert">{erroAlunos}</p>}
+            {!carregando && !erroAlunos && !alunosFiltrados.length && <p>Nenhum aluno disponível para esta pesquisa.</p>}
+            <div className="responsavel-alunos-disponiveis">{alunosFiltrados.map((aluno) => <button key={aluno.id} type="button" className="responsavel-aluno-card" onClick={() => setAlunosSelecionados((atuais) => atuais.some((item) => item.id === aluno.id) ? atuais : [...atuais, { ...aluno, parentesco: '', e_responsavel_legal: false, autorizado_retirar: false }])}>
+              {aluno.foto && <img src={fotoUrl(aluno.foto)} alt="" />}<span>{aluno.nome}</span>
+            </button>)}</div>
+            {alunosSelecionados.map((aluno) => <div key={aluno.id} className="responsavel-vinculo-item">
+              <div className="responsavel-selecionado-card"><div className="responsavel-selecionado-info">
+                {aluno.foto && <img src={fotoUrl(aluno.foto)} alt="" />}<div><strong>{aluno.nome}</strong><p>Data de Nascimento: {dataBr(aluno.nascimento)}</p><p>Telefone Principal: {aluno.telefone || 'Não informado'}</p></div>
+              </div><button type="button" className="responsavel-remover" onClick={() => setAlunosSelecionados((atuais) => atuais.filter((item) => item.id !== aluno.id))} aria-label={`Remover ${aluno.nome}`}><Icone nome="fechar" tamanho={28} /></button></div>
+              <div className="responsavel-vinculo-opcoes">
+                <label>Parentesco * <select aria-label={`Parentesco com ${aluno.nome}`} value={aluno.parentesco} onChange={(e) => alterarVinculo(aluno.id, 'parentesco', e.target.value)}><option value="">Selecione</option><option value="Mãe">Mãe</option><option value="Pai">Pai</option></select></label>
+                <label><input type="checkbox" checked={aluno.e_responsavel_legal} onChange={(e) => alterarVinculo(aluno.id, 'e_responsavel_legal', e.target.checked)} /> Responsável legal</label>
+                <label><input type="checkbox" checked={aluno.autorizado_retirar} onChange={(e) => alterarVinculo(aluno.id, 'autorizado_retirar', e.target.checked)} /> Autorizado a retirar</label>
+              </div>
+            </div>)}
+          </div>
+          <div className="responsavel-acoes"><button type="button" className="responsavel-cancelar" onClick={() => aoNavegar('responsaveis')}>Cancelar</button><button type="button" className="responsavel-confirmar" disabled={consultando || carregando || !!erroAlunos} onClick={confirmar}>{salvando ? 'Salvando...' : 'Confirmar'}</button></div>
+          </fieldset>
+        </div></div>
       </section>
     </main>
   )
@@ -426,8 +395,21 @@ function Responsaveis({ rota, aoNavegar }) {
   const [busca, setBusca] = useState('')
   const [modalFiltroAberto, setModalFiltroAberto] = useState(false)
   const [filtros, setFiltros] = useState(filtrosVazios)
+  const [resultado, setResultado] = useState(null)
+  const [erro, setErro] = useState('')
+  const detalhe = rota.startsWith('responsaveis/') && rota !== 'responsaveis/novo'
+  useEffect(() => {
+    if (rota === 'responsaveis/novo') return
+    const controller = new AbortController()
+    buscarResponsaveis(detalhe ? `/${rota.split('/')[1]}` : '', controller.signal)
+      .then((dados) => { if (!controller.signal.aborted) setResultado({ rota, dados }) })
+      .catch((falha) => { if (!controller.signal.aborted) setErro(falha.message) })
+    return () => controller.abort()
+  }, [rota, detalhe])
+  const carregando = !erro && resultado?.rota !== rota
+  const responsaveis = resultado?.rota === rota ? (resultado.dados.responsaveis || []) : []
   const responsavelSelecionado = rota.startsWith('responsaveis/') && rota !== 'responsaveis/novo'
-    ? responsaveis.find((item) => item.id === rota.split('/')[1])
+    ? (resultado?.rota === rota ? resultado.dados.responsavel : null)
     : null
   const origemBusca = useRef(null)
 
@@ -461,12 +443,14 @@ function Responsaveis({ rota, aoNavegar }) {
       <NavegacaoResponsaveis rota={rota} aoNavegar={aoNavegar} />
       <section className="area-principal">
         <Cabecalho aoNavegar={aoNavegar} />
-        {responsavelSelecionado ? (
+        {detalhe ? (
           <div className="responsaveis-conteudo">
             <button className="responsavel-voltar" type="button" onClick={() => aoNavegar('responsaveis')}>
               <Icone nome="voltar" tamanho={19} /> Voltar para Responsáveis
             </button>
-            <DetalhesResponsavel responsavel={responsavelSelecionado} />
+            {erro && <p role="alert">{erro}</p>}
+            {carregando && <p role="status">Carregando responsável...</p>}
+            {responsavelSelecionado && <DetalhesResponsavel responsavel={responsavelSelecionado} />}
           </div>
         ) : (
           <div className="responsaveis-conteudo">
@@ -486,6 +470,9 @@ function Responsaveis({ rota, aoNavegar }) {
               Adicionar Responsável <strong>+</strong>
             </button>
             <section className="responsaveis-lista" aria-label="Lista de responsáveis">
+              {erro && <p role="alert">{erro}</p>}
+              {carregando && <p role="status">Carregando responsáveis...</p>}
+              {!erro && !carregando && !responsaveis.length && <p>Nenhum responsável cadastrado.</p>}
               {responsaveis.map((responsavel) => (
                 <CartaoResponsavel key={responsavel.id} responsavel={responsavel} abrir={abrirResponsavel} />
               ))}
