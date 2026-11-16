@@ -83,17 +83,25 @@ class AuthController extends Controller
             ]);
         }
 
-        // Ensure user object has name property for frontend consistency
-        if (! isset($user->name) && isset($user->nome)) {
-            $user->name = $user->nome;
-        }
-
         $token = $user->createToken($request->input('device_name', 'default'))->plainTextToken;
+
+        $nomeUsuario = $user instanceof Funcionario ? $user->nome : $user->name;
+        $dadosUsuario = [
+            'id' => $user->getKey(),
+            'name' => $nomeUsuario,
+            'email' => $user->email,
+        ];
+
+        if ($user instanceof Funcionario) {
+            $dadosUsuario['cargo'] = $user->cargo;
+            $dadosUsuario['admissao'] = $user->admissao ?: $user->data_admissao;
+            $dadosUsuario['data_admissao'] = $user->data_admissao ?: $user->admissao;
+        }
 
         return response()->json([
             'message' => 'Login realizado com sucesso',
             'token' => $token,
-            'user' => $user,
+            'user' => $dadosUsuario,
         ], Response::HTTP_OK);
     }
 

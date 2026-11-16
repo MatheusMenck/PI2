@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { getStoredAuthUser } from '../authUser'
 import './CadastroAluno.css'
 import logo from '../assets/logo.png'
 import { cpfValido, normalizarCpf } from '../utils/cpf'
@@ -299,7 +300,7 @@ function CadastroAluno({ aoNavegar }) {
   }
   const atualizarLista = (lista, setLista, indice, nome, valor) => setLista((atual) => atual.map((item, i) => i === indice ? { ...item, [nome]: valor } : item))
   const grupo = etapaAtual <= 5 ? 1 : etapaAtual <= 8 ? 2 : 3
-  const usuario = (() => { try { return JSON.parse(localStorage.getItem('auth_user')) || null } catch { return null } })()
+  const usuario = getStoredAuthUser()
 
   function etapa() {
     if (etapaAtual === 1) return (
@@ -563,7 +564,7 @@ function CadastroAluno({ aoNavegar }) {
     )
   }
 
-  return <main className="cadastro-pagina"><aside className="menu"><img className="logo" src={logo} alt="Logo Recanto Betel" /><nav><button className="item-menu" onClick={() => aoNavegar('inicio')}><Icone nome="inicio" /><span>Início</span></button><button className="item-menu selecionado" onClick={() => aoNavegar('alunos')}><Icone nome="alunos" /><span>Alunos</span></button><button className="item-menu" onClick={() => aoNavegar('responsaveis')}><Icone nome="responsaveis" /><span>Responsáveis</span></button></nav></aside><section className="area-principal"><header className="cabecalho"><h1>Recanto Betel</h1><span className="perfil-cadastro"><Icone nome="perfil" tamanho={32} />{usuario?.name || 'NOME'}</span></header><div className="conteudo-cadastro"><div className="progresso">{['Matrícula', 'Saúde', 'Autorizações'].map((nome, i) => <div className={`passo ${grupo >= i + 1 ? 'ativo' : ''}`} key={nome}><b>{i + 1}</b><span>{nome}</span></div>)}</div><section className="cartao-cadastro">{etapa()}<footer className="acoes"><button type="button" className="voltar" onClick={voltar}>Voltar</button><button type="button" className="prosseguir" onClick={avancar}>{etapaAtual === 9 ? 'Finalizar' : 'Prosseguir'}</button></footer></section></div></section></main>
+  return <main className="cadastro-pagina"><aside className="menu"><img className="logo" src={logo} alt="Logo Recanto Betel" /><nav><button className="item-menu" onClick={() => aoNavegar('inicio')}><Icone nome="inicio" /><span>Início</span></button><button className="item-menu selecionado" onClick={() => aoNavegar('alunos')}><Icone nome="alunos" /><span>Alunos</span></button><button className="item-menu" onClick={() => aoNavegar('responsaveis')}><Icone nome="responsaveis" /><span>Responsáveis</span></button></nav></aside><section className="area-principal"><header className="cabecalho"><h1>Recanto Betel</h1><span className="perfil-cadastro"><Icone nome="perfil" tamanho={32} />{usuario?.name || 'Usuário'}</span></header><div className="conteudo-cadastro"><div className="progresso">{['Matrícula', 'Saúde', 'Autorizações'].map((nome, i) => <div className={`passo ${grupo >= i + 1 ? 'ativo' : ''}`} key={nome}><b>{i + 1}</b><span>{nome}</span></div>)}</div><section className="cartao-cadastro">{etapa()}<footer className="acoes"><button type="button" className="voltar" onClick={voltar}>Voltar</button><button type="button" className="prosseguir" onClick={avancar}>{etapaAtual === 9 ? 'Finalizar' : 'Prosseguir'}</button></footer></section></div></section></main>
 }
 
 export default CadastroAluno

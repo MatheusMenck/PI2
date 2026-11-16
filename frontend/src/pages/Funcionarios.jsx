@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Funcionarios.css'
 import logo from '../assets/logo.png'
 
@@ -141,13 +142,7 @@ function Funcionarios({ aoNavegar }) {
     }
   }
 
-  const usuario = (() => {
-    try {
-      return JSON.parse(localStorage.getItem('auth_user')) || null
-    } catch {
-      return null
-    }
-  })()
+  const usuario = getStoredAuthUser()
 
   const total = funcionarios.length
   const ativos = funcionarios.filter((f) => f.ativo).length
@@ -178,14 +173,14 @@ function Funcionarios({ aoNavegar }) {
       <div className="func-principal">
         <header className="func-cabecalho">
           <h1>Recanto Betel</h1>
-          <div className="func-perfil">
+          <button type="button" className="func-perfil" onClick={() => aoNavegar('perfil')} aria-label="Abrir perfil">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
               <circle cx="20" cy="20" r="15.5" />
               <circle cx="20" cy="17" r="5" />
               <path d="M10 31c1.5-4.5 5.5-6 10-6s8.5 1.500 10 6" />
             </svg>
-            <span>{usuario?.name || 'Talda Fernanda'}</span>
-          </div>
+            <span>{getDisplayName(usuario)}</span>
+          </button>
         </header>
 
         <main className="func-conteudo">

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
+import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './PerfilAluno.css'
 import logo from '../assets/logo.png'
 import { buscarAlunos, dataBr, fotoUrl } from '../utils/alunosApi'
@@ -81,47 +83,81 @@ function Dado({ titulo, valor }) {
 
 function PerfilAluno({ rota, aoNavegar }) {
   const id = rota.split('/')[1]
-  const [aba, setAba] = useState(1)
-  const [aluno, setAluno] = useState(null)
-  const [erro, setErro] = useState('')
-  useEffect(() => {
-    const controller = new AbortController()
-    buscarAlunos(`/${id}`, controller.signal).then((dados) => setAluno(dados.aluno))
-      .catch((erro) => { if (erro.name !== 'AbortError') setErro(erro.message) })
-    return () => controller.abort()
-  }, [id])
-  let usuario = null
-  try { usuario = JSON.parse(localStorage.getItem('auth_user')) } catch { /* Sessão ausente. */ }
-  const simNao = (valor) => valor == null ? 'Não informado' : valor === true || valor === 1 || valor === '1' ? 'Sim' : 'Não'
-  const campos = (lista, dados = aluno) => lista.map(([titulo, campo]) => <Dado key={campo} titulo={titulo} valor={campo === 'nascimento' ? dataBr(dados[campo]) : dados[campo]} />)
-  function conteudo() {
-    if (aba === 1) return <div className="grade-perfil dados-pessoais">
-      <Bloco titulo="Dados Pessoais">{campos(camposPessoais)}</Bloco>
-      <Bloco titulo="Endereço">{campos(camposEndereco)}</Bloco>
-      <Bloco titulo="Escolaridade">{campos(camposEscolaridade)}</Bloco>
-    </div>
-    if (aba === 2) return <div className="grade-perfil familia-perfil">
-      <Bloco titulo="Responsável(is)">
-        {!aluno.responsaveis.length && <p>Nenhum responsável cadastrado.</p>}
-        {aluno.responsaveis.map((p) => <div className="pessoa" key={p.id}><span><b>{p.nome}</b><small>Parentesco: {p.parentesco || 'Não informado'}</small><small>{p.telefone || 'Telefone não informado'}</small></span></div>)}
-      </Bloco>
-      <Bloco titulo="Autorizações">
-        <Dado titulo="Autorização para sair sozinho" valor={simNao(aluno.autorizado_sair_sozinho)} />
-        {aluno.autorizado_sair_sozinho === false && <><b>Saída somente com:</b>
-          {!aluno.pessoas_autorizadas.length && <p>Nenhuma pessoa autorizada cadastrada.</p>}
-          {aluno.pessoas_autorizadas.map((p) => <div className="pessoa" key={p.id_pessoa_autorizada}><span><b>{p.nome}</b><small>{p.telefone}</small></span><em>{p.parentesco}</em></div>)}
-        </>}
-        <Dado titulo="Autorização odontológica" valor={simNao(aluno.saude?.autoriza_atendimento_odontologico)} />
-      </Bloco>
-      <Bloco titulo="Composição Familiar">
-        {!aluno.familia.length && <p>Nenhum membro da família cadastrado.</p>}
-        {aluno.familia.map((p) => <div className="familia-item" key={p.id_membro_familia}><b>{p.nome}</b><small>Nasc: {dataBr(p.data_nascimento)}</small><em>{p.parentesco}</em></div>)}
-      </Bloco>
-    </div>
-    if (aba === 3) {
-      const saude = aluno.saude
-      if (!saude) return <p>Nenhuma informação de saúde cadastrada.</p>
-      return <div className="grade-saude">
+  const usuario = getStoredAuthUser()
+  const alunoBase = alunos[id] || alunos[1]
+  const [etapaAtual, setEtapaAtual] = useState(4)
+  const [dadosAluno, setDadosAluno] = useState(alunoBase)
+  const [editando, setEditando] = useState(false)
+  const iniciais = useMemo(
+    () => dadosAluno.nome.split(' ').slice(0, 2).map((nome) => nome[0]).join(''),
+    [dadosAluno.nome],
+  )
+
+  function atualizarAluno(evento) {
+    setDadosAluno((atual) => ({ ...atual, [evento.target.name]: evento.target.value }))
+  }
+
+  function renderizarCampos(campos) {
+    return campos.map(([titulo, nome]) => (
+      editando
+        ? <label key={nome}>{titulo}<input name={nome} value={dadosAluno[nome]} onChange={atualizarAluno} /></label>
+        : <Dado key={nome} titulo={titulo} valor={dadosAluno[nome]} />
+    ))
+  }
+
+  function dadosPessoais() {
+    return (
+      <div className="grade-perfil dados-pessoais">
+        <Bloco titulo="Dados Pessoais">{renderizarCampos(camposPessoais)}</Bloco>
+        <Bloco titulo="Endereço">{renderizarCampos(camposEndereco)}</Bloco>
+        <Bloco titulo="Escolaridade">{renderizarCampos(camposEscolaridade)}</Bloco>
+      </div>
+    )
+  }
+
+  function familia() {
+    return (
+      <div className="grade-perfil familia-perfil">
+        <Bloco titulo="Responsável(is)">
+          <div className="pessoa">◉ <span><b>Mamãe Kurumi</b><small>Parentesco: Mãe</small></span></div>
+        </Bloco>
+        <Bloco titulo="Autorizações">
+          <small>Autorização para Sair Sozinho:</small>
+          <b>Não, Saída somente com:</b>
+          <div className="pessoa"><span><b>Gabriely Hello Kitty</b><small>☎ (15) 99785-6425</small></span><em>Irmã</em></div>
+          <div className="pessoa"><span><b>Renan Kitty</b><small>☎ (15) 99785-6425</small></span><em>Pai</em></div>
+          <small>Autorização Odontológica:</small>
+          <b>Sim</b>
+        </Bloco>
+        <Bloco titulo="Composição Familiar">
+          <div className="familia-item"><b>Gabriely Hello Kitty</b><small>Nasc: 05/03/2014</small><em>Irmã</em></div>
+          <div className="familia-item"><b>Renan Kitty</b><small>Nasc: 05/03/1985</small><em>Pai</em></div>
+        </Bloco>
+      </div>
+    )
+  }
+
+  function saude() {
+    const condicoes = [
+      'Doenças Pré-Existentes',
+      'Febre Reumática',
+      'Cardíacos',
+      'Renais',
+      'Gástricos',
+      'Respiratórios',
+      'Articulares',
+      'Diabetes',
+      'Hipertensão Arterial Sistêmica',
+    ]
+    const historico = [
+      'Já foi operado?',
+      'Problema com anestesia?',
+      'Problema com cicatrização?',
+      'Problema com hemorragia?',
+    ]
+
+    return (
+      <div className="grade-saude">
         <Bloco titulo="Doenças e Alergias">
           <Dado titulo="Possui alergia" valor={simNao(saude.possui_alergia)} />
           <Dado titulo="Descrição da alergia" valor={saude.descricao_alergia} />
@@ -154,15 +190,54 @@ function PerfilAluno({ rota, aoNavegar }) {
       {aluno.relatos.map((r) => <article className="relato" key={r.id_relato}><header><i aria-hidden="true" /><small>{dataBr(r.data_registro)} - {r.titulo}</small></header><p style={{ whiteSpace: 'pre-wrap' }}>{r.descricao || 'Sem descrição'}</p></article>)}
     </Bloco>
   }
-  return <main className="perfil-aluno">
-    <aside className="menu-perfil" aria-label="Navegação principal"><img src={logo} alt="Logo Recanto Betel" />
-      {menu.map((item) => <button type="button" className={item.id === 'alunos' ? 'selecionado' : ''} key={item.id} onClick={() => aoNavegar(item.id)}><Icone nome={item.icone} tamanho={26} /><span>{item.texto}</span></button>)}
-    </aside>
-    <section className="perfil-area"><header className="perfil-topo"><h1>Recanto Betel</h1><span><Icone nome="pessoal" tamanho={30} /><small>{usuario?.name || 'Usuário'}</small></span></header>
-      <div className="perfil-conteudo">
-        {erro && <p role="alert">{erro}</p>}
-        {!erro && !aluno && <p role="status">Carregando aluno...</p>}
-        {aluno && <>
+
+  function relatos() {
+    return (
+      <Bloco titulo="Histórico de Relatos" classe="historico">
+        <button className="novo-relato" type="button">
+          Novo Relato <Icone nome="adicionar" tamanho={20} />
+        </button>
+        <article className="relato">
+          <header><i aria-hidden="true" /><small>17/06/2026 - Problemas de saúde</small></header>
+          <p>
+            Durante o período de aula, o aluno apresentou um mal-estar repentino, relatando tontura e fraqueza. O professor foi informado e prestou os primeiros cuidados, mantendo o aluno em repouso e comunicando a situação à coordenação da escola. Em seguida, os responsáveis foram avisados para que pudessem tomar as providências necessárias.
+            <br />
+            O aluno permaneceu acompanhado até a chegada do responsável. A situação foi registrada pela escola para fins de acompanhamento.
+          </p>
+        </article>
+      </Bloco>
+    )
+  }
+
+  const conteudo = [dadosPessoais, familia, saude, relatos][etapaAtual - 1]
+
+  return (
+    <main className="perfil-aluno">
+      <aside className="menu-perfil" aria-label="Navegação principal">
+        <img src={logo} alt="Logo Recanto Betel" />
+        {menu.map((item) => (
+          <button
+            type="button"
+            className={item.id === 'alunos' ? 'selecionado' : ''}
+            key={item.id}
+            onClick={() => aoNavegar(item.id)}
+          >
+            <Icone nome={item.icone} tamanho={26} />
+            <span>{item.texto}</span>
+          </button>
+        ))}
+      </aside>
+
+      <section className="perfil-area">
+        <header className="perfil-topo">
+          <h1>Recanto Betel</h1>
+          <button type="button" className="perfil-topo-usuario" onClick={() => aoNavegar('perfil')} aria-label="Abrir perfil">
+            <Icone nome="pessoal" tamanho={30} />
+            <small>{getDisplayName(usuario)}</small>
+          </button>
+        </header>
+
+        <div className="perfil-conteudo">
           <section className="cabecalho-aluno">
             <div className="avatar-aluno">{aluno.foto ? <img src={fotoUrl(aluno.foto)} alt="" /> : aluno.nome.split(' ').slice(0, 2).map((n) => n[0]).join('')}</div>
             <div className="aluno-identificacao"><h2>{aluno.nome}</h2><span className={`status-aluno ${aluno.status?.toLowerCase() || ''}`}>Status: {aluno.status || 'Não informado'}</span></div>

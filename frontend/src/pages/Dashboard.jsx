@@ -1,4 +1,5 @@
 import './Dashboard.css'
+import { getDisplayName, getStoredAuthUser } from '../authUser'
 import logo from '../assets/logo.png'
 
 function Icon({ name, size = 24 }) {
@@ -27,10 +28,8 @@ const indicadores = [
 ]
 
 function Dashboard({ rota, aoNavegar }) {
-  const usuario = (() => {
-    try { return JSON.parse(localStorage.getItem('auth_user')) || null } catch { return null }
-  })()
-  const primeiroNome = usuario?.name?.trim().split(/\s+/)[0] || 'usuário'
+  const usuario = getStoredAuthUser()
+  const primeiroNome = getDisplayName(usuario).trim().split(/\s+/)[0]
 
   function navegar(route) {
     aoNavegar(route)
@@ -52,7 +51,7 @@ function Dashboard({ rota, aoNavegar }) {
         <header className="dashboard-header">
           <h1>Recanto Betel</h1>
           <button type="button" className="dashboard-user" onClick={() => navegar('perfil')} aria-label="Abrir perfil">
-            <Icon name="profile" size={34} /><span>{usuario?.name || 'Usuário'}</span>
+            <Icon name="profile" size={34} /><span>{getDisplayName(usuario)}</span>
           </button>
         </header>
 
