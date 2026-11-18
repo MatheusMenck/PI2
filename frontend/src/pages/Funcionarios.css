@@ -15,8 +15,8 @@
 }
 
 .func-menu {
-  width: 92px;
-  flex: 0 0 92px;
+  width: 88px;
+  flex: 0 0 88px;
   min-height: 100svh;
   background: var(--cor-fundo-escuro);
   color: #fff;
@@ -28,7 +28,7 @@
 }
 
 .func-logo {
-  height: 92px;
+  height: 88px;
   background: #fff;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   display: grid;
@@ -88,8 +88,8 @@
 }
 
 .func-cabecalho {
-  height: 92px;
-  padding: 0 12px 0 27px;
+  height: 88px;
+  padding: 0 24px;
   background: var(--cor-fundo-escuro);
   color: #fff;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
@@ -101,7 +101,7 @@
 
 .func-cabecalho h1 {
   margin: 0;
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;

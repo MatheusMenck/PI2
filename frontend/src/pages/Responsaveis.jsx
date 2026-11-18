@@ -11,7 +11,7 @@ import { cpfValido, normalizarCpf } from '../utils/cpf'
 
 const filtrosVazios = { nome: '', cpf: '', telefone: '', nis: '' }
 
-function Icone({ nome, tamanho = 24 }) {
+function Icone({ nome, tamanho = 26 }) {
   const props = {
     width: tamanho,
     height: tamanho,

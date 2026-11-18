@@ -176,7 +176,7 @@
   }
 
   .code-fields input {
-    width: min(98px, 20vw);
+    width: min(98px, 16vw);
     height: min(97px, 20vw);
     font-size: clamp(30px, 10vw, 48px);
   }
