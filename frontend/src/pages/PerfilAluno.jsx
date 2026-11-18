@@ -277,7 +277,7 @@ function PerfilAluno({ rota, aoNavegar }) {
         <header className="perfil-topo">
           <h1>Recanto Betel</h1>
           <button type="button" className="perfil-topo-usuario" onClick={() => aoNavegar('perfil')} aria-label="Abrir perfil">
-            <Icone nome="pessoal" tamanho={30} />
+            <Icone nome="pessoal" tamanho={34} />
             <small>{getDisplayName(usuario)}</small>
           </button>
         </header>

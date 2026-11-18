@@ -9,7 +9,7 @@ function iniciais(nome) {
   return (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : '')).toUpperCase()
 }
 
-const svg = { width: 32, height: 32, viewBox: '0 0 32 32', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }
+const svg = { width: 26, height: 26, viewBox: '0 0 32 32', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }
 
 function IconeMenu({ nome }) {
   if (nome === 'inicio') return <svg {...svg}><path d="M5 15 16 4l11 11v12h-8v-8h-6v8H5Z" /></svg>
@@ -174,7 +174,7 @@ function Funcionarios({ aoNavegar }) {
         <header className="func-cabecalho">
           <h1>Recanto Betel</h1>
           <button type="button" className="func-perfil" onClick={() => aoNavegar('perfil')} aria-label="Abrir perfil">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+            <svg width="34" height="34" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
               <circle cx="20" cy="20" r="15.5" />
               <circle cx="20" cy="17" r="5" />
               <path d="M10 31c1.5-4.5 5.5-6 10-6s8.5 1.500 10 6" />

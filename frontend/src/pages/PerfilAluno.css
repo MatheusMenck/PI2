@@ -7,8 +7,8 @@
 }
 
 .menu-perfil {
-  width: 74px;
-  flex: 0 0 74px;
+  width: 88px;
+  flex: 0 0 88px;
   min-height: 100svh;
   background: var(--cor-fundo-escuro);
   color: #fff;
@@ -16,16 +16,16 @@
 
 .menu-perfil > img {
   display: block;
-  width: 74px;
-  height: 76px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   background: #fff;
 }
 
 .menu-perfil button {
   width: 100%;
-  min-height: 58px;
-  padding: 5px 2px;
+  min-height: 66px;
+  padding: 7px 2px;
   border: 0;
   background: transparent;
   color: #fff;
@@ -33,9 +33,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
   font: inherit;
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -50,8 +50,8 @@
 }
 
 .perfil-topo {
-  height: 76px;
-  padding: 0 13px 0 24px;
+  height: 88px;
+  padding: 0 24px;
   background: var(--cor-fundo-escuro);
   color: #f8fafc;
   display: flex;
@@ -62,7 +62,7 @@
 
 .perfil-topo h1 {
   margin: 0;
-  font-size: 31px;
+  font-size: 32px;
   font-weight: 400;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .perfil-topo small {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .perfil-conteudo {
@@ -465,18 +465,18 @@ mark {
 
 @media (max-width: 760px) {
   .menu-perfil {
-    width: 60px;
-    flex-basis: 60px;
+    width: 64px;
+    flex-basis: 64px;
   }
 
   .menu-perfil > img {
-    width: 60px;
+    width: 64px;
     height: 64px;
   }
 
   .menu-perfil button {
     min-height: 56px;
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .perfil-topo {
@@ -489,12 +489,12 @@ mark {
   }
 
   .perfil-topo-usuario svg {
-    width: 25px;
-    height: 25px;
+    width: 34px;
+    height: 34px;
   }
 
   .perfil-topo small {
-    font-size: 9px;
+    font-size: 10px;
   }
 
   .perfil-conteudo {
