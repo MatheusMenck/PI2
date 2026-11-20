@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getDisplayName, getStoredAuthUser } from '../authUser'
+import { getAdmissionDate, getDisplayName, getStoredAuthUser } from '../authUser'
 import './Funcionarios.css'
 import logo from '../assets/logo.png'
 
@@ -19,14 +19,7 @@ function IconeMenu({ nome }) {
 }
 
 const FORM_VAZIO = { nome: '', admissao: '', cargo: 'funcionario', email: '', telefone: '' }
-const FUNCIONARIO_EXEMPLO = {
-  nome: 'Talda Fernanda',
-  admissao: '10/08/2026',
-  cargo: 'Funcionário',
-  email: 'taldafernada2007@gmail.com',
-  telefone: '15997854565',
-  senhaToken: '',
-}
+const API_FUNCIONARIOS = `${(import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '')}/funcionarios`
 
 function Icone({ nome, tamanho = 24 }) {
   const props = { width: tamanho, height: tamanho, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }
@@ -52,7 +45,7 @@ function Funcionarios({ aoNavegar }) {
   const [status, setStatus] = useState('todos')
   const [modalAberto, setModalAberto] = useState('')
   const [novoFuncionario, setNovoFuncionario] = useState(FORM_VAZIO)
-  const [editarFuncionario, setEditarFuncionario] = useState(FUNCIONARIO_EXEMPLO)
+  const [editarFuncionario, setEditarFuncionario] = useState(FORM_VAZIO)
   const [salvando, setSalvando] = useState(false)
   const [formErro, setFormErro] = useState('')
 
@@ -61,7 +54,7 @@ function Funcionarios({ aoNavegar }) {
     setErro('')
     try {
       const token = localStorage.getItem('auth_token')
-      const resposta = await fetch('http://localhost:8000/api/funcionarios', {
+      const resposta = await fetch(API_FUNCIONARIOS, {
         headers: {
           Accept: 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -104,25 +97,40 @@ function Funcionarios({ aoNavegar }) {
     setFormErro('')
   }
 
-  async function adicionar(e) {
+  function abrirEdicao(funcionario) {
+    setEditarFuncionario({
+      id: funcionario.id_usuario,
+      nome: funcionario.nome,
+      admissao: getAdmissionDate(funcionario),
+      cargo: funcionario.cargo,
+      email: funcionario.email,
+      telefone: funcionario.telefone ?? '',
+      senhaToken: '',
+    })
+    setModalAberto('editar')
+  }
+
+  async function salvarFuncionario(e) {
     e.preventDefault()
     setSalvando(true)
     setFormErro('')
     try {
       const token = localStorage.getItem('auth_token')
-      const resposta = await fetch('http://localhost:8000/api/funcionarios', {
-        method: 'POST',
+      const editando = modalAberto === 'editar'
+      const funcionario = editando ? editarFuncionario : novoFuncionario
+      const resposta = await fetch(editando ? `${API_FUNCIONARIOS}/${funcionario.id}` : API_FUNCIONARIOS, {
+        method: editando ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          nome: novoFuncionario.nome.trim(),
-          admissao: novoFuncionario.admissao.trim(),
-          cargo: novoFuncionario.cargo || 'Funcionario',
-          email: novoFuncionario.email.trim(),
-          telefone: novoFuncionario.telefone?.trim() || null,
+          nome: funcionario.nome.trim(),
+          ...(funcionario.admissao.trim() ? { admissao: funcionario.admissao.trim() } : {}),
+          cargo: funcionario.cargo || 'funcionario',
+          email: funcionario.email.trim(),
+          telefone: funcionario.telefone?.trim() || null,
         }),
       })
       const data = await resposta.json()
@@ -130,7 +138,7 @@ function Funcionarios({ aoNavegar }) {
         throw new Error(
           data.message ||
           (data.errors && Object.values(data.errors)[0]?.[0]) ||
-          'Erro ao cadastrar funcionário.'
+          'Erro ao salvar funcionário.'
         )
       }
       await carregarFuncionarios()
@@ -254,7 +262,7 @@ function Funcionarios({ aoNavegar }) {
                   <span className="func-avatar">{iniciais(f.nome)}</span>
                   <div>
                     <strong>{f.nome}</strong>
-                    <small>Admissão: {f.admissao}</small>
+                    <small>Admissão: {getAdmissionDate(f) || 'Não informada'}</small>
                   </div>
                 </div>
                 <span className="func-email">{f.email}</span>
@@ -270,7 +278,7 @@ function Funcionarios({ aoNavegar }) {
                       <circle cx="8" cy="9.500" r=".6" fill="currentColor" />
                     </svg>
                   </button>
-                  <button type="button" className="func-acao" aria-label={`Editar ${f.nome}`} onClick={() => setModalAberto('editar')}>
+                  <button type="button" className="func-acao" aria-label={`Editar ${f.nome}`} onClick={() => abrirEdicao(f)}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeLinejoin="round" aria-hidden="true">
                       <path d="M2.500 13.500v-3l7.700-7.700a1 1 0 0 1 1.400 0l1.600 1.600a1 1 0 0 1 0 1.400L5.500 13.500Z" />
                       <path d="m9 4 3 3" />
@@ -295,7 +303,7 @@ function Funcionarios({ aoNavegar }) {
             aria-modal="true"
             aria-labelledby="func-modal-titulo"
             onClick={(e) => e.stopPropagation()}
-            onSubmit={adicionar}
+            onSubmit={salvarFuncionario}
           >
             <header className="func-modal-cabecalho">
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
@@ -323,7 +331,7 @@ function Funcionarios({ aoNavegar }) {
                 <div className="func-campo-select">
                   <select name="cargo" value={novoFuncionario.cargo} onChange={(e) => alterarCampo(e, 'novo')}>
                     <option value="funcionario">Funcionário</option>
-                    <option value="administrador">Administrador</option>
+                    <option value="admin">Administrador</option>
                   </select>
                   <svg width="11" height="6" viewBox="0 0 11 6" fill="none" aria-hidden="true"><path d="M0 0L5.5 6L11 0" stroke="black" /></svg>
                 </div>
@@ -362,7 +370,7 @@ function Funcionarios({ aoNavegar }) {
 
       {modalAberto === 'editar' && (
         <div className="func-fundo-modal" onClick={fecharModal}>
-          <form className="func-modal" role="dialog" aria-modal="true" aria-labelledby="func-modal-editar-titulo" onClick={(e) => e.stopPropagation()} onSubmit={(e) => e.preventDefault()}>
+          <form className="func-modal" role="dialog" aria-modal="true" aria-labelledby="func-modal-editar-titulo" onClick={(e) => e.stopPropagation()} onSubmit={salvarFuncionario}>
             <header className="func-modal-cabecalho">
               <Icone nome="editar" tamanho={28} />
               <h3 id="func-modal-editar-titulo">Editar Funcionário</h3>
@@ -371,18 +379,19 @@ function Funcionarios({ aoNavegar }) {
             <div className="func-modal-corpo">
               <label className="func-campo"><span>Nome Completo</span><input name="nome" value={editarFuncionario.nome} onChange={(e) => alterarCampo(e, 'editar')} /></label>
               <label className="func-campo"><span>Data de Admissão</span><input name="admissao" value={editarFuncionario.admissao} onChange={(e) => alterarCampo(e, 'editar')} /></label>
-              <label className="func-campo"><span>Cargo</span><div className="func-campo-select"><select name="cargo" value={editarFuncionario.cargo} onChange={(e) => alterarCampo(e, 'editar')}><option>Funcionário</option></select><svg width="11" height="6" viewBox="0 0 11 6" fill="none" aria-hidden="true"><path d="M0 0 5.5 6 11 0" stroke="currentColor" /></svg></div></label>
+              <label className="func-campo"><span>Cargo</span><div className="func-campo-select"><select name="cargo" value={editarFuncionario.cargo} onChange={(e) => alterarCampo(e, 'editar')}><option value="funcionario">Funcionário</option><option value="admin">Administrador</option></select><svg width="11" height="6" viewBox="0 0 11 6" fill="none" aria-hidden="true"><path d="M0 0 5.5 6 11 0" stroke="currentColor" /></svg></div></label>
               <label className="func-campo"><span>Email</span><div className="func-campo-editar"><input type="email" name="email" value={editarFuncionario.email} onChange={(e) => alterarCampo(e, 'editar')} /><Icone nome="editar" tamanho={15} /></div></label>
               <label className="func-campo"><span>Telefone</span><div className="func-campo-editar"><input type="tel" name="telefone" value={editarFuncionario.telefone} onChange={(e) => alterarCampo(e, 'editar')} /><Icone nome="editar" tamanho={15} /></div></label>
               <label className="func-campo"><span>Senha de Token</span><input name="senhaToken" value={editarFuncionario.senhaToken} onChange={(e) => alterarCampo(e, 'editar')} aria-label="Senha de Token" /></label>
               <button type="button" className="func-enviar-senha">Enviar senha</button>
               <AvisoToken />
+              {formErro && <p role="alert">{formErro}</p>}
             </div>
             <footer className="func-modal-rodape func-modal-rodape--editar">
               <button type="button" className="func-btn func-btn--excluir">Excluir</button>
               <span />
               <button type="button" className="func-btn func-btn--cancelar" onClick={fecharModal}>Cancelar</button>
-              <button type="submit" className="func-btn func-btn--adicionar">Salvar Alterações</button>
+              <button type="submit" className="func-btn func-btn--adicionar" disabled={salvando}>Salvar Alterações</button>
             </footer>
           </form>
         </div>

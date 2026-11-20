@@ -42,7 +42,7 @@ export function getStoredAuthUser() {
 }
 
 export function getAdmissionDate(user) {
-  const valor = [user?.data_admissao, user?.admissao, user?.admission_date]
+  const valor = [user?.admissao, user?.data_admissao, user?.admission_date]
     .find((data) => typeof data === 'string' && data.trim())
   if (!valor) return ''
 

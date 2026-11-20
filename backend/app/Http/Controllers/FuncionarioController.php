@@ -77,7 +77,7 @@ class FuncionarioController extends Controller
         $validated = $request->validate([
             'nome' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:funcionarios,email,' . $funcionario->getKey() . ',id_usuario',
-            'cargo' => 'nullable|string|max:255',
+            'cargo' => 'sometimes|required|in:admin,funcionario',
             'admissao' => 'sometimes|required|string|max:50',
             'telefone' => 'nullable|string|max:50',
             'ativo' => 'nullable|boolean',

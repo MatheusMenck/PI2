@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getAdmissionDate, getDisplayName, getStoredAuthUser } from '../authUser'
 import './Perfil.css'
 
@@ -37,7 +37,32 @@ function Perfil({ onNavigate }) {
   const [erro, setErro] = useState('')
   const [sucesso, setSucesso] = useState('')
 
-  const usuario = getStoredAuthUser()
+  const [usuario, setUsuario] = useState(getStoredAuthUser)
+
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token')
+    if (!token) return
+
+    const controller = new AbortController()
+    const api = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace(/\/$/, '')
+    fetch(`${api}/user`, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json', Authorization: `Bearer ${token}` },
+    })
+      .then((resposta) => resposta.ok ? resposta.json() : null)
+      .then((dados) => {
+        if (dados && !controller.signal.aborted) {
+          setUsuario((anterior) => ({
+            ...anterior,
+            admissao: dados.admissao,
+            data_admissao: dados.data_admissao,
+            admission_date: dados.admission_date,
+          }))
+        }
+      })
+      .catch(() => { /* O perfil inicial vem da sessão local. */ })
+    return () => controller.abort()
+  }, [])
 
   function voltar() {
     onNavigate('inicio')
