@@ -30,6 +30,7 @@ const PAGINAS = {
   inicio: Dashboard,
   perfil: Perfil,
   'alunos/novo': CadastroAluno,
+  'alunos/relatos': Alunos,
 }
 
 function App() {

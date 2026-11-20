@@ -21,3 +21,17 @@ export function dataBr(valor) {
 export function fotoUrl(valor) {
   return valor ? new URL(valor, `${API_URL.replace(/\/api$/, '')}/`).href : null
 }
+
+export async function cadastrarRelato(id, dados) {
+  const resposta = await fetch(`${API_URL}/alunos/${id}/relatos`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}`,
+    },
+    body: JSON.stringify(dados),
+  })
+  if (!resposta.ok) throw new Error('Não foi possível salvar o relato. Verifique os campos e tente novamente.')
+  return resposta.json()
+}

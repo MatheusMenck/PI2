@@ -79,16 +79,10 @@ function Dashboard({ rota, aoNavegar }) {
             <p>Pronto para o dia de hoje?</p>
           </section>
 
-          <section className="dashboard-actions" aria-label="Ações futuras">
-            <article 
-    onClick={() => navegar('alunos/novo')} 
-    style={{ cursor: 'pointer' }}
-  >
-    <span>Adicionar Aluno</span>
-    <Icon name="plus" size={25} />
-  </article>
-            <article><span>Adicionar Responsavel</span><Icon name="plus" size={25} /></article>
-            <article><span>Adicionar Relatos</span><Icon name="plus" size={25} /></article>
+          <section className="dashboard-actions" aria-label="Ações do dashboard">
+            <button type="button" onClick={() => navegar('alunos/novo')}><span>Adicionar Aluno</span><Icon name="plus" size={25} /></button>
+            <button type="button" onClick={() => navegar('responsaveis/novo')}><span>Adicionar Responsável</span><Icon name="plus" size={25} /></button>
+            <button type="button" onClick={() => navegar('alunos/relatos')}><span>Adicionar Relatos</span><Icon name="plus" size={25} /></button>
           </section>
 
           {erro && <p role="alert">{erro}</p>}

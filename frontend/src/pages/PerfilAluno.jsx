@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './PerfilAluno.css'
 import logo from '../assets/logo.png'
-import { buscarAlunos, dataBr, fotoUrl } from '../utils/alunosApi'
+import { buscarAlunos, cadastrarRelato, dataBr, fotoUrl } from '../utils/alunosApi'
 
 const menu = [
   { id: 'inicio', icone: 'inicio', texto: 'Início' },
@@ -87,7 +87,11 @@ function simNao(valor) {
 function PerfilAluno({ rota, aoNavegar }) {
   const id = rota.split('/')[1]
   const usuario = getStoredAuthUser()
-  const [etapaAtual, setEtapaAtual] = useState(1)
+  const abrindoRelato = rota.split('/')[2] === 'relatos'
+  const [etapaAtual, setEtapaAtual] = useState(abrindoRelato ? 4 : 1)
+  const [formRelatoAberto, setFormRelatoAberto] = useState(abrindoRelato)
+  const [salvandoRelato, setSalvandoRelato] = useState(false)
+  const [erroRelato, setErroRelato] = useState('')
   const [dadosAluno, setDadosAluno] = useState(null)
   const [erro, setErro] = useState('')
   const [editando, setEditando] = useState(false)
@@ -237,12 +241,40 @@ function PerfilAluno({ rota, aoNavegar }) {
     )
   }
 
+  async function salvarRelato(evento) {
+    evento.preventDefault()
+    setErroRelato('')
+    const dados = Object.fromEntries(new FormData(evento.currentTarget))
+    setSalvandoRelato(true)
+    try {
+      const { relato } = await cadastrarRelato(id, dados)
+      setDadosAluno((aluno) => ({ ...aluno, relatos: [relato, ...(aluno.relatos ?? [])] }))
+      setFormRelatoAberto(false)
+    } catch (falha) {
+      setErroRelato(falha.message)
+    } finally {
+      setSalvandoRelato(false)
+    }
+  }
+
   function relatos() {
     return (
       <Bloco titulo="Histórico de Relatos" classe="historico">
-        <button className="novo-relato" type="button">
-          Novo Relato <Icone nome="adicionar" tamanho={20} />
-        </button>
+        {formRelatoAberto ? (
+          <form onSubmit={salvarRelato}>
+            <fieldset disabled={salvandoRelato}>
+              <label>Título <input name="titulo" maxLength={150} required /></label>
+              <label>Descrição <textarea name="descricao" required /></label>
+              <button type="submit">{salvandoRelato ? 'Salvando…' : 'Salvar relato'}</button>
+              <button type="button" onClick={() => { setFormRelatoAberto(false); setErroRelato('') }}>Cancelar</button>
+            </fieldset>
+            {erroRelato && <p role="alert">{erroRelato}</p>}
+          </form>
+        ) : (
+          <button className="novo-relato" type="button" onClick={() => setFormRelatoAberto(true)}>
+            Novo Relato <Icone nome="adicionar" tamanho={20} />
+          </button>
+        )}
         {!(dadosAluno.relatos ?? []).length && <p>Nenhum relato cadastrado.</p>}
         {(dadosAluno.relatos ?? []).map((relato) => (
           <article className="relato" key={relato.id_relato}>

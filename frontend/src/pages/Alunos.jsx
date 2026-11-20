@@ -63,8 +63,10 @@ function Alunos({ rota, aoNavegar }) {
     navegar('/alunos/novo')
   }
 
+  const selecionandoAlunoParaRelato = rota === 'alunos/relatos'
+
   function abrirAluno(id) {
-    navegar(`/alunos/${id}`)
+    navegar(selecionandoAlunoParaRelato ? `/alunos/${id}/relatos` : `/alunos/${id}`)
   }
 
   function fecharModal(evento) {
@@ -133,13 +135,14 @@ function Alunos({ rota, aoNavegar }) {
         </header>
 
         <div className="conteudo-alunos">
+          {selecionandoAlunoParaRelato && <h2>Selecione o aluno para adicionar um relato</h2>}
           <form className="barra-pesquisa" onSubmit={pesquisar}>
             <input value={pesquisa} onChange={(evento) => setPesquisa(evento.target.value)} placeholder="Pesquisar" aria-label="Pesquisar alunos" />
             <button type="submit" aria-label="Pesquisar"><Icone nome="busca" tamanho={31} /></button>
             <button type="button" onClick={abrirFiltros} aria-label="Abrir filtro"><Icone nome="filtro" tamanho={31} /></button>
           </form>
 
-          <button className="adicionar-aluno" onClick={adicionarAluno}>Adicionar Aluno <strong>+</strong></button>
+          {!selecionandoAlunoParaRelato && <button className="adicionar-aluno" onClick={adicionarAluno}>Adicionar Aluno <strong>+</strong></button>}
 
           <section className="lista-alunos" aria-label="Alunos">
             {carregando && <p role="status">Carregando alunos...</p>}

@@ -32,6 +32,23 @@ class AlunoController extends Controller
         ])]);
     }
 
+    public function storeRelato(Request $request, string $id)
+    {
+        $aluno = User::findOrFail($id);
+        $dados = $request->validate([
+            'titulo' => 'required|string|max:150',
+            'descricao' => 'required|string',
+        ]);
+
+        $relato = $aluno->relatos()->create([
+            ...$dados,
+            'fk_usuario_id' => $request->user()->getKey(),
+            'data_registro' => now(),
+        ]);
+
+        return response()->json(['relato' => $relato], 201);
+    }
+
     public function show(string $id)
     {
         $aluno = User::with([
