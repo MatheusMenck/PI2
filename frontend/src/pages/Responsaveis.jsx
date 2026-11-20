@@ -1,3 +1,4 @@
+import { contemTexto, contemNumero, correspondeBusca } from '../utils/filtrosCadastro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Alunos.css'
@@ -395,6 +396,7 @@ function Responsaveis({ rota, aoNavegar }) {
   const [busca, setBusca] = useState('')
   const [modalFiltroAberto, setModalFiltroAberto] = useState(false)
   const [filtros, setFiltros] = useState(filtrosVazios)
+  const [filtrosAplicados, setFiltrosAplicados] = useState(filtrosVazios)
   const [resultado, setResultado] = useState(null)
   const [erro, setErro] = useState('')
   const detalhe = rota.startsWith('responsaveis/') && rota !== 'responsaveis/novo'
@@ -408,6 +410,14 @@ function Responsaveis({ rota, aoNavegar }) {
   }, [rota, detalhe])
   const carregando = !erro && resultado?.rota !== rota
   const responsaveis = resultado?.rota === rota ? (resultado.dados.responsaveis || []) : []
+  const { nome, cpf, telefone, nis } = filtrosAplicados
+  const responsaveisVisiveis = responsaveis.filter((responsavel) =>
+    correspondeBusca(busca, [responsavel.nome, responsavel.profissao], [responsavel.cpf, responsavel.telefone, responsavel.nis])
+    && contemTexto(responsavel.nome, nome)
+    && contemNumero(responsavel.cpf, cpf)
+    && contemNumero(responsavel.telefone, telefone)
+    && contemNumero(responsavel.nis, nis)
+  )
   const responsavelSelecionado = rota.startsWith('responsaveis/') && rota !== 'responsaveis/novo'
     ? (resultado?.rota === rota ? resultado.dados.responsavel : null)
     : null
@@ -427,11 +437,13 @@ function Responsaveis({ rota, aoNavegar }) {
   }
 
   function abrirFiltro() {
+    setFiltros(filtrosAplicados)
     setModalFiltroAberto(true)
   }
 
   function aplicarFiltros() {
-    setModalFiltroAberto(false)
+    setFiltrosAplicados(filtros)
+    fecharFiltro()
   }
 
   function pesquisar(evento) {
@@ -472,8 +484,10 @@ function Responsaveis({ rota, aoNavegar }) {
             <section className="responsaveis-lista" aria-label="Lista de responsáveis">
               {erro && <p role="alert">{erro}</p>}
               {carregando && <p role="status">Carregando responsáveis...</p>}
-              {!erro && !carregando && !responsaveis.length && <p>Nenhum responsável cadastrado.</p>}
-              {responsaveis.map((responsavel) => (
+              {!erro && !carregando && !responsaveisVisiveis.length && (
+                <p>{responsaveis.length ? 'Nenhum responsável encontrado.' : 'Nenhum responsável cadastrado.'}</p>
+              )}
+              {responsaveisVisiveis.map((responsavel) => (
                 <CartaoResponsavel key={responsavel.id} responsavel={responsavel} abrir={abrirResponsavel} />
               ))}
             </section>

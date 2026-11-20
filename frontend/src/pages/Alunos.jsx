@@ -1,3 +1,4 @@
+import { contemTexto, contemNumero, correspondeBusca } from '../utils/filtrosCadastro'
 import { useEffect, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Alunos.css'
@@ -25,6 +26,9 @@ function Icone({ nome, tamanho = 26 }) {
   return <svg aria-hidden="true" viewBox="0 0 24 24" width={tamanho} height={tamanho}>{desenhos[nome]}</svg>
 }
 
+const filtrosVazios = { nome: '', cpf: '', telefone: '', dataInicio: '', dataFim: '', status: 'Todos' }
+const statusMatricula = { Ativos: 'Ativo', Pendentes: 'Pendente' }
+
 function Alunos({ rota, aoNavegar }) {
   const [alunos, setAlunos] = useState([])
   const [carregando, setCarregando] = useState(true)
@@ -38,9 +42,8 @@ function Alunos({ rota, aoNavegar }) {
   }, [])
 
   const [modalAlunos, setModalAlunos] = useState(false)
-  const [filtroAlunos, setFiltroAlunos] = useState({
-    nome: '', cpf: '', telefone: '', dataInicio: '', dataFim: '', status: 'Todos',
-  })
+  const [filtroAlunos, setFiltroAlunos] = useState(filtrosVazios)
+  const [filtrosAplicados, setFiltrosAplicados] = useState(filtrosVazios)
   const [pesquisa, setPesquisa] = useState('')
 
   function navegar(caminho) {
@@ -49,6 +52,11 @@ function Alunos({ rota, aoNavegar }) {
 
   function pesquisar(evento) {
     evento.preventDefault()
+  }
+
+  function abrirFiltros() {
+    setFiltroAlunos(filtrosAplicados)
+    setModalAlunos(true)
   }
 
   function adicionarAluno() {
@@ -70,10 +78,11 @@ function Alunos({ rota, aoNavegar }) {
   }
 
   function limparFiltros() {
-    setFiltroAlunos({ nome: '', cpf: '', telefone: '', dataInicio: '', dataFim: '', status: 'Todos' })
+    setFiltroAlunos(filtrosVazios)
   }
 
   function aplicarFiltros() {
+    setFiltrosAplicados(filtroAlunos)
     setModalAlunos(false)
   }
 
@@ -83,6 +92,17 @@ function Alunos({ rota, aoNavegar }) {
     window.addEventListener('keydown', aoTeclar)
     return () => window.removeEventListener('keydown', aoTeclar)
   }, [modalAlunos])
+
+  const { nome, cpf, telefone, dataInicio, dataFim, status } = filtrosAplicados
+  const alunosVisiveis = alunos.filter((aluno) =>
+    correspondeBusca(pesquisa, [aluno.nome, aluno.status], [aluno.cpf, aluno.telefone])
+    && contemTexto(aluno.nome, nome)
+    && contemNumero(aluno.cpf, cpf)
+    && contemNumero(aluno.telefone, telefone)
+    && (!dataInicio || (aluno.cadastro && aluno.cadastro >= dataInicio))
+    && (!dataFim || (aluno.cadastro && aluno.cadastro <= dataFim))
+    && (status === 'Todos' || aluno.status === statusMatricula[status])
+  )
 
   const usuarioSalvo = getStoredAuthUser()
 
@@ -116,7 +136,7 @@ function Alunos({ rota, aoNavegar }) {
           <form className="barra-pesquisa" onSubmit={pesquisar}>
             <input value={pesquisa} onChange={(evento) => setPesquisa(evento.target.value)} placeholder="Pesquisar" aria-label="Pesquisar alunos" />
             <button type="submit" aria-label="Pesquisar"><Icone nome="busca" tamanho={31} /></button>
-            <button type="button" onClick={() => setModalAlunos(true)} aria-label="Abrir filtro"><Icone nome="filtro" tamanho={31} /></button>
+            <button type="button" onClick={abrirFiltros} aria-label="Abrir filtro"><Icone nome="filtro" tamanho={31} /></button>
           </form>
 
           <button className="adicionar-aluno" onClick={adicionarAluno}>Adicionar Aluno <strong>+</strong></button>
@@ -124,8 +144,10 @@ function Alunos({ rota, aoNavegar }) {
           <section className="lista-alunos" aria-label="Alunos">
             {carregando && <p role="status">Carregando alunos...</p>}
             {erro && <p role="alert">{erro}</p>}
-            {!carregando && !erro && alunos.length === 0 && <p>Nenhum aluno cadastrado.</p>}
-            {alunos.map((aluno) => (
+            {!carregando && !erro && alunosVisiveis.length === 0 && (
+              <p>{alunos.length ? 'Nenhum aluno encontrado.' : 'Nenhum aluno cadastrado.'}</p>
+            )}
+            {alunosVisiveis.map((aluno) => (
               <button key={aluno.id} className="cartao-aluno" onClick={() => abrirAluno(aluno.id)}>
                 <span className="avatar" aria-hidden="true" style={{ backgroundImage: aluno.foto ? `url("${fotoUrl(aluno.foto)}")` : 'none' }} />
                 <span className="dados-aluno">

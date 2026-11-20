@@ -23,6 +23,7 @@ class AlunoController extends Controller
         ])->map(fn ($aluno) => [
             'id' => $aluno->id,
             'nome' => $aluno->name,
+            'cadastro' => $aluno->created_at?->format('Y-m-d'),
             'nascimento' => $aluno->data_nascimento?->format('Y-m-d'),
             'cpf' => $aluno->cpf,
             'telefone' => $aluno->telefone,
