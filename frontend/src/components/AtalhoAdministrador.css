@@ -24,16 +24,17 @@
   padding: 4px 0 10px;
   border: 0;
   background: transparent;
-  color: var(--cor-azul-claro);
+  color: #fff;
   font: inherit;
   font-size: 12px;
   cursor: pointer;
+  transition: color 0.15s ease;
 }
 
 .menu-lateral .func-admin:hover,
 .menu-lateral .func-admin[aria-current="page"] {
   color: var(--cor-azul-claro);
-  background: rgb(255 255 255 / 8%);
+  background: transparent;
 }
 
 .menu-lateral .func-admin:focus-visible {

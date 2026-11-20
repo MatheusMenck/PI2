@@ -1,5 +1,5 @@
 # PI2
-Projeto feito durante a matéria de Projeto Integrador 2 
+Projeto feito durante a matéria de Projeto Integrador 2 em parceria com a Associação Recanto Betel
 
 ---
 
@@ -20,13 +20,13 @@ Projeto feito durante a matéria de Projeto Integrador 2
 | `pgAdmin 4` | "http://localhost:8081" | Login: `admin@admin.com` \| Senha: `admin` |
 | `PostgreSQL` | `localhost:5432` | DB: `PI2` \| User: `postgres` \| Senha: `PI_password` |
 
----
+<!-- ---
 
 ##  Laravel
 |Comando | O que faz? |
 | :--- | :--- |
 | `docker exec -it laravel_api php artisan migrate` | Faz as migrations |
-| `docker exec -it laravel_api php artisan migrate:rollback` | Faz o rollback das migrations |
+| `docker exec -it laravel_api php artisan migrate:rollback` | Faz o rollback das migrations | -->
 
 <!-- ##  React
 |Comando | O que faz? |
