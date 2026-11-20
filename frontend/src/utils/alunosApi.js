@@ -18,10 +18,6 @@ export function dataBr(valor) {
   return partes.length === 3 ? partes.reverse().join('/') : valor
 }
 
-export function fotoUrl(valor) {
-  return valor ? new URL(valor, `${API_URL.replace(/\/api$/, '')}/`).href : null
-}
-
 export async function cadastrarRelato(id, dados) {
   const resposta = await fetch(`${API_URL}/alunos/${id}/relatos`, {
     method: 'POST',

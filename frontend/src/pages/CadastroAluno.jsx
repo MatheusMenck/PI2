@@ -1,9 +1,11 @@
+import FotoPessoa from '../components/FotoPessoa'
 import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { useEffect, useRef, useState } from 'react'
 import { getStoredAuthUser } from '../authUser'
 import './CadastroAluno.css'
 import logo from '../assets/logo.png'
 import { cpfValido, normalizarCpf } from '../utils/cpf'
+import { consultarCpf } from '../utils/responsaveisApi'
 
 const vazio = {
   nome: '', religiao: '', dataNascimento: '', cpf: '', escola: '', rg: '', telefone: '', serie: '', periodo: '',
@@ -102,11 +104,7 @@ function CadastroAluno({ aoNavegar }) {
     const requisicao = ++requisicoesCpf.current[parentesco]
     setConsultasCpf((atual) => ({ ...atual, [parentesco]: { status: 'carregando', cpf } }))
     try {
-      const resposta = await fetch(`http://localhost:8000/api/responsaveis/por-cpf?cpf=${encodeURIComponent(cpf)}`, {
-        headers: { Accept: 'application/json', Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
-      })
-      if (!resposta.ok) throw new Error('Falha ao consultar CPF')
-      const { responsavel } = await resposta.json()
+      const responsavel = await consultarCpf(cpf)
       if (requisicoesCpf.current[parentesco] !== requisicao) return
       if (responsavel) {
         setAluno((atual) => ({ ...atual, ...Object.fromEntries(Object.entries(CAMPOS_RESPONSAVEL).map(([campo, coluna]) => [
@@ -296,8 +294,11 @@ function CadastroAluno({ aoNavegar }) {
   const foto = (nome) => {
     const p = nome === 'fotoMae' ? 'Mae' : nome === 'fotoPai' ? 'Pai' : null
     const responsavel = p ? consultasCpf[p]?.responsavel : null
-    const previa = responsavel ? (responsavel.foto ? `http://localhost:8000/storage/${responsavel.foto}` : null) : previas[nome]
-    return <label className="foto"><span>{previa ? <img src={previa} alt="Prévia" /> : 'Foto'}</span><input type="file" accept="image/jpeg,image/png,image/webp" disabled={!!responsavel} onChange={(e) => selecionarArquivo(nome, e)} />{responsavel ? 'Foto cadastrada' : 'Enviar Foto'}</label>
+    const previa = previas[nome]
+    const imagem = responsavel
+      ? <FotoPessoa tipo="responsaveis" pessoa={responsavel} alt="Foto do responsável" alternativa="Foto" />
+      : (previa ? <img src={previa} alt="Prévia" /> : 'Foto')
+    return <label className="foto"><span>{imagem}</span><input type="file" accept="image/jpeg,image/png,image/webp" disabled={!!responsavel} onChange={(e) => selecionarArquivo(nome, e)} />{responsavel ? 'Foto cadastrada' : 'Enviar Foto'}</label>
   }
   const atualizarLista = (lista, setLista, indice, nome, valor) => setLista((atual) => atual.map((item, i) => i === indice ? { ...item, [nome]: valor } : item))
   const grupo = etapaAtual <= 5 ? 1 : etapaAtual <= 8 ? 2 : 3

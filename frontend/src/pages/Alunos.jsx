@@ -1,9 +1,10 @@
+import FotoPessoa from '../components/FotoPessoa'
 import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { contemTexto, contemNumero, correspondeBusca } from '../utils/filtrosCadastro'
 import { useEffect, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Alunos.css'
-import { buscarAlunos, dataBr, fotoUrl } from '../utils/alunosApi'
+import { buscarAlunos, dataBr } from '../utils/alunosApi'
 import logo from '../assets/logo.png'
 
 function Icone({ nome, tamanho = 26 }) {
@@ -154,7 +155,7 @@ function Alunos({ rota, aoNavegar }) {
             )}
             {alunosVisiveis.map((aluno) => (
               <button key={aluno.id} className="cartao-aluno" onClick={() => abrirAluno(aluno.id)}>
-                <span className="avatar" aria-hidden="true" style={{ backgroundImage: aluno.foto ? `url("${fotoUrl(aluno.foto)}")` : 'none' }} />
+                <span className="avatar" aria-hidden="true"><FotoPessoa tipo="alunos" pessoa={aluno} /></span>
                 <span className="dados-aluno">
                   <span className="campo nome"><small>Nome</small><span>{aluno.nome}</span></span>
                   <span className="campo nascimento"><small>Data de Nascimento</small><span>{dataBr(aluno.nascimento)}</span></span>

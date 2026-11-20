@@ -1,9 +1,10 @@
+import FotoPessoa from '../components/FotoPessoa'
 import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { useEffect, useMemo, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './PerfilAluno.css'
 import logo from '../assets/logo.png'
-import { buscarAlunos, cadastrarRelato, dataBr, fotoUrl } from '../utils/alunosApi'
+import { buscarAlunos, cadastrarRelato, dataBr } from '../utils/alunosApi'
 
 const menu = [
   { id: 'inicio', icone: 'inicio', texto: 'Início' },
@@ -322,7 +323,7 @@ function PerfilAluno({ rota, aoNavegar }) {
           {dadosAluno && <>
             <section className="cabecalho-aluno">
               <div className="avatar-aluno">
-                {dadosAluno.foto ? <img src={fotoUrl(dadosAluno.foto)} alt="" /> : iniciais}
+                <FotoPessoa tipo="alunos" pessoa={dadosAluno} alternativa={iniciais} />
               </div>
               <div className="aluno-identificacao">
                 <h2>{dadosAluno.nome}</h2>

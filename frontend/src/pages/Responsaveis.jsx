@@ -1,3 +1,4 @@
+import FotoPessoa from '../components/FotoPessoa'
 import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { contemTexto, contemNumero, correspondeBusca } from '../utils/filtrosCadastro'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -6,7 +7,7 @@ import './Alunos.css'
 import './Responsaveis.css'
 import logo from '../assets/logo.png'
 import { buscarResponsaveis } from '../utils/responsaveisApi'
-import { dataBr, fotoUrl } from '../utils/alunosApi'
+import { dataBr } from '../utils/alunosApi'
 import { buscarAlunos } from '../utils/alunosApi'
 import { consultarCpf, salvarResponsavel } from '../utils/responsaveisApi'
 import { cpfValido, normalizarCpf } from '../utils/cpf'
@@ -144,9 +145,12 @@ function ModalFiltro({ filtros, setFiltros, fechar, aplicar }) {
 function CartaoResponsavel({ responsavel, abrir }) {
   return (
     <button className="responsavel-cartao" type="button" onClick={() => abrir(responsavel.id)}>
-      {responsavel.foto
-        ? <img className="responsavel-cartao-foto" src={fotoUrl(responsavel.foto)} alt="" />
-        : <span className="responsavel-cartao-iniciais">{responsavel.nome.slice(0, 1)}</span>}
+      <FotoPessoa
+        tipo="responsaveis"
+        pessoa={responsavel}
+        className="responsavel-cartao-foto"
+        alternativa={<span className="responsavel-cartao-iniciais">{responsavel.nome.slice(0, 1)}</span>}
+      />
       <span className="responsavel-cartao-campos">
         <span><small>Nome</small><strong>{responsavel.nome}</strong></span>
         <span><small>Profissão</small><strong>{responsavel.profissao}</strong></span>
@@ -167,7 +171,7 @@ function DetalhesResponsavel({ responsavel }) {
         </header>
         <div className="responsavel-painel-perfil">
           <div className="responsavel-avatar-grande">
-            {responsavel.foto ? <img src={fotoUrl(responsavel.foto)} alt="" /> : responsavel.nome.slice(0, 1)}
+            <FotoPessoa tipo="responsaveis" pessoa={responsavel} alternativa={responsavel.nome.slice(0, 1)} />
           </div>
           <div className="responsavel-nome">
             <h3>{responsavel.nome}</h3>
@@ -183,7 +187,7 @@ function DetalhesResponsavel({ responsavel }) {
           {responsavel.alunos.length
             ? responsavel.alunos.map((aluno) => (
               <article className="responsavel-dependente" key={aluno.id}>
-                <span className="responsavel-dependente-avatar">{aluno.foto ? <img src={fotoUrl(aluno.foto)} alt="" /> : aluno.nome.slice(0, 1)}</span>
+                <span className="responsavel-dependente-avatar"><FotoPessoa tipo="alunos" pessoa={aluno} alternativa={aluno.nome.slice(0, 1)} /></span>
                 <span><strong>{aluno.nome}</strong><small>Parentesco: {aluno.parentesco}</small></span>
               </article>
             ))
@@ -284,7 +288,7 @@ function FormularioResponsavel({ aoNavegar }) {
         setFoto(null)
         if (urlPrevia.current) URL.revokeObjectURL(urlPrevia.current)
         urlPrevia.current = null
-        setPrevia(pessoa.foto ? fotoUrl(`/storage/${pessoa.foto}`) : null)
+        setPrevia(null)
       }
     } catch (falha) { if (consulta === consultaAtual.current.id) setErro(falha.message) }
     finally { if (consulta === consultaAtual.current.id) setConsultando(false) }
@@ -357,7 +361,11 @@ function FormularioResponsavel({ aoNavegar }) {
           <fieldset className="responsavel-form-sem-borda" disabled={salvando}>
           <div className="responsavel-formulario">
             <div className="responsavel-foto-coluna">
-              <div className="responsavel-foto-area">{previa ? <img src={previa} alt="Foto do responsável" /> : <span>Sem foto</span>}</div>
+              <div className="responsavel-foto-area">
+                {previa ? <img src={previa} alt="Foto do responsável" /> : (
+                  <FotoPessoa tipo="responsaveis" pessoa={existente} alt="Foto do responsável" alternativa={<span>Sem foto</span>} />
+                )}
+              </div>
               <label className="responsavel-enviar-foto"><input type="file" accept="image/jpeg,image/png,image/webp" disabled={!!existente} onChange={onFotoChange} /><span>Enviar Foto</span></label>
             </div>
             <div className="responsavel-campos">
@@ -373,11 +381,11 @@ function FormularioResponsavel({ aoNavegar }) {
             {erroAlunos && <p role="alert">{erroAlunos}</p>}
             {!carregando && !erroAlunos && !alunosFiltrados.length && <p>Nenhum aluno disponível para esta pesquisa.</p>}
             <div className="responsavel-alunos-disponiveis">{alunosFiltrados.map((aluno) => <button key={aluno.id} type="button" className="responsavel-aluno-card" onClick={() => setAlunosSelecionados((atuais) => atuais.some((item) => item.id === aluno.id) ? atuais : [...atuais, { ...aluno, parentesco: '', e_responsavel_legal: false, autorizado_retirar: false }])}>
-              {aluno.foto && <img src={fotoUrl(aluno.foto)} alt="" />}<span>{aluno.nome}</span>
+              <FotoPessoa tipo="alunos" pessoa={aluno} /><span>{aluno.nome}</span>
             </button>)}</div>
             {alunosSelecionados.map((aluno) => <div key={aluno.id} className="responsavel-vinculo-item">
               <div className="responsavel-selecionado-card"><div className="responsavel-selecionado-info">
-                {aluno.foto && <img src={fotoUrl(aluno.foto)} alt="" />}<div><strong>{aluno.nome}</strong><p>Data de Nascimento: {dataBr(aluno.nascimento)}</p><p>Telefone Principal: {aluno.telefone || 'Não informado'}</p></div>
+                <FotoPessoa tipo="alunos" pessoa={aluno} /><div><strong>{aluno.nome}</strong><p>Data de Nascimento: {dataBr(aluno.nascimento)}</p><p>Telefone Principal: {aluno.telefone || 'Não informado'}</p></div>
               </div><button type="button" className="responsavel-remover" onClick={() => setAlunosSelecionados((atuais) => atuais.filter((item) => item.id !== aluno.id))} aria-label={`Remover ${aluno.nome}`}><Icone nome="fechar" tamanho={28} /></button></div>
               <div className="responsavel-vinculo-opcoes">
                 <label>Parentesco * <select aria-label={`Parentesco com ${aluno.nome}`} value={aluno.parentesco} onChange={(e) => alterarVinculo(aluno.id, 'parentesco', e.target.value)}><option value="">Selecione</option><option value="Mãe">Mãe</option><option value="Pai">Pai</option></select></label>

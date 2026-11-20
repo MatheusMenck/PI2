@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\FotoController;
 use App\Http\Controllers\AlunoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ResponsavelController;
@@ -24,6 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::get('/dashboard/indicadores', [DashboardController::class, 'indicadores'])->middleware(EnsureFuncionario::class);
+    Route::get('/fotos/{tipo}/{id}', [FotoController::class, 'show'])
+        ->whereIn('tipo', ['alunos', 'responsaveis'])->whereNumber('id')->middleware(EnsureFuncionario::class);
     Route::get('/alunos', [AlunoController::class, 'index'])->middleware(EnsureFuncionario::class);
     Route::get('/alunos/{id}', [AlunoController::class, 'show'])->whereNumber('id')->middleware(EnsureFuncionario::class);
     Route::post('/alunos/{id}/relatos', [AlunoController::class, 'storeRelato'])->whereNumber('id')->middleware(EnsureFuncionario::class);
