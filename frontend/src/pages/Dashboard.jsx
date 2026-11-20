@@ -1,3 +1,4 @@
+import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { useEffect, useState } from 'react'
 import { buscarIndicadores } from '../utils/dashboardApi'
 import './Dashboard.css'
@@ -11,7 +12,6 @@ function Icon({ name, size = 24 }) {
     students: <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="10" r="2.2" /><path d="M5.5 16c.7-2.3 5.3-2.3 6 0M14 9h4M14 13h4M14 17h3" /></>,
     guardians: <><circle cx="9" cy="8" r="3.5" /><circle cx="16.5" cy="8" r="2.5" /><path d="M2.5 20c.7-3.5 3-5.2 6.5-5.2s5.8 1.7 6.5 5.2M15.5 14.5c3.2.4 5.1 2.1 5.6 5" /></>,
     plus: <path d="M12 5v14M5 12h14" />,
-    admin: <><circle cx="16" cy="8" r="5" /><path d="m12.5 11.5-8.5 8.5v1h3v-2h2v-2h2l2.5-2.5" /></>,
     profile: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="9" r="3" /><path d="M6.5 19c.9-3 3-4.5 5.5-4.5s4.6 1.5 5.5 4.5" /></>,
   }
   return <svg {...props}>{paths[name]}</svg>
@@ -48,7 +48,7 @@ function Dashboard({ rota, aoNavegar }) {
 
   return (
     <div className="dashboard">
-      <aside className="dashboard-sidebar" aria-label="Navegação principal">
+      <aside className="dashboard-sidebar menu-lateral" aria-label="Navegação principal">
         <div className="dashboard-brand"><img src={logo} alt="Logo Recanto Betel" /></div>
         <nav className="dashboard-nav">
           {links.map((link) => (
@@ -57,20 +57,14 @@ function Dashboard({ rota, aoNavegar }) {
             </button>
           ))}
         </nav>
+        <AtalhoAdministrador aoNavegar={aoNavegar} />
       </aside>
       <div className="dashboard-layout">
         <header className="dashboard-header">
           <h1>Recanto Betel</h1>
-          <div className="dashboard-header-actions">
-            {usuario?.cargo === 'admin' && (
-              <button type="button" className="dashboard-user" onClick={() => navegar('funcionarios')} aria-label="Administrar funcionários">
-                <Icon name="admin" size={30} />
-              </button>
-            )}
-            <button type="button" className="dashboard-user" onClick={() => navegar('perfil')} aria-label="Abrir perfil">
-              <Icon name="profile" size={34} /><span>{getDisplayName(usuario)}</span>
-            </button>
-          </div>
+          <button type="button" className="dashboard-user" onClick={() => navegar('perfil')} aria-label="Abrir perfil">
+            <Icon name="profile" size={34} /><span>{getDisplayName(usuario)}</span>
+          </button>
         </header>
 
         <main className="dashboard-content">

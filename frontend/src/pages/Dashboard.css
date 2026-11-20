@@ -25,5 +25,3 @@
 .dashboard-card p { display: inline; margin: 0 0 0 9px; color: #111; font-size: 14px; vertical-align: middle; }.dashboard-card strong { position: absolute; right: 13px; bottom: 8px; font-size: 28px; font-weight: 400; line-height: 1; }
 @media (max-width: 780px) { .dashboard-actions, .dashboard-indicators { grid-template-columns: repeat(2, minmax(0, 1fr)); }.dashboard-indicators { gap: 18px; } }
 @media (max-width: 580px) { .dashboard-sidebar { width: 64px; flex-basis: 64px; }.dashboard-brand { height: 64px; }.dashboard-brand img { width: 64px; height: 64px; }.dashboard-nav button { min-height: 56px; font-size: 10px; }.dashboard-header { height: 64px; padding: 0 14px; }.dashboard-header h1 { font-size: 22px; }.dashboard-content { padding: 20px 16px 32px; }.dashboard-welcome h2 { font-size: 26px; }.dashboard-welcome p { font-size: 17px; }.dashboard-actions { margin-top: 24px; gap: 12px; }.dashboard-actions, .dashboard-indicators { grid-template-columns: 1fr; }.dashboard-actions button { font-size: 17px; }.dashboard-indicators { margin-top: 23px; gap: 14px; } }
-
-.dashboard-header-actions { display: flex; align-items: center; gap: 12px; min-width: 0; }

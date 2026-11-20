@@ -1,0 +1,48 @@
+.menu-lateral {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.menu-lateral > * {
+  flex-shrink: 0;
+}
+
+.menu-lateral .func-admin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 56px;
+  margin-top: auto;
+  padding: 4px 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--cor-azul-claro);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.menu-lateral .func-admin:hover,
+.menu-lateral .func-admin[aria-current="page"] {
+  color: var(--cor-azul-claro);
+  background: rgb(255 255 255 / 8%);
+}
+
+.menu-lateral .func-admin:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+
+@media (max-width: 760px) {
+  .menu-lateral .func-admin {
+    font-size: 9px;
+  }
+}

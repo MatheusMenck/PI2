@@ -1,3 +1,4 @@
+import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { useEffect, useMemo, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './PerfilAluno.css'
@@ -290,7 +291,7 @@ function PerfilAluno({ rota, aoNavegar }) {
 
   return (
     <main className="perfil-aluno">
-      <aside className="menu-perfil" aria-label="Navegação principal">
+      <aside className="menu-perfil menu-lateral" aria-label="Navegação principal">
         <img src={logo} alt="Logo Recanto Betel" />
         {menu.map((item) => (
           <button
@@ -303,6 +304,7 @@ function PerfilAluno({ rota, aoNavegar }) {
             <span>{item.texto}</span>
           </button>
         ))}
+        <AtalhoAdministrador aoNavegar={aoNavegar} />
       </aside>
 
       <section className="perfil-area">

@@ -1,3 +1,4 @@
+import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { contemTexto, contemNumero, correspondeBusca } from '../utils/filtrosCadastro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getDisplayName, getStoredAuthUser } from '../authUser'
@@ -43,7 +44,7 @@ function Icone({ nome, tamanho = 26 }) {
 
 function NavegacaoResponsaveis({ rota, aoNavegar }) {
   return (
-    <aside className="menu" aria-label="Navegação principal">
+    <aside className="menu menu-lateral" aria-label="Navegação principal">
       <img className="logo" src={logo} alt="Logo Recanto Betel" />
       <nav>
         <button type="button" className={`item-menu ${rota === 'inicio' ? 'selecionado' : ''}`} onClick={() => aoNavegar('inicio')}>
@@ -56,6 +57,7 @@ function NavegacaoResponsaveis({ rota, aoNavegar }) {
           <Icone nome="responsaveis" /><span>Responsáveis</span>
         </button>
       </nav>
+      <AtalhoAdministrador aoNavegar={aoNavegar} />
     </aside>
   )
 }

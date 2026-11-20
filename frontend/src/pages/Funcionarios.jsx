@@ -1,3 +1,4 @@
+import AtalhoAdministrador from '../components/AtalhoAdministrador'
 import { useEffect, useMemo, useState } from 'react'
 import { getAdmissionDate, getDisplayName, getStoredAuthUser } from '../authUser'
 import './Funcionarios.css'
@@ -15,7 +16,7 @@ function IconeMenu({ nome }) {
   if (nome === 'inicio') return <svg {...svg}><path d="M5 15 16 4l11 11v12h-8v-8h-6v8H5Z" /></svg>
   if (nome === 'alunos') return <svg {...svg}><rect x="4" y="6" width="24" height="20" rx="2" /><circle cx="12" cy="14" r="3" /><path d="M8 22c.8-3 6.2-3 8 0M19 13h6M19 19h6" /></svg>
   if (nome === 'responsaveis') return <svg {...svg}><circle cx="10.5" cy="12" r="5" /><path d="M2 25c1-4 4-6 8.5-6s7.5 2 8.5 6M19 7.5a5 5 0 0 1 0 9M23 19.5c3 .8 5 2.8 6 5.5" /></svg>
-  return <svg {...svg}><circle cx="21" cy="11" r="7" /><path d="m16 16-11 11v2h4v-3h3v-3h3l1-1" /></svg>
+  return null
 }
 
 const FORM_VAZIO = { nome: '', admissao: '', cargo: 'funcionario', email: '', telefone: '' }
@@ -168,14 +169,14 @@ function Funcionarios({ aoNavegar }) {
 
   return (
     <div className="func-pagina">
-      <aside className="func-menu" aria-label="Navegação principal">
+      <aside className="func-menu menu-lateral" aria-label="Navegação principal">
         <div className="func-logo"><img src={logo} alt="Logo Recanto Betel" /></div>
         <nav className="func-nav">
           <button type="button" onClick={() => aoNavegar('/inicio')}><IconeMenu nome="inicio" /><span>Início</span></button>
           <button type="button" onClick={() => aoNavegar('/alunos')}><IconeMenu nome="alunos" /><span>Alunos</span></button>
           <button type="button" onClick={() => aoNavegar('/responsaveis')}><IconeMenu nome="responsaveis" /><span>Responsáveis</span></button>
         </nav>
-        <div className="func-admin"><IconeMenu nome="admin" /><span>Administrador</span></div>
+        <AtalhoAdministrador aoNavegar={aoNavegar} ativo />
       </aside>
 
       <div className="func-principal">
