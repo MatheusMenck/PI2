@@ -1,0 +1,10 @@
+export const ESCOLARIDADES = [
+  'Não alfabetizado',
+  'Ensino fundamental incompleto',
+  'Ensino fundamental completo',
+  'Ensino médio incompleto',
+  'Ensino médio completo',
+  'Ensino superior incompleto',
+  'Ensino superior completo',
+  'Pós-graduação',
+]

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getStoredAuthUser } from '../authUser'
 import './CadastroAluno.css'
 import logo from '../assets/logo.png'
+import { ESCOLARIDADES } from '../constants/escolaridades'
 import { cpfValido, normalizarCpf } from '../utils/cpf'
 import { consultarCpf } from '../utils/responsaveisApi'
 
@@ -121,6 +122,18 @@ function CadastroAluno({ aoNavegar }) {
   const campo = (nome, titulo, tipo = 'text', propriedades = {}) => {
     const parentesco = nome.endsWith('Mae') ? 'Mae' : nome.endsWith('Pai') ? 'Pai' : null
     const bloqueado = parentesco && !nome.startsWith('cpf') && !!consultasCpf[parentesco]?.responsavel
+    if (nome === 'serie') {
+      return <label className="campo-form">{titulo}<select name={nome} value={aluno[nome]} onChange={atualizarAluno}>
+        <option value="">Selecione o ano escolar</option>
+        {Array.from({ length: 9 }, (_, indice) => `${indice + 1}º ano`).map((ano) => <option key={ano} value={ano}>{ano}</option>)}
+      </select></label>
+    }
+    if (nome === 'escolaridadeMae' || nome === 'escolaridadePai') {
+      return <label className="campo-form">{titulo}<select name={nome} value={aluno[nome]} onChange={atualizarAluno} disabled={!!bloqueado}>
+        <option value="">Selecione a escolaridade</option>
+        {ESCOLARIDADES.map((opcao) => <option key={opcao} value={opcao}>{opcao}</option>)}
+      </select></label>
+    }
     return <label className="campo-form">{titulo}<input type={tipo} name={nome} value={aluno[nome]} onChange={atualizarAluno} readOnly={bloqueado} onBlur={nome === 'cpfMae' || nome === 'cpfPai' ? () => buscarResponsavel(parentesco) : undefined} {...propriedades} /></label>
   }
   const radio = (nome) => <span className="radios">{['Sim', 'Não'].map((opcao) => <label key={opcao}><input type="radio" name={nome} value={opcao} checked={aluno[nome] === opcao} onChange={atualizarAluno} />{opcao}</label>)}</span>

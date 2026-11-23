@@ -6,6 +6,7 @@ import { getDisplayName, getStoredAuthUser } from '../authUser'
 import './Alunos.css'
 import './Responsaveis.css'
 import logo from '../assets/logo.png'
+import { ESCOLARIDADES } from '../constants/escolaridades'
 import { buscarResponsaveis } from '../utils/responsaveisApi'
 import { dataBr } from '../utils/alunosApi'
 import { buscarAlunos } from '../utils/alunosApi'
@@ -370,7 +371,10 @@ function FormularioResponsavel({ aoNavegar }) {
             </div>
             <div className="responsavel-campos">
               {camposResponsavel.map(([chave, rotulo, tipo]) => <label key={chave} className={`responsavel-campo ${chave === 'endereco_comercial' ? 'responsavel-campo-largo' : ''}`}>
-                <span>{rotulo}</span><input type={tipo} name={chave} value={dados[chave]} onChange={alterarCampo} onBlur={chave === 'cpf' ? buscarCpf : undefined} readOnly={!!existente && chave !== 'cpf'} min={tipo === 'number' ? 0 : undefined} step={tipo === 'number' ? '0.01' : undefined} />
+                <span>{rotulo}</span>{chave === 'escolaridade' ? <select name={chave} value={dados[chave]} onChange={alterarCampo} disabled={!!existente}>
+                  <option value="">Selecione a escolaridade</option>
+                  {ESCOLARIDADES.map((opcao) => <option key={opcao} value={opcao}>{opcao}</option>)}
+                </select> : <input type={tipo} name={chave} value={dados[chave]} onChange={alterarCampo} onBlur={chave === 'cpf' ? buscarCpf : undefined} readOnly={!!existente && chave !== 'cpf'} min={tipo === 'number' ? 0 : undefined} step={tipo === 'number' ? '0.01' : undefined} />}
               </label>)}
             </div>
           </div>
