@@ -330,16 +330,16 @@ function CadastroAluno({ aoNavegar }) {
         <div className="form-colunas">
           {foto('fotoAluno')}
           <div className="grade campos-crianca">
-            {campo('nome', 'Nome')}
+            {campo('nome', 'Nome*')}
             {campo('religiao', 'Religião')}
-            {campo('dataNascimento', 'Data de Nascimento', 'date')}
-            {campo('cpf', 'CPF')}
-            {campo('escola', 'Escola')}
-            {campo('rg', 'RG')}
+            {campo('dataNascimento', 'Data de Nascimento*', 'date')}
+            {campo('cpf', 'CPF*')}
+            {campo('escola', 'Escola*')}
+            {campo('rg', 'RG*')}
             {campo('telefone', 'Telefone Principal', 'tel')}
-            {campo('serie', 'Série')}
+            {campo('serie', 'Série*')}
             <label className="campo-form">
-              Período
+              Período*
               <select name="periodo" value={aluno.periodo} onChange={atualizarAluno}>
                 <option value="">Selecione o período</option>
                 <option value="manha">Manhã</option>
@@ -400,22 +400,22 @@ function CadastroAluno({ aoNavegar }) {
         <>
           <h2>Ficha de Matrícula - {mae ? 'Mãe' : 'Pai'}</h2>
           {erroEtapa && <p className="mensagem-erro-etapa" style={{ color: '#d9534f', marginBottom: '10px' }}>{erroEtapa}</p>}
-          <p>Ao informar o CPF, os dados de um responsável já cadastrado serão preenchidos automaticamente.</p>
-          {consultasCpf[p]?.status === 'carregando' && <p role="status">Consultando CPF...</p>}
-          {consultasCpf[p]?.status === 'concluida' && <p role="status">{consultasCpf[p].responsavel ? 'Responsável encontrado. Os dados e a foto cadastrados serão reutilizados.' : 'CPF ainda não cadastrado. Preencha os dados do responsável.'}</p>}
+          {/* <p>Ao informar o CPF, os dados de um responsável já cadastrado serão preenchidos automaticamente.</p> */}
+          {/* {consultasCpf[p]?.status === 'carregando' && <p role="status">Consultando CPF...</p>}
+          {consultasCpf[p]?.status === 'concluida' && <p role="status">{consultasCpf[p].responsavel ? 'Responsável encontrado. Os dados e a foto cadastrados serão reutilizados.' : 'CPF ainda não cadastrado. Preencha os dados do responsável.'}</p>} */}
           <div className="form-colunas">
             {foto(`foto${p}`)}
             <div className="grade responsavel">
-              {campo(`nome${p}`, 'Nome')}
+              {campo(`nome${p}`, 'Nome*')}
               {campo(`nis${p}`, 'NIS')}
-              {campo(`nascimento${p}`, 'Data de Nascimento', 'date')}
-              {campo(`cpf${p}`, 'CPF do responsável *', 'text', { maxLength: 14 })}
-              {campo(`escolaridade${p}`, 'Grau de escolaridade')}
-              {campo(`rg${p}`, 'RG')}
-              {campo(`telefone${p}`, 'Telefone', 'tel')}
-              {campo(`profissao${p}`, 'Profissão')}
-              {campo(`enderecoComercial${p}`, 'Endereço Comercial')}
-              {campo(`salario${p}`, 'Salário', 'number', { min: 0, max: 99999999.99, step: '0.01' })}
+              {campo(`nascimento${p}`, 'Data de Nascimento*', 'date')}
+              {campo(`cpf${p}`, 'CPF do responsável*', 'text', { maxLength: 14 })}
+              {campo(`escolaridade${p}`, 'Grau de escolaridade*')}
+              {campo(`rg${p}`, 'RG*')}
+              {campo(`telefone${p}`, 'Telefone*', 'tel')}
+              {campo(`profissao${p}`, 'Profissão*')}
+              {campo(`enderecoComercial${p}`, 'Endereço Comercial*')}
+              {campo(`salario${p}`, 'Salário*', 'number', { min: 0, max: 99999999.99, step: '0.01' })}
             </div>
           </div>
         </>

@@ -176,7 +176,7 @@ function DetalhesResponsavel({ responsavel }) {
           </div>
           <div className="responsavel-nome">
             <h3>{responsavel.nome}</h3>
-            <strong>NIS: {responsavel.nis}</strong>
+            <strong>NIS: {responsavel.nis || 'Não informado'}</strong>
           </div>
           <p>Data de cadastro: {dataBr(responsavel.cadastro)}</p>
         </div>
@@ -471,9 +471,9 @@ function Responsaveis({ rota, aoNavegar }) {
         <Cabecalho aoNavegar={aoNavegar} />
         {detalhe ? (
           <div className="responsaveis-conteudo">
-            <button className="responsavel-voltar" type="button" onClick={() => aoNavegar('responsaveis')}>
+            {/* <button className="responsavel-voltar" type="button" onClick={() => aoNavegar('responsaveis')}>
               <Icone nome="voltar" tamanho={19} /> Voltar para Responsáveis
-            </button>
+            </button> */}
             {erro && <p role="alert">{erro}</p>}
             {carregando && <p role="status">Carregando responsável...</p>}
             {responsavelSelecionado && <DetalhesResponsavel responsavel={responsavelSelecionado} />}

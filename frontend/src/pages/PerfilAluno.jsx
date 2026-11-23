@@ -157,6 +157,7 @@ function PerfilAluno({ rota, aoNavegar }) {
               <div className="pessoa" key={pessoa.id_pessoa_autorizada}><span><b>{pessoa.nome}</b><small>☎ {pessoa.telefone || 'Não informado'}</small></span><em>{pessoa.parentesco}</em></div>
             ))}
           </>}
+          <br></br>
           <small>Autorização Odontológica:</small>
           <b>{simNao(dadosAluno.saude?.autoriza_atendimento_odontologico)}</b>
         </Bloco>
@@ -199,7 +200,6 @@ function PerfilAluno({ rota, aoNavegar }) {
     return (
       <div className="grade-saude">
         <Bloco titulo="Doenças e Alergias">
-          <small>Alergias Catalogadas</small>
           <p>{saude.descricao_alergia
             ? <mark>{saude.descricao_alergia}</mark>
             : saude.possui_alergia === false ? 'Nenhuma alergia informada' : 'Não informado'}</p>
@@ -221,7 +221,7 @@ function PerfilAluno({ rota, aoNavegar }) {
           {saude.descricao_cirurgias && <div className="caixa-texto">{saude.descricao_cirurgias}</div>}
         </Bloco>
         <Bloco titulo="Antecedentes Familiares">
-          <div className="caixa-texto">Relatos de Antecedências<br /><small>{saude.antecedentes_familiares || 'Não informado'}</small></div>
+          <div className="caixa-texto">Relatos de Antecedências<br /><small>{saude.antecedentes_familiares || 'Nenhuma'}</small></div>
         </Bloco>
         <Bloco titulo="Hábitos">
           <div className="caixa-texto">{saude.habitos || 'Não informado'}</div>
