@@ -60,7 +60,7 @@ function Perfil({ onNavigate }) {
           }))
         }
       })
-      .catch(() => { /* O perfil inicial vem da sessão local. */ })
+      .catch(() => { /* falha em pegar as datas de admissão */ })
     return () => controller.abort()
   }, [])
 

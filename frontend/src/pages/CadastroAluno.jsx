@@ -300,7 +300,7 @@ function CadastroAluno({ aoNavegar }) {
       }
       aoNavegar('alunos')
     } catch {
-      setErroEtapa('Erro de conexão. Verifique o servidor e tente novamente.')
+      setErroEtapa('Erro de conexão')
     }
   }
   const voltar = () => etapaAtual === 1 ? aoNavegar('alunos') : setEtapaAtual((atual) => atual - 1)

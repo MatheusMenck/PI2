@@ -117,7 +117,6 @@
 
 .func-conteudo {
   width: 100%;
-  max-width: 1156px;
   padding: 22px 28px 16px;
   flex: 1;
   display: flex;
@@ -263,7 +262,7 @@
 
 .func-contador--ativo {
   background: color-mix(in srgb, var(--cor-verde) 18%, white);
-  color: #fff;
+  color: black;
 }
 
 .func-contador--inativo {
