@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class AlunoController extends Controller
 {
@@ -128,7 +129,7 @@ class AlunoController extends Controller
             'rgMae' => ['nullable', 'string', 'max:20'],
             'telefoneMae' => ['nullable', 'string', 'max:20'],
             'profissaoMae' => ['nullable', 'string', 'max:100'],
-            'salarioMae' => ['nullable', 'numeric'],
+            'salarioMae' => ['nullable', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2'],
             'enderecoComercialMae' => ['nullable', 'string', 'max:255'],
 
             // Etapa 4
@@ -140,7 +141,7 @@ class AlunoController extends Controller
             'rgPai' => ['nullable', 'string', 'max:20'],
             'telefonePai' => ['nullable', 'string', 'max:20'],
             'profissaoPai' => ['nullable', 'string', 'max:100'],
-            'salarioPai' => ['nullable', 'numeric'],
+            'salarioPai' => ['nullable', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2'],
             'enderecoComercialPai' => ['nullable', 'string', 'max:255'],
 
             // Etapa 5
@@ -162,8 +163,6 @@ class AlunoController extends Controller
             'luz' => ['nullable', 'numeric'],
             'gas' => ['nullable', 'numeric'],
             'alimentacao' => ['nullable', 'numeric'],
-            'rendaTotal' => ['nullable', 'numeric'],
-            'rendaPerCapita' => ['nullable', 'numeric'],
             'beneficio' => ['nullable', Rule::in(['Sim', 'Não'])],
             'nomeBeneficio' => ['exclude_unless:beneficio,Sim', 'required', 'string', 'max:100'],
             'valorBeneficio' => ['exclude_unless:beneficio,Sim', 'required', 'numeric', 'min:0', 'max:99999999.99', 'decimal:0,2'],
@@ -232,6 +231,10 @@ class AlunoController extends Controller
             'nomeMae.required_with' => 'Informe o nome da mãe.',
             'nomePai.required_with' => 'Informe o nome do pai.',
             'cpfPai.different' => 'Mãe e pai não podem ter o mesmo CPF.',
+            'salarioMae.min' => 'O salário da mãe não pode ser negativo.',
+            'salarioPai.min' => 'O salário do pai não pode ser negativo.',
+            'salarioMae.decimal' => 'O salário da mãe deve ter no máximo duas casas decimais.',
+            'salarioPai.decimal' => 'O salário do pai deve ter no máximo duas casas decimais.',
             'nomeBeneficio.required' => 'Informe o nome do benefício.',
             'valorBeneficio.required' => 'Informe o valor do benefício.',
             'valorBeneficio.numeric' => 'O valor do benefício deve ser um número.',
@@ -289,6 +292,29 @@ class AlunoController extends Controller
 
 
                 $possuiBeneficio = ($dadosValidados['beneficio'] ?? 'Não') === 'Sim';
+                $centavos = static function ($valor): int {
+                    [$inteiro, $decimal] = array_pad(explode('.', (string) ($valor ?? 0), 2), 2, '');
+                    return (int) $inteiro * 100 + (int) str_pad($decimal, 2, '0');
+                };
+                $pessoas = 1 + count($dadosValidados['familia'] ?? []);
+                $totalCentavos = 0;
+                foreach ($dadosValidados['familia'] ?? [] as $pessoa) {
+                    $totalCentavos += $centavos($pessoa['renda'] ?? 0);
+                }
+                foreach (['Mae', 'Pai'] as $parentesco) {
+                    if (!empty($dadosValidados['nome' . $parentesco])) {
+                        $pessoas++;
+                        $existente = Responsavel::where('cpf', $dadosValidados['cpf' . $parentesco])->first();
+                        $totalCentavos += $centavos($existente ? $existente->salario : ($dadosValidados['salario' . $parentesco] ?? 0));
+                    }
+                }
+                if ($possuiBeneficio) $totalCentavos += $centavos($dadosValidados['valorBeneficio']);
+                if ($totalCentavos > 9999999999) {
+                    throw ValidationException::withMessages(['rendaTotal' => 'A renda familiar total deve ser de até 99.999.999,99.']);
+                }
+                $rendaTotal = number_format($totalCentavos / 100, 2, '.', '');
+                $rendaPerCapita = number_format(round($totalCentavos / $pessoas) / 100, 2, '.', '');
+
                 $mae = null;
                 $pai = null;
 
@@ -309,8 +335,8 @@ class AlunoController extends Controller
                     'despesa_luz' => $dadosValidados['luz'] ?? 0.00,
                     'despesa_alimentacao' => $dadosValidados['alimentacao'] ?? 0.00,
                     'despesa_gas' => $dadosValidados['gas'] ?? 0.00,
-                    'renda_total' => $dadosValidados['rendaTotal'] ?? 0.00,
-                    'renda_percapta' => $dadosValidados['rendaPerCapita'] ?? 0.00,
+                    'renda_total' => $rendaTotal,
+                    'renda_percapta' => $rendaPerCapita,
                 ]);
 
                 foreach ($dadosValidados['familia'] ?? [] as $pessoa) {

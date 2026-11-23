@@ -208,7 +208,7 @@ class AlunoMatriculaTest extends TestCase
         $this->assertDatabaseCount('membros_familia', 0);
     }
 
-    public function test_multipart_family_members_belong_to_household_and_keep_manual_income(): void
+    public function test_multipart_family_members_belong_to_household_and_income_is_recalculated(): void
     {
         $this->post('/api/alunos', $this->dados([
             'familia' => [
@@ -225,8 +225,8 @@ class AlunoMatriculaTest extends TestCase
         $this->assertDatabaseHas('membros_familia', ['nome' => 'Pedro', 'data_nascimento' => null, 'renda' => 0]);
         $this->assertCount(2, $domicilio->membrosFamilia);
         $this->assertSame('1960-05-20', $domicilio->membrosFamilia->first()->data_nascimento->toDateString());
-        $this->assertSame('2000.00', $domicilio->renda_total);
-        $this->assertSame('400.00', $domicilio->renda_percapta);
+        $this->assertSame('1500.50', $domicilio->renda_total);
+        $this->assertSame('300.10', $domicilio->renda_percapta);
     }
 
     public function test_family_rows_require_name_and_relationship_and_validate_optional_fields(): void
@@ -300,6 +300,51 @@ class AlunoMatriculaTest extends TestCase
             'beneficio' => 'Não', 'nomeBeneficio' => 'Valor antigo', 'valorBeneficio' => 'inválido',
         ]))->assertCreated();
         $this->assertDatabaseHas('domicilios', ['beneficio_governo' => false, 'nome_beneficio' => null, 'valor_beneficio' => 0]);
+    }
+
+    public function test_income_includes_both_parents_family_and_benefit_ignoring_submitted_totals(): void
+    {
+        $this->postJson('/api/alunos', $this->dados([
+            'salarioMae' => '2000', 'salarioPai' => '1500',
+            'familia' => [['nome' => 'Avó', 'parentesco' => 'Avó', 'renda' => '500']],
+            'beneficio' => 'Sim', 'nomeBeneficio' => 'Bolsa Família', 'valorBeneficio' => '600',
+            'rendaTotal' => 1, 'rendaPerCapita' => 1,
+        ]))->assertCreated();
+        $this->assertDatabaseHas('domicilios', ['renda_total' => 4600, 'renda_percapta' => 1150]);
+    }
+
+    public function test_income_counts_only_present_parent_and_ignores_inactive_benefit(): void
+    {
+        $this->postJson('/api/alunos', $this->dados([
+            'nomePai' => '', 'cpfPai' => '', 'salarioPai' => '9999',
+            'salarioMae' => '100.01', 'beneficio' => 'Não', 'valorBeneficio' => '9999',
+        ]))->assertCreated();
+        $this->assertDatabaseHas('domicilios', ['renda_total' => 100.01, 'renda_percapta' => 50.01]);
+    }
+
+    public function test_income_is_zero_without_salaries_or_benefit(): void
+    {
+        $this->postJson('/api/alunos', $this->dados())->assertCreated();
+        $this->assertDatabaseHas('domicilios', ['renda_total' => 0, 'renda_percapta' => 0]);
+    }
+
+    public function test_reused_parent_income_comes_from_saved_salary(): void
+    {
+        $this->postJson('/api/alunos', $this->dados(['salarioMae' => '1000']))->assertCreated();
+        $this->postJson('/api/alunos', $this->dados(['salarioMae' => '1']))->assertCreated();
+        $domicilio = \App\Models\Domicilio::orderByDesc('id_domicilio')->firstOrFail();
+        $this->assertSame('1000.00', $domicilio->renda_total);
+        $this->assertSame('333.33', $domicilio->renda_percapta);
+    }
+
+    public function test_income_rejects_negative_salaries_and_total_beyond_database_limit(): void
+    {
+        $this->postJson('/api/alunos', $this->dados(['salarioMae' => '-1']))
+            ->assertUnprocessable()->assertJsonValidationErrors('salarioMae');
+        $this->postJson('/api/alunos', $this->dados(['salarioMae' => '99999999.99', 'salarioPai' => '0.01']))
+            ->assertUnprocessable()->assertJsonValidationErrors('rendaTotal');
+        $this->assertDatabaseCount('users', 0);
+        $this->assertSame([], Storage::disk('public')->allFiles());
     }
 
     public function test_failure_saving_enrollment_rolls_back_entire_registration(): void

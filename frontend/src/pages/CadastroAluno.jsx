@@ -6,6 +6,7 @@ import './CadastroAluno.css'
 import logo from '../assets/logo.png'
 import { ESCOLARIDADES } from '../constants/escolaridades'
 import { cpfValido, normalizarCpf } from '../utils/cpf'
+import { calcularRendaFamiliar } from '../utils/rendaFamiliar'
 import { consultarCpf } from '../utils/responsaveisApi'
 
 const vazio = {
@@ -13,7 +14,7 @@ const vazio = {
   relatoData: '', relatoTitulo: '', relato: '',
   nomeMae: '', nisMae: '', nascimentoMae: '', cpfMae: '', escolaridadeMae: '', rgMae: '', telefoneMae: '', profissaoMae: '', salarioMae: '', enderecoComercialMae: '',
   nomePai: '', nisPai: '', nascimentoPai: '', cpfPai: '', escolaridadePai: '', rgPai: '', telefonePai: '', profissaoPai: '', salarioPai: '', enderecoComercialPai: '',
-  cep: '', rua: '', bairro: '', numero: '', referencia: '', cidade: '', estado: '', tipoMoradia: 'Própria', agua: '', luz: '', gas: '', alimentacao: '', rendaTotal: '', rendaPerCapita: '', beneficio: 'Sim', nomeBeneficio: '', valorBeneficio: '',
+  cep: '', rua: '', bairro: '', numero: '', referencia: '', cidade: '', estado: '', tipoMoradia: 'Própria', agua: '', luz: '', gas: '', alimentacao: '', beneficio: 'Não', nomeBeneficio: '', valorBeneficio: '',
   problemaSaude: 'Não', problemaSaudeQual: '', tratamento: 'Não', tratamentoQual: '', alergia: 'Não', alergiaQual: '', doencasAnteriores: '',
   queixaPrincipal: '', medico: '', telefoneMedico: '', doenca: 'Não', doencaQual: '', operado: 'Não', operadoQual: '', anestesia: 'Não', cicatrizacao: 'Não', hemorragia: 'Não', habitos: '', antecedentes: '', outrosProblemas: '', autorizadoSairSozinho: '', declaracaoVeracidade: false, autorizaAtendimentoOdontologico: '',
 }
@@ -119,7 +120,11 @@ function CadastroAluno({ aoNavegar }) {
       setErroEtapa('Não foi possível consultar o CPF. Tente novamente.')
     }
   }
+  const rendas = calcularRendaFamiliar(aluno, familia)
   const campo = (nome, titulo, tipo = 'text', propriedades = {}) => {
+    if (nome === 'rendaTotal' || nome === 'rendaPerCapita') {
+      return <label className="campo-form">{titulo}<input type="number" name={nome} value={rendas[nome]} readOnly /></label>
+    }
     const parentesco = nome.endsWith('Mae') ? 'Mae' : nome.endsWith('Pai') ? 'Pai' : null
     const bloqueado = parentesco && !nome.startsWith('cpf') && !!consultasCpf[parentesco]?.responsavel
     if (nome === 'serie') {
@@ -410,7 +415,7 @@ function CadastroAluno({ aoNavegar }) {
               {campo(`telefone${p}`, 'Telefone', 'tel')}
               {campo(`profissao${p}`, 'Profissão')}
               {campo(`enderecoComercial${p}`, 'Endereço Comercial')}
-              {campo(`salario${p}`, 'Salário', 'number')}
+              {campo(`salario${p}`, 'Salário', 'number', { min: 0, max: 99999999.99, step: '0.01' })}
             </div>
           </div>
         </>
@@ -482,7 +487,7 @@ function CadastroAluno({ aoNavegar }) {
           {campo('gas', 'Gás', 'number')}
           {campo('alimentacao', 'Alimentação', 'number')}
           {campo('rendaTotal', 'Renda Total', 'number')}
-          {campo('rendaPerCapita', 'Renda Percapto', 'number')}
+          {campo('rendaPerCapita', 'Renda por pessoa', 'number')}
         </div>
 
         <h3>Benefícios</h3>
